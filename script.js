@@ -119,6 +119,23 @@ function renderItem() {
     document.getElementById("content").innerHTML = html;
   });
 }
+function addItem() {
+  api({
+    action: "addItem",
+    nama: item.value,
+    satuan: satuan.value
+  }).then(() => {
+    alert("Item ditambah");
+    renderItem();
+  });
+}
+
+function deleteItem(nama) {
+  api({ action: "deleteItem", nama }).then(() => {
+    alert("Item dihapus");
+    renderItem();
+  });
+}
 
 // ================= USER =================
 function renderUser() {
@@ -189,3 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMenu();
   user ? renderBinCard() : renderLogin();
 });
+function loading(el="content") {
+  document.getElementById(el).innerHTML = "Loading...";
+};
