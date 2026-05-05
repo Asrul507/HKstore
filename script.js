@@ -1,6 +1,7 @@
 // ================= CONFIG =================
 const API_URL = "https://script.google.com/macros/s/AKfycbyMgSBqIry987HgseFbjM_JTP-hcLJ9ImzuNZi91Kj-WRHzAxHZimAzISpJ_keXxTh_/exec";
 
+
 // ================= STATE =================
 const AppState = {
   user: JSON.parse(localStorage.getItem("user")) || null
@@ -12,7 +13,6 @@ const Util = {
     AppState.user = data;
     localStorage.setItem("user", JSON.stringify(data));
   },
-
   clearUser() {
     AppState.user = null;
     localStorage.removeItem("user");
@@ -21,43 +21,16 @@ const Util = {
 
 // ================= UI =================
 const UI = {
-
-  toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("show");
-    document.getElementById("overlay").classList.toggle("show");
-  },
-
   showToast(msg) {
-    const toast = document.getElementById("toast");
-    toast.innerText = msg;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 3000);
-  },
-
-  showLoading() {
-    document.getElementById("content").innerHTML =
-      `<div class="card"><div class="loader"></div></div>`;
+    alert(msg); // simple dulu biar stabil
   },
 
   setUserInfo() {
     const el = document.getElementById("userName");
+    if (!el) return;
     el.innerText = AppState.user
       ? `${AppState.user.nama} (${AppState.user.role})`
       : "";
-  }
-};
-
-// ================= THEME =================
-const Theme = {
-  toggle() {
-    document.body.classList.toggle("dark");
-    localStorage.setItem("dark", document.body.classList.contains("dark"));
-  },
-
-  init() {
-    if (localStorage.getItem("dark") === "true") {
-      document.body.classList.add("dark");
-    }
   }
 };
 
@@ -67,9 +40,16 @@ const API = {
   post(data) {
     return fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain" },
+      headers: {
+        "Content-Type": "text/plain" // ✅ WAJIB untuk GAS
+      },
       body: JSON.stringify(data)
-    }).then(res => res.json());
+    })
+    .then(res => res.json())
+    .catch(err => {
+      console.error("FETCH ERROR:", err);
+      throw err;
+    });
   },
 
   login(username, password) {
@@ -80,28 +60,82 @@ const API = {
     return this.post({ action: "register", ...data });
   },
 
-  // ===== ITEM =====
   getItems() {
     return this.post({ action: "getItems" });
+  }
+};
+
+// ================= AUTH =================
+const Auth = {
+
+  login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    console.log("TRY LOGIN:", username);
+
+    API.login(username, password)
+      .then(res => {
+
+        console.log("LOGIN RESPONSE:", res);
+
+        if (res.status === "success") {
+          Util.setUser(res);
+          UI.showToast("Login berhasil ✅");
+
+          Render.menu();
+          Render.dashboard();
+
+        } else {
+          UI.showToast("Login gagal ❌");
+        }
+
+      })
+      .catch(err => {
+        console.error("LOGIN ERROR:", err);
+        UI.showToast("Server error / tidak terhubung ❌");
+      });
   },
 
-  addItem(data) {
-    return this.post({ action: "addItem", ...data });
+  register() {
+    const data = {
+      nama: document.getElementById("nama").value,
+      nip: document.getElementById("nip").value,
+      jabatan: document.getElementById("jabatan").value,
+      password: document.getElementById("pass").value
+    };
+
+    console.log("TRY REGISTER:", data);
+
+    API.register(data)
+      .then(res => {
+
+        console.log("REGISTER RESPONSE:", res);
+
+        if (res.status === "success") {
+          UI.showToast("Berhasil daftar ✅");
+          Render.login();
+        } else {
+          UI.showToast("Gagal daftar ❌");
+        }
+
+      })
+      .catch(err => {
+        console.error("REGISTER ERROR:", err);
+        UI.showToast("Server error ❌");
+      });
   },
 
-  updateItem(data) {
-    return this.post({ action: "updateItem", ...data });
-  },
-
-  deleteItem(nama) {
-    return this.post({ action: "deleteItem", nama });
+  logout() {
+    Util.clearUser();
+    Render.menu();
+    Render.login();
   }
 };
 
 // ================= RENDER =================
 const Render = {
 
-  // ===== MENU =====
   menu() {
     let menu = "<h2>HK STORE</h2>";
 
@@ -114,42 +148,27 @@ const Render = {
       menu += `
         <a onclick="Render.dashboard()">Dashboard</a>
         <a onclick="Render.item()">Item</a>
+        <a onclick="Auth.logout()">Logout</a>
       `;
-
-      menu += `<a onclick="Auth.logout()">Logout</a>`;
     }
 
     document.getElementById("sidebar").innerHTML = menu;
     UI.setUserInfo();
   },
 
-  // ===== LOGIN =====
+  // ===== LOGIN PAGE =====
   login() {
+    document.getElementById("content").innerHTML = `
+      <div class="card">
+        <h3>Login</h3>
+        <input id="username" placeholder="NIP (Username)">
+        <input id="password" type="password" placeholder="Password">
+        <button onclick="Auth.login()">Login</button>
+      </div>
+    `;
+  },
 
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-
-  API.login(username, password).then(res => {
-
-    console.log("LOGIN RESPONSE:", res);
-
-    if (res.status === "success") {
-      Util.setUser(res);
-      UI.showToast("Login berhasil ✅");
-
-      Render.menu();
-      Render.dashboard();
-
-    } else {
-      UI.showToast("Login gagal ❌");
-    }
-
-  }).catch(err => {
-    console.error("ERROR LOGIN:", err);
-    UI.showToast("Server error ❌");
-  });
-}
-  // ===== SIGNUP =====
+  // ===== REGISTER PAGE =====
   signup() {
     document.getElementById("content").innerHTML = `
       <div class="card">
@@ -173,174 +192,42 @@ const Render = {
     `;
   },
 
-  // ================= ITEM =================
+  // ===== ITEM =====
   item() {
-    UI.showLoading();
+    document.getElementById("content").innerHTML = "Loading data...";
 
-    API.getItems().then(data => {
+    API.getItems()
+      .then(data => {
 
-      let html = `
-        <div class="card">
-          <h3>Item Management</h3>
+        console.log("ITEM DATA:", data);
 
-          <button class="add-btn" onclick="Render.addItemForm()">+ Tambah Item</button>
-
-          <div class="search-box">
-            <input placeholder="Cari item..." oninput="Render.filterItem(this.value)">
-          </div>
-
-          <div class="table-container">
-            <table id="itemTable">
-              <thead>
+        let html = `
+          <div class="card">
+            <h3>Item List</h3>
+            <table>
+              <tr><th>Nama</th><th>Satuan</th></tr>
+              ${data.map(i => `
                 <tr>
-                  <th>Nama</th>
-                  <th>Satuan</th>
-                  <th>Aksi</th>
+                  <td>${i[0]}</td>
+                  <td>${i[1]}</td>
                 </tr>
-              </thead>
-              <tbody>
-                ${data.map(row => `
-                  <tr>
-                    <td>${row[0]}</td>
-                    <td>${row[1]}</td>
-                    <td>
-                      <span class="action-btn edit-btn"
-                        onclick="Render.editItem('${row[0]}','${row[1]}')">Edit</span>
-
-                      <span class="action-btn delete-btn"
-                        onclick="Render.deleteItem('${row[0]}')">Hapus</span>
-                    </td>
-                  </tr>
-                `).join("")}
-              </tbody>
+              `).join("")}
             </table>
           </div>
-        </div>
-      `;
+        `;
 
-      document.getElementById("content").innerHTML = html;
-    });
-  },
+        document.getElementById("content").innerHTML = html;
 
-  // ===== ADD ITEM =====
-  addItemForm() {
-    document.getElementById("content").innerHTML = `
-      <div class="card">
-        <h3>Tambah Item</h3>
-        <input id="nama" placeholder="Nama Item">
-        <input id="satuan" placeholder="Satuan">
-        <button onclick="Render.saveItem()">Simpan</button>
-      </div>
-    `;
-  },
-
-  saveItem() {
-    const nama = document.getElementById("nama").value;
-    const satuan = document.getElementById("satuan").value;
-
-    API.addItem({ nama, satuan }).then(() => {
-      UI.showToast("Item ditambahkan ✅");
-      Render.item();
-    });
-  },
-
-  // ===== EDIT =====
-  editItem(nama, satuan) {
-    document.getElementById("content").innerHTML = `
-      <div class="card">
-        <h3>Edit Item</h3>
-        <input id="nama" value="${nama}">
-        <input id="satuan" value="${satuan}">
-        <button onclick="Render.updateItem('${nama}')">Update</button>
-      </div>
-    `;
-  },
-
-  updateItem(oldNama) {
-    const nama = document.getElementById("nama").value;
-    const satuan = document.getElementById("satuan").value;
-
-    API.updateItem({ oldNama, nama, satuan }).then(() => {
-      UI.showToast("Item diupdate ✅");
-      Render.item();
-    });
-  },
-
-  // ===== DELETE =====
-  deleteItem(nama) {
-    if (!confirm("Yakin hapus item ini?")) return;
-
-    API.deleteItem(nama).then(() => {
-      UI.showToast("Item dihapus ❌");
-      Render.item();
-    });
-  },
-
-  // ===== FILTER =====
-  filterItem(keyword) {
-    const rows = document.querySelectorAll("#itemTable tbody tr");
-
-    rows.forEach(row => {
-      const text = row.innerText.toLowerCase();
-      row.style.display = text.includes(keyword.toLowerCase()) ? "" : "none";
-    });
-  }
-};
-
-// ================= AUTH =================
-const Auth = {
-
-  login() {
-    UI.showLoading();
-
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    API.login(username, password).then(res => {
-
-      if (res.status === "success") {
-        Util.setUser(res);
-        UI.showToast("Login berhasil ✅");
-
-        setTimeout(() => {
-          Render.menu();
-          Render.dashboard();
-        }, 800);
-
-      } else {
-        Render.login();
-        UI.showToast("Login gagal ❌");
-      }
-    });
-  },
-
-  register() {
-    UI.showLoading();
-
-    const data = {
-      nama: document.getElementById("nama").value,
-      nip: document.getElementById("nip").value,
-      jabatan: document.getElementById("jabatan").value,
-      password: document.getElementById("pass").value
-    };
-
-    API.register(data).then(res => {
-      Render.signup();
-      UI.showToast(res.status === "success" ? "Berhasil daftar ✅" : "Gagal ❌");
-    });
-  },
-
-  logout() {
-    Util.clearUser();
-    Render.menu();
-    Render.login();
-    UI.showToast("Logout berhasil");
+      })
+      .catch(err => {
+        console.error("ITEM ERROR:", err);
+        UI.showToast("Gagal ambil data ❌");
+      });
   }
 };
 
 // ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
-  Theme.init();
   Render.menu();
 
   if (AppState.user) {
@@ -349,7 +236,3 @@ document.addEventListener("DOMContentLoaded", () => {
     Render.login();
   }
 });
-
-// ================= GLOBAL =================
-window.toggleSidebar = UI.toggleSidebar;
-window.toggleDark = Theme.toggle;
