@@ -29,18 +29,38 @@ function login() {
 }
 
 // ================= REGISTER =================
-function register() {
-  let data = {
-    nama: document.getElementById("nama").value,
-    nip: document.getElementById("nip").value,
-    jabatan: document.getElementById("jabatan").value,
-    password: document.getElementById("pass").value
-  };
+function renderRegister() {
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Daftar</h3>
 
-  api({ action: "register", ...data }).then(res => {
-    alert("Berhasil daftar");
-    renderLogin();
-  });
+      <div class="input-group">
+        <label>Nama</label>
+        <input id="nama">
+      </div>
+
+      <div class="input-group">
+        <label>NIP</label>
+        <input id="nip">
+      </div>
+
+      <div class="input-group">
+        <label>Jabatan</label>
+        <select id="jabatan">
+          <option>Leader</option>
+          <option>Supervisor</option>
+          <option>HO</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input id="pass" type="password">
+      </div>
+
+      <button onclick="register()">Daftar</button>
+    </div>
+  `;
 }
 
 // ================= MENU =================
