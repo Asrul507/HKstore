@@ -130,16 +130,96 @@ function renderUser() {
     </div>
   `;
 }
+function showAddUser() {
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Tambah User</h3>
+      <input id="nama">
+      <input id="nip">
+      <input id="jabatan">
+      <input id="password">
+      <button onclick="addUser()">Simpan</button>
+    </div>
+  `;
+}
+
+function addUser() {
+  api({
+    action: "register",
+    nama: nama.value,
+    nip: nip.value,
+    jabatan: jabatan.value,
+    password: password.value
+  }).then(() => {
+    alert("User ditambahkan");
+    renderUserManagement();
+  });
+}
+function editUser(nip, nama, jabatan) {
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Edit User</h3>
+      <input id="nama" value="${nama}">
+      <input id="jabatan" value="${jabatan}">
+      <button onclick="updateUser('${nip}')">Update</button>
+    </div>
+  `;
+}
+
+function updateUser(nip) {
+  api({
+    action: "updateUser",
+    nip: nip,
+    nama: nama.value,
+    jabatan: jabatan.value
+  }).then(() => {
+    alert("User diupdate");
+    renderUserManagement();
+  });
+}
+function deleteUser(nip) {
+  if (!confirm("Hapus user?")) return;
+
+  api({ action: "deleteUser", nip }).then(() => {
+    alert("User dihapus");
+    renderUserManagement();
+  });
+}
 
 // ================= USER MANAGEMENT =================
 function renderUserManagement() {
   api({ action: "getUsers" }).then(users => {
 
-    let html = `<div class="card"><h3>User Management</h3>`;
+    let html = `
+      <div class="card">
+        <h3>User Management</h3>
 
-    html += users.map(u => `<div>${u[0]} (${u[1]})</div>`).join("");
+        <button onclick="showAddUser()">+ Tambah User</button>
 
-    html += `</div>`;
+        <table class="table">
+          <tr>
+            <th>Nama</th>
+            <th>NIP</th>
+            <th>Role</th>
+            <th>Aksi</th>
+          </tr>
+    `;
+
+    users.forEach(u => {
+      html += `
+        <tr>
+          <td>${u[0]}</td>
+          <td>${u[1]}</td>
+          <td><span class="badge">${u[4]}</span></td>
+          <td>
+            <button onclick="editUser('${u[1]}','${u[0]}','${u[2]}')">Edit</button>
+            <button onclick="deleteUser('${u[1]}')">Hapus</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `</table></div>`;
 
     document.getElementById("content").innerHTML = html;
   });
