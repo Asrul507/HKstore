@@ -1,5 +1,5 @@
 // ================= CONFIG =================
-const API_URL = "https://script.google.com/macros/s/AKfycbwzcsBGPBEEkp-xe-OJx4PNpO7xh9D3z8-C1J9JR0J2VLImtXeDfDmEcBpvqIsFhmvx/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyMgSBqIry987HgseFbjM_JTP-hcLJ9ImzuNZi91Kj-WRHzAxHZimAzISpJ_keXxTh_/exec";
 
 // ================= STATE =================
 const AppState = {
