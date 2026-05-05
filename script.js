@@ -37,28 +37,38 @@ function showApp() {
 
 // ================= LOGIN =================
 function login() {
+
+  let btn = event.target;
+  btn.classList.add("loading");
+
+  showLoading();
+
   let username = document.getElementById("username").value;
   let password = document.getElementById("password").value;
 
-  if (!username || !password) {
-    alert("Isi username & password");
-    return;
-  }
-
   api({ action: "login", username, password }).then(res => {
 
-    if (res.status === "success") {
+    setTimeout(() => { // efek smooth
 
-      user = res;
-      localStorage.setItem("user", JSON.stringify(res));
+      hideLoading();
+      btn.classList.remove("loading");
 
-      showApp();
-      renderMenu();
-      renderBinCard();
+      if (res.status === "success") {
 
-    } else {
-      alert("Login gagal");
-    }
+        user = res;
+        localStorage.setItem("user", JSON.stringify(res));
+
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("appPage").style.display = "block";
+
+        renderMenu();
+        renderBinCard();
+
+      } else {
+        alert("Login gagal");
+      }
+
+    }, 800);
   });
 }
 
@@ -139,6 +149,12 @@ function renderBinCard() {
 }
 
 function submitBin() {
+
+  let btn = event.target;
+  btn.classList.add("loading");
+
+  showLoading();
+
   api({
     action: "saveBinCard",
     item: document.getElementById("item").value,
@@ -146,8 +162,16 @@ function submitBin() {
     tipe: document.getElementById("tipe").value,
     user: user.nama
   }).then(() => {
-    alert("Berhasil disimpan");
-    renderBinCard();
+
+    setTimeout(() => {
+
+      hideLoading();
+      btn.classList.remove("loading");
+
+      alert("Berhasil disimpan");
+      renderBinCard();
+
+    }, 600);
   });
 }
 
