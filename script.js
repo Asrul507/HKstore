@@ -34,7 +34,7 @@ function register() {
     nama: document.getElementById("nama").value,
     nip: document.getElementById("nip").value,
     jabatan: document.getElementById("jabatan").value,
-    password: document.getElementById("pass"). type="password"
+    document.getElementById("pass").type = "password";
   };
 
   api({ action: "register", ...data }).then(res => {
