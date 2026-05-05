@@ -289,3 +289,21 @@ function showLoading() {
 function hideLoading() {
   document.getElementById("loading").style.display = "none";
 }
+
+/* ===== TOAST SYSTEM ===== */
+function showToast(message, type = "info") {
+
+  let container = document.getElementById("toast-container");
+
+  let toast = document.createElement("div");
+  toast.classList.add("toast", type);
+
+  toast.innerText = message;
+
+  container.appendChild(toast);
+
+  // auto remove
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+}
