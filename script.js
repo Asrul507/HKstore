@@ -289,18 +289,3 @@ function showLoading() {
 function hideLoading() {
   document.getElementById("loading").style.display = "none";
 }
-function api(data) {
-  return fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .catch(err => {
-    console.error("API ERROR:", err);
-    return { status: "error" };
-  });
-}
-window.addEventListener("error", function () {
-  hideLoading?.();
-});
