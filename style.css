@@ -131,3 +131,27 @@ body {
 .sidebar.show {
   left: 0;
 }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: #4a6cf7;
+  color: white;
+  padding: 10px;
+}
+
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #4a6cf7;
+  font-size: 12px;
+}
