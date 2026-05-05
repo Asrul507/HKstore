@@ -125,28 +125,28 @@ const Render = {
 
   // ===== LOGIN =====
   login() {
-  UI.showLoading();
 
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
   API.login(username, password).then(res => {
 
-    console.log("LOGIN RESPONSE:", res); // ✅ TARUH DI SINI
+    console.log("LOGIN RESPONSE:", res);
 
     if (res.status === "success") {
       Util.setUser(res);
       UI.showToast("Login berhasil ✅");
 
-      setTimeout(() => {
-        Render.menu();
-        Render.dashboard();
-      }, 500);
+      Render.menu();
+      Render.dashboard();
 
     } else {
       UI.showToast("Login gagal ❌");
-      Render.login();
     }
+
+  }).catch(err => {
+    console.error("ERROR LOGIN:", err);
+    UI.showToast("Server error ❌");
   });
 }
   // ===== SIGNUP =====
