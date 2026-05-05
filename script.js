@@ -125,16 +125,30 @@ const Render = {
 
   // ===== LOGIN =====
   login() {
-    document.getElementById("content").innerHTML = `
-      <div class="card">
-        <h3>Login</h3>
-        <input id="username" placeholder="Username">
-        <input id="password" type="password" placeholder="Password">
-        <button onclick="Auth.login()">Login</button>
-      </div>
-    `;
-  },
+  UI.showLoading();
 
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  API.login(username, password).then(res => {
+
+    console.log("LOGIN RESPONSE:", res); // ✅ TARUH DI SINI
+
+    if (res.status === "success") {
+      Util.setUser(res);
+      UI.showToast("Login berhasil ✅");
+
+      setTimeout(() => {
+        Render.menu();
+        Render.dashboard();
+      }, 500);
+
+    } else {
+      UI.showToast("Login gagal ❌");
+      Render.login();
+    }
+  });
+}
   // ===== SIGNUP =====
   signup() {
     document.getElementById("content").innerHTML = `
