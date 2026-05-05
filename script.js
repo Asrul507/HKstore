@@ -63,6 +63,11 @@ function renderRegister() {
   `;
 }
 
+  api({ action: "register", ...data }).then(() => {
+    alert("Berhasil daftar");
+    renderLogin();
+  });
+}
 // ================= MENU =================
 function renderMenu() {
   let html = "<h3>HK STORE</h3>";
@@ -265,17 +270,25 @@ function renderLogin() {
   `;
 }
 
-function renderRegister() {
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-      <h3>Register</h3>
-      <input id="nama">
-      <input id="nip">
-      <input id="jabatan">
-      <input id="pass">
-      <button onclick="register()">Daftar</button>
-    </div>
-  `;
+function register() {
+  let jabatan = document.getElementById("jabatan").value;
+
+  let role = (jabatan === "Supervisor" || jabatan === "HO")
+    ? "admin"
+    : "staff";
+
+  let data = {
+    nama: nama.value,
+    nip: nip.value,
+    jabatan: jabatan,
+    password: pass.value,
+    role: role
+  };
+
+  api({ action: "register", ...data }).then(() => {
+    alert("Berhasil daftar");
+    renderLogin();
+  });
 }
 
 // ================= SIDEBAR =================
