@@ -272,10 +272,7 @@ function logout() {
   renderLogin();
 }
 
-// ================= LOADING =================
-function loading(el = "content") {
-  document.getElementById(el).innerHTML = "Loading...";
-}
+
 /* ===== SHOW / HIDE LOADING ===== */
 function showLoading() {
   document.getElementById("loading").style.display = "flex";
