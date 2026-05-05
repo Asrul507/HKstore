@@ -3,11 +3,19 @@
   box-sizing: border-box;
 }
 
+/* spacing system */
+:root {
+  --space-1: 6px;
+  --space-2: 10px;
+  --space-3: 15px;
+  --space-4: 20px;
+  --space-5: 30px;
+}
+
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
 
-  /* GLASS BACKGROUND BASE */
   background: linear-gradient(135deg, #0f172a, #1e293b);
   color: #fff;
 
@@ -22,7 +30,7 @@ body {
   -webkit-backdrop-filter: blur(15px);
 
   color: white;
-  padding: 15px;
+  padding: var(--space-3);
 
   display: flex;
   justify-content: space-between;
@@ -44,7 +52,7 @@ body {
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(18px);
 
-  padding: 20px;
+  padding: var(--space-4);
   transition: 0.3s;
   z-index: 1000;
 
@@ -59,9 +67,11 @@ body {
   display: block;
   padding: 10px;
   margin: 5px 0;
+
   border-radius: 12px;
   color: white;
   text-decoration: none;
+
   transition: 0.2s;
 }
 
@@ -75,6 +85,7 @@ body {
   position: fixed;
   width: 100%;
   height: 100%;
+
   background: rgba(0,0,0,0.4);
   z-index: 999;
 }
@@ -83,33 +94,36 @@ body {
   display: block;
 }
 
-/* ===== MAIN CONTENT CENTER ===== */
+/* ===== MAIN CONTENT ===== */
 .content {
   min-height: calc(100dvh - 70px);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 30px 15px;
+
+  padding: var(--space-4);
 }
 
-/* ===== GLASS CARD ===== */
+/* ===== CARD (FIX UTAMA SPACING) ===== */
 .card {
-  margin-top: 40px;
-   width: 100%;
+  margin-top: var(--space-4);
+
+  width: 100%;
   max-width: 420px;
+
   padding: var(--space-5);
-  border-radius: 20px;
+
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-3);  /* 🔥 INI KUNCI BIAR TIDAK MEPET */
+
+  border-radius: 20px;
+
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
 
   border: 1px solid rgba(255,255,255,0.15);
-
-  padding: 20px;
-  border-radius: 20px;
 
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 
@@ -120,13 +134,13 @@ body {
   transform: translateY(-5px);
 }
 
-/* ===== INPUT GLASS ===== */
+/* ===== INPUT / FORM ===== */
 input, select {
   width: 100%;
-  padding: 12px;
-  margin-top: 5px;
-  margin-bottom: var(--space-3);
-  
+  padding: 12px 14px;
+
+  margin: 0;
+
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.2);
 
@@ -136,10 +150,11 @@ input, select {
   outline: none;
 }
 
-/* ===== BUTTON PREMIUM ===== */
+/* ===== BUTTON ===== */
 button {
   width: 100%;
   padding: 12px;
+
   margin-top: var(--space-2);
 
   border-radius: 12px;
@@ -159,7 +174,7 @@ button:active {
   transform: scale(0.97);
 }
 
-/* ===== TABLE (JANGAN FULL GLASS BIAR MASIH BACA) ===== */
+/* ===== TABLE (tetap readable) ===== */
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -185,12 +200,12 @@ button:active {
   font-size: 12px;
 }
 
-/* ===== DARK MODE (SUDAH DEFAULT DARK) ===== */
+/* ===== DARK MODE ===== */
 body.dark-mode {
   background: linear-gradient(135deg, #0b1220, #0f172a);
 }
 
-/* ===== DARK TOGGLE BUTTON ===== */
+/* ===== DARK BUTTON ===== */
 .dark-toggle {
   position: fixed;
   top: 15px;
@@ -201,6 +216,7 @@ body.dark-mode {
 
   border-radius: 50%;
   border: none;
+
   cursor: pointer;
 
   background: rgba(255,255,255,0.08);
