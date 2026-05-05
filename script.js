@@ -206,6 +206,4 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMenu();
   user ? renderBinCard() : renderLogin();
 });
-function loading(el="content") {
-  document.getElementById(el).innerHTML = "Loading...";
-};
+
