@@ -1,0 +1,362 @@
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== BODY ===== */
+body {
+  background: #f1f3f7;
+  color: #333;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  left: -260px;
+  top: 0;
+  width: 260px;
+  height: 100%;
+  background: #ffffff;
+  box-shadow: 5px 0 20px rgba(0,0,0,0.05);
+  transition: 0.3s;
+  padding: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  z-index: 1000;
+}
+
+.sidebar.show {
+  left: 0;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sidebar a:hover {
+  background: #f0f4ff;
+}
+
+/* ===== OVERLAY ===== */
+.overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  display: none;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(3px);
+}
+
+.overlay.show {
+  display: block;
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.menu-btn {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ===== MAIN ===== */
+.main {
+  padding: 10px;
+}
+
+/* ===== CONTENT ===== */
+.content {
+  padding: 20px;
+}
+
+/* ===== CARD (3D STYLE) ===== */
+.card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 
+    8px 8px 20px rgba(0,0,0,0.05),
+    -8px -8px 20px rgba(255,255,255,0.8);
+  margin-bottom: 20px;
+}
+
+/* ===== INPUT ===== */
+input, select {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  margin-top: 10px;
+  background: #f1f3f7;
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.05),
+              inset -3px -3px 6px rgba(255,255,255,0.8);
+  outline: none;
+  transition: 0.2s;
+}
+
+input:focus {
+  box-shadow: 0 0 0 2px #007bff33;
+}
+
+/* ===== BUTTON ===== */
+button {
+  margin-top: 15px;
+  padding: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4facfe, #007bff);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,123,255,0.4);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* ===== TEXT ===== */
+h3 {
+  margin-bottom: 10px;
+}
+
+p {
+  margin-top: 10px;
+}
+
+/* ===== GRID (RESPONSIVE) ===== */
+.grid {
+  display: grid;
+  gap: 15px;
+}
+
+@media (min-width: 768px) {
+  .grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background: #007bff;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 600px) {
+
+  .header {
+    flex-direction: row;
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  button {
+    font-size: 14px;
+  }
+}
+/* ===== THEME (LIGHT / DARK) ===== */
+:root {
+  --bg: #f1f3f7;
+  --card: #ffffff;
+  --text: #333;
+  --primary: #007bff;
+  --shadow1: rgba(0,0,0,0.05);
+  --shadow2: rgba(255,255,255,0.8);
+}
+
+body.dark {
+  --bg: #1e1f25;
+  --card: #2a2c33;
+  --text: #e4e6eb;
+  --primary: #4dabf7;
+  --shadow1: rgba(0,0,0,0.4);
+  --shadow2: rgba(255,255,255,0.05);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow:
+    8px 8px 20px var(--shadow1),
+    -8px -8px 20px var(--shadow2);
+  animation: fadeUp 0.4s ease;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== INPUT ===== */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 12px;
+  border: none;
+  background: var(--bg);
+  box-shadow: inset 3px 3px 6px var(--shadow1),
+              inset -3px -3px 6px var(--shadow2);
+  color: var(--text);
+}
+
+/* ===== BUTTON ===== */
+button {
+  margin-top: 15px;
+  padding: 12px;
+  width: 100%;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #4facfe, var(--primary));
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--card);
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px var(--shadow1);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.3s;
+  z-index: 999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== LOADING ===== */
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== SWITCH DARK MODE ===== */
+.switch {
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: var(--card);
+  box-shadow: 0 3px 10px var(--shadow1);
+}
+.table-container {
+  overflow-x: auto;
+}
+
+.search-box {
+  margin-bottom: 15px;
+}
+
+.search-box input {
+  width: 100%;
+}
+
+.action-btn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.edit-btn {
+  background: #ffc107;
+  color: black;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.add-btn {
+  width: auto;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+}
