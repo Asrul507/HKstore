@@ -159,7 +159,7 @@ function renderLogin() {
     <div class="card">
       <h3>Login</h3>
       <input id="username" placeholder="NIP">
-      <input id="password" placeholder="password">
+      <input id="password" type="password" placeholder="password>
       <button onclick="login()">Login</button>
     </div>
   `;
