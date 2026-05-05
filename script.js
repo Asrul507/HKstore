@@ -252,3 +252,11 @@ function logout() {
 function loading(el = "content") {
   document.getElementById(el).innerHTML = "Loading...";
 }
+/* ===== SHOW / HIDE LOADING ===== */
+function showLoading() {
+  document.getElementById("loading").style.display = "flex";
+}
+
+function hideLoading() {
+  document.getElementById("loading").style.display = "none";
+}
