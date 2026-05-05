@@ -242,3 +242,84 @@ body.dark-mode {
     font-size: 14px;
   }
 }
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  color: white;
+  z-index: 9999;
+}
+
+/* spinner */
+.spinner {
+  width: 45px;
+  height: 45px;
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top: 4px solid #4a6cf7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== SMOOTH PAGE TRANSITION ===== */
+#loginPage, #appPage {
+  transition: all 0.4s ease;
+}
+
+.fade-out {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.fade-in {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ===== BUTTON LOADING EFFECT ===== */
+button {
+  position: relative;
+  overflow: hidden;
+}
+
+button.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+button.loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+
+  top: 50%;
+  left: 50%;
+
+  margin-left: -9px;
+  margin-top: -9px;
+
+  border: 2px solid transparent;
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+
+  animation: spin 0.8s linear infinite;
+}
