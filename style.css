@@ -249,3 +249,21 @@ button:active {
 @media(max-width:600px){
   .header b { font-size: 14px; }
 }
+body {
+  background: #ffffff;
+  color: #111;
+  transition: 0.3s;
+}
+
+/* DARK MODE */
+body.dark-mode {
+  background: #121212;
+  color: #f1f1f1;
+}
+
+/* input juga ikut gelap */
+body.dark-mode input {
+  background: #1e1e1e;
+  color: #fff;
+  border: 1px solid #444;
+}
