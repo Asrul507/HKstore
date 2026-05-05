@@ -2,6 +2,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyMgSBqIry987HgseFbjM_J
 
 let user = JSON.parse(localStorage.getItem("user"));
 
+loading();
 // ================= API =================
 function api(data) {
   return fetch(API_URL, {
@@ -224,3 +225,6 @@ window.onload = function () {
   }
 };
 
+function loading(el="content") {
+  document.getElementById(el).innerHTML = "Loading...";
+}
