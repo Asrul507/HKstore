@@ -159,7 +159,7 @@ function renderLogin() {
     <div class="card">
       <h3>Login</h3>
       <input id="username" placeholder="NIP">
-      <input id="password" type="password" placeholder="password">
+      <input id="password" type="password" placeholder="Password">
       <button onclick="login()">Login</button>
     </div>
   `;
@@ -169,10 +169,10 @@ function renderRegister() {
   document.getElementById("content").innerHTML = `
     <div class="card">
       <h3>Register</h3>
-      <input id="nama">
-      <input id="nip">
-      <input id="jabatan">
-      <input id="pass">
+      <input id="nama" placeholder="Nama">
+      <input id="nip" Placeholder="NIP">
+      <input id="jabatan" Placeholder="Jabatan">
+      <input id="pass" Placeholder="Password">
       <button onclick="register()">Daftar</button>
     </div>
   `;
