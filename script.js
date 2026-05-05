@@ -77,7 +77,7 @@ function renderBinCard() {
         <h3>BIN CARD</h3>
 
         <select id="item">${options}</select>
-         <select id="Satuan">${options}</select>
+         <select id="Satuan" Type="text"></select>
         <input id="qty" type="number" placeholder="Qty">
 
         <select id="tipe">
