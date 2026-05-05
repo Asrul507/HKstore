@@ -67,15 +67,19 @@ body {
 
 /* ===== MAIN CONTENT CENTER FIX ===== */
 .content {
-  min-height: calc(100vh - 70px);
+  min-height: calc(100dvh - 70px);
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px;
+
+  /* ini kunci fix HP */
+  align-items: flex-start;
+
+  padding: 30px 15px;
 }
 
 /* ===== CARD ===== */
 .card {
+  margin-top: 40px;
   width: 100%;
   max-width: 420px;
   background: rgba(255,255,255,0.9);
