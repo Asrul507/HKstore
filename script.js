@@ -29,56 +29,18 @@ function login() {
 }
 
 // ================= REGISTER =================
-function renderRegister() {
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-      <h3>Daftar</h3>
+function register() {
+  let data = {
+    nama: document.getElementById("nama").value,
+    nip: document.getElementById("nip").value,
+    jabatan: document.getElementById("jabatan").value,
+    password: document.getElementById("pass").value
+  };
 
-      <div class="input-group">
-        <label>Nama</label>
-        <input id="nama">
-      </div>
-
-      <div class="input-group">
-        <label>NIP</label>
-        <input id="nip">
-      </div>
-
-      <div class="input-group">
-        <label>Jabatan</label>
-        <select id="jabatan">
-          <option>Leader</option>
-          <option>Supervisor</option>
-          <option>HO</option>
-        </select>
-      </div>
-
-      <div class="input-group">
-        <label>Password</label>
-        <input id="pass" type="password">
-      </div>
-
-      <button onclick="register()">Daftar</button>
-    </div>
-  `;
-}
-
-  api({ action: "register", ...data }).then(() => {
+  api({ action: "register", ...data }).then(res => {
     alert("Berhasil daftar");
     renderLogin();
   });
-}
-function renderRegister() {
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-      <h3>Register</h3>
-      <input id="nama">
-      <input id="nip">
-      <input id="jabatan">
-      <input id="pass">
-      <button onclick="register()">Daftar</button>
-    </div>
-  `;
 }
 
 // ================= MENU =================
@@ -168,96 +130,16 @@ function renderUser() {
     </div>
   `;
 }
-function showAddUser() {
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-      <h3>Tambah User</h3>
-      <input id="nama">
-      <input id="nip">
-      <input id="jabatan">
-      <input id="password">
-      <button onclick="addUser()">Simpan</button>
-    </div>
-  `;
-}
-
-function addUser() {
-  api({
-    action: "register",
-    nama: nama.value,
-    nip: nip.value,
-    jabatan: jabatan.value,
-    password: password.value
-  }).then(() => {
-    alert("User ditambahkan");
-    renderUserManagement();
-  });
-}
-function editUser(nip, nama, jabatan) {
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-      <h3>Edit User</h3>
-      <input id="nama" value="${nama}">
-      <input id="jabatan" value="${jabatan}">
-      <button onclick="updateUser('${nip}')">Update</button>
-    </div>
-  `;
-}
-
-function updateUser(nip) {
-  api({
-    action: "updateUser",
-    nip: nip,
-    nama: nama.value,
-    jabatan: jabatan.value
-  }).then(() => {
-    alert("User diupdate");
-    renderUserManagement();
-  });
-}
-function deleteUser(nip) {
-  if (!confirm("Hapus user?")) return;
-
-  api({ action: "deleteUser", nip }).then(() => {
-    alert("User dihapus");
-    renderUserManagement();
-  });
-}
 
 // ================= USER MANAGEMENT =================
 function renderUserManagement() {
   api({ action: "getUsers" }).then(users => {
 
-    let html = `
-      <div class="card">
-        <h3>User Management</h3>
+    let html = `<div class="card"><h3>User Management</h3>`;
 
-        <button onclick="showAddUser()">+ Tambah User</button>
+    html += users.map(u => `<div>${u[0]} (${u[1]})</div>`).join("");
 
-        <table class="table">
-          <tr>
-            <th>Nama</th>
-            <th>NIP</th>
-            <th>Role</th>
-            <th>Aksi</th>
-          </tr>
-    `;
-
-    users.forEach(u => {
-      html += `
-        <tr>
-          <td>${u[0]}</td>
-          <td>${u[1]}</td>
-          <td><span class="badge">${u[4]}</span></td>
-          <td>
-            <button onclick="editUser('${u[1]}','${u[0]}','${u[2]}')">Edit</button>
-            <button onclick="deleteUser('${u[1]}')">Hapus</button>
-          </td>
-        </tr>
-      `;
-    });
-
-    html += `</table></div>`;
+    html += `</div>`;
 
     document.getElementById("content").innerHTML = html;
   });
@@ -283,7 +165,18 @@ function renderLogin() {
   `;
 }
 
-
+function renderRegister() {
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Register</h3>
+      <input id="nama">
+      <input id="nip">
+      <input id="jabatan">
+      <input id="pass">
+      <button onclick="register()">Daftar</button>
+    </div>
+  `;
+}
 
 // ================= SIDEBAR =================
 window.toggleSidebar = function () {
