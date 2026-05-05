@@ -78,3 +78,32 @@ button {
   border: none;
   border-radius: 10px;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden; /* 🔥 ini fix utama */
+}
+
+/* MAIN biar tidak ketimpa */
+.main {
+  padding: 15px;
+  transition: margin-left 0.3s;
+}
+
+/* SIDEBAR FIX */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100%;
+  z-index: 1000;
+}
+
+.sidebar.show {
+  left: 0;
+}
