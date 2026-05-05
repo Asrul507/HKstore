@@ -31,14 +31,21 @@ function login() {
 
 // ================= REGISTER =================
 function register() {
+  let jabatan = document.getElementById("jabatan").value;
+
+  let role = (jabatan === "Supervisor" || jabatan === "HO")
+    ? "admin"
+    : "staff";
+
   let data = {
-    nama: document.getElementById("nama").value,
-    nip: document.getElementById("nip").value,
-    jabatan: document.getElementById("jabatan").value,
-    password: document.getElementById("pass").value
+    nama: nama.value,
+    nip: nip.value,
+    jabatan: jabatan,
+    password: pass.value,
+    role: role
   };
 
-  api({ action: "register", ...data }).then(res => {
+  api({ action: "register", ...data }).then(() => {
     alert("Berhasil daftar");
     renderLogin();
   });
@@ -186,11 +193,32 @@ function renderLogin() {
 function renderRegister() {
   document.getElementById("content").innerHTML = `
     <div class="card">
-      <h3>Register</h3>
-      <input id="nama" placeholder="Nama">
-      <input id="nip" Placeholder="NIP">
-      <input id="jabatan" Placeholder="Jabatan">
-      <input id="pass" Placeholder="Password">
+      <h3>Daftar</h3>
+
+      <div class="input-group">
+        <label>Nama</label>
+        <input id="nama">
+      </div>
+
+      <div class="input-group">
+        <label>NIP</label>
+        <input id="nip">
+      </div>
+
+      <div class="input-group">
+        <label>Jabatan</label>
+        <select id="jabatan">
+          <option>Leader</option>
+          <option>Supervisor</option>
+          <option>HO</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input id="pass" type="password">
+      </div>
+
       <button onclick="register()">Daftar</button>
     </div>
   `;
