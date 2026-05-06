@@ -152,6 +152,9 @@ function renderBinCard() {
         <select id="item">${options}</select>
         <input id="qty" type="number" placeholder="Qty">
 
+        <label>Satuan</label>
+        <input id="satuan" readonly>
+
         <select id="tipe">
           <option value="IN">IN</option>
           <option value="OUT">OUT</option>
@@ -161,6 +164,13 @@ function renderBinCard() {
       </div>
     `;
   });
+}
+function setSatuan() {
+
+  let select = document.getElementById("item");
+  let satuan = select.options[select.selectedIndex].dataset.satuan;
+
+  document.getElementById("satuan").value = satuan;
 }
 
 function submitBin(e) {
@@ -180,6 +190,7 @@ function submitBin(e) {
   api({
     action: "saveBinCard",
     item: document.getElementById("item").value,
+    satuan: document.getElementById("satuan").value,
     qty: qty,
     tipe: document.getElementById("tipe").value,
     user: user.nama
