@@ -572,52 +572,7 @@ function showToast(message, type = "info") {
   setTimeout(() => toast.remove(), 3000);
 }
 
-//======DASHBOARD============
-function getDashboard(data) {
-
-  var sheet = SpreadsheetApp.openById(SS_ID).getSheetByName("BIN CARD");
-  var rows = sheet.getDataRange().getValues();
-
-  rows.shift();
-
-  let bulan = data.bulan;
-  let result = {};
-
-  rows.forEach(r => {
-
-    let tanggal = r[0];
-    if (!tanggal) return;
-
-    let tgl = new Date(tanggal);
-    let ym = Utilities.formatDate(tgl, "Asia/Jakarta", "yyyy-MM");
-
-    if (ym !== bulan) return;
-
-    let item = r[2];
-    let masuk = Number(r[4]) || 0;
-    let keluar = Number(r[5]) || 0;
-
-    if (!result[item]) {
-      result[item] = { in: 0, out: 0 };
-    }
-
-    result[item].in += masuk;
-    result[item].out += keluar;
-  });
-
-  let final = [];
-
-  for (let item in result) {
-    final.push({
-      item,
-      masuk: result[item].in,
-      keluar: result[item].out,
-      stok: result[item].in - result[item].out
-    });
-  }
-
-  return final;
-}
+//=======DASHBOARD===========
 function renderDashboard() {
 
   let currentMonth = getCurrentMonth();
