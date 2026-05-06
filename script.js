@@ -547,3 +547,45 @@ function loadDashboardToday() {
         document.getElementById("dashboardArea").innerHTML = html;
     });
 }
+
+//=====RIWAYAT========
+function renderHistory() {
+    loading();
+    // Kita minta data ke Apps Script dengan action 'getHistory'
+    api({ action: "getHistory" }).then(data => {
+        let html = `
+            <div class="card" style="max-width: 100%;">
+                <h3>Riwayat Bin Card</h3>
+                <div style="overflow-x: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Item</th>
+                                <th>Tipe</th>
+                                <th>Qty</th>
+                                <th>User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+
+        if (data && data.length > 0) {
+            html += data.map(row => `
+                <tr>
+                    <td>${new Date(row.tanggal).toLocaleDateString('id-ID')}</td>
+                    <td>${row.item}</td>
+                    <td><span class="badge" style="background:${row.tipe === 'IN' ? '#22c55e' : '#ef4444'}">${row.tipe}</span></td>
+                    <td>${row.qty}</td>
+                    <td>${row.user}</td>
+                </tr>
+            `).join("");
+        } else {
+            html += `<tr><td colspan="5" style="text-align:center">Belum ada riwayat</td></tr>`;
+        }
+
+        html += `</tbody></table></div></div>`;
+        document.getElementById("content").innerHTML = html;
+    });
+}
+
