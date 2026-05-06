@@ -10,6 +10,10 @@ function api(data) {
     body: JSON.stringify(data)
   }).then(res => res.json());
 }
+function getCurrentMonth() {
+  let d = new Date();
+  return d.toISOString().slice(0,7);
+}
 
 // ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
@@ -104,6 +108,7 @@ function renderMenu() {
     html += `<a onclick="renderRegister(); closeSidebar()">📝 Sign Up</a>`;
   } else {
 
+    html += `<a onclick="renderDashboard(); closeSidebar()">📊 Dashboard</a>`;
     html += `<a onclick="setActiveNav(0); renderBinCard(); closeSidebar()">📦 Bin Card</a>`;
     html += `<a onclick="setActiveNav(1); renderItem(); closeSidebar()">📋 Item</a>`;
     html += `<a onclick="setActiveNav(2); renderUser(); closeSidebar()">👤 User</a>`;
@@ -612,4 +617,55 @@ function getDashboard(data) {
   }
 
   return final;
+}
+function renderDashboard() {
+
+  let currentMonth = getCurrentMonth();
+
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Dashboard Stock</h3>
+
+      <input type="month" id="filterBulan" value="${currentMonth}">
+      <button onclick="loadDashboard()">Tampilkan</button>
+
+      <div id="dashboardData"></div>
+    </div>
+  `;
+
+  loadDashboard();
+}
+
+function loadDashboard() {
+
+  let bulan = document.getElementById("filterBulan").value;
+
+  loading("dashboardData");
+
+  api({
+    action: "getDashboard",
+    bulan: bulan
+  }).then(data => {
+
+    let html = `<div class="dashboard-list">`;
+
+    html += data.map(d => `
+      <div class="dash-card">
+        <b>${d.item}</b>
+
+        <div class="dash-row">
+          <span>IN: ${d.masuk}</span>
+          <span>OUT: ${d.keluar}</span>
+        </div>
+
+        <div class="dash-stock ${d.stok < 0 ? 'minus' : ''}">
+          Stock: ${d.stok}
+        </div>
+      </div>
+    `).join("");
+
+    html += `</div>`;
+
+    document.getElementById("dashboardData").innerHTML = html;
+  });
 }
