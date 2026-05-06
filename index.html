@@ -18,7 +18,7 @@
     <input type="text" id="username" placeholder="Username">
     <input type="password" id="password" placeholder="Password">
 
-    <button onclick="login()">Login</button>
+    <button onclick="login(event)">Login</button>
   </div>
 
 </div>
@@ -26,29 +26,51 @@
 <!-- ================= APP PAGE ================= -->
 <div id="appPage" style="display:none;">
 
-  <!-- BACKGROUND OVERLAY -->
+  <!-- OVERLAY SIDEBAR -->
   <div id="sidebar" class="sidebar"></div>
   <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-  <div class="main">
+  <!-- HEADER (mobile app style) -->
+  <div class="header">
+    <span class="menu-btn" onclick="toggleSidebar()">☰</span>
 
-    <!-- HEADER -->
-    <div class="header">
-      <span class="menu-btn" onclick="toggleSidebar()">☰</span>
-      <b>LIVING PLAZA BALIKPAPAN</b>
-      <span id="userName"></span>
-    </div>
+    <b class="title">LIVING PLAZA</b>
 
-    <!-- CONTENT -->
-    <div id="content" class="content"></div>
+    <span id="userName" class="user-label"></span>
+  </div>
+
+  <!-- CONTENT AREA -->
+  <div id="content" class="content"></div>
+
+  <!-- ================= BOTTOM NAV (NEW) ================= -->
+  <div class="bottom-nav">
+
+    <button onclick="renderBinCard()">
+      📦
+      <small>Bin</small>
+    </button>
+
+    <button onclick="renderItem()">
+      📋
+      <small>Item</small>
+    </button>
+
+    <button onclick="renderUser()">
+      👤
+      <small>Profile</small>
+    </button>
 
   </div>
 
 </div>
+
+<!-- ================= LOADING ================= -->
 <div id="loading" class="loading-overlay">
   <div class="spinner"></div>
   <p>Loading...</p>
 </div>
+
+<!-- ================= TOAST ================= -->
 <div id="toast-container"></div>
 
 <!-- ================= SCRIPT ================= -->
