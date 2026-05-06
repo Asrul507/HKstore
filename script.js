@@ -628,18 +628,13 @@ function loadDashboard() {
 //======HOME=========
 function renderHome() {
 
-  document.getElementById("formArea").innerHTML = `
-    
-    <!-- BIN CARD -->
+  document.getElementById("content").innerHTML = `
     <div id="formArea"></div>
-
-    <!-- DASHBOARD -->
     <div id="dashboardArea"></div>
-
   `;
 
-  renderBinCard();      // tampilkan form
-  loadDashboardToday(); // tampilkan stock
+  renderBinCard();      // masuk ke formArea
+  loadDashboardToday(); // masuk ke dashboardArea
 }
 function loadDashboardToday() {
 
