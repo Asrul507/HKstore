@@ -137,32 +137,46 @@ function setActiveNav(index){
 }
 
 // ================= BIN CARD =================
+let selectedType = "IN"; // default
+
 function renderBinCard() {
 
   loading();
 
   api({ action: "getItems" }).then(items => {
 
-    let options = items.map(i => `<option>${i[0]}</option>`).join("");
+    let options = items.map(i => `
+      <option value="${i[0]}" data-satuan="${i[1]}">
+        ${i[0]}
+      </option>
+    `).join("");
 
     document.getElementById("content").innerHTML = `
       <div class="card">
         <h3>BIN CARD</h3>
 
-        <select id="item">${options}</select>
-        <input id="qty" type="number" placeholder="Qty">
+        <label>Item</label>
+        <select id="item" onchange="setSatuan()">
+          ${options}
+        </select>
 
         <label>Satuan</label>
         <input id="satuan" readonly>
 
-        <select id="tipe">
-          <option value="IN">IN</option>
-          <option value="OUT">OUT</option>
-        </select>
+        <label>Qty</label>
+        <input id="qty" type="number" placeholder="Qty">
+
+        <label>Tipe</label>
+        <div class="toggle-group">
+          <button id="btnIn" class="active" onclick="setType('IN')">IN</button>
+          <button id="btnOut" onclick="setType('OUT')">OUT</button>
+        </div>
 
         <button onclick="submitBin(event)">Submit</button>
       </div>
     `;
+
+    setSatuan();
   });
 }
 function setSatuan() {
