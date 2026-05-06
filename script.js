@@ -31,13 +31,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ================= PAGE =================
 function showLogin() {
-  document.getElementById("loginPage").style.display = "flex";
-  document.getElementById("appPage").style.display = "none";
+  loginPage.style.display = "flex";
+  appPage.style.display = "none";
 }
 
 function showApp() {
-  document.getElementById("loginPage").style.display = "none";
-  document.getElementById("appPage").style.display = "block";
+  loginPage.style.display = "none";
+  appPage.style.display = "block";
 }
 
 // ================= LOGIN =================
@@ -96,13 +96,13 @@ function renderMenu() {
     html += `<a onclick="logout()">🚪 Logout</a>`;
   }
 
-  document.getElementById("sidebar").innerHTML = html;
-  document.getElementById("userName").innerText = user?.nama || "";
+  sidebar.innerHTML = html;
+  userName.innerText = user?.nama || "";
 }
 
 // ================= BOTTOM NAV =================
 function renderBottomNav() {
-  document.getElementById("bottomNav").innerHTML = `
+  bottomNav.innerHTML = `
     <button onclick="renderHome()">🏠<small>Home</small></button>
     <button onclick="renderDashboard()">📊<small>Dash</small></button>
     <button onclick="renderItem()">📋<small>Item</small></button>
@@ -113,7 +113,7 @@ function renderBottomNav() {
 // ================= HOME =================
 function renderHome() {
 
-  document.getElementById("content").innerHTML = `
+  content.innerHTML = `
     <div class="card">
       <h3>BIN CARD</h3>
       <div id="formArea"></div>
@@ -138,7 +138,7 @@ function renderBinCardHome() {
       <option value="${i[0]}" data-satuan="${i[1]}">${i[0]}</option>
     `).join("");
 
-    document.getElementById("formArea").innerHTML = `
+    formArea.innerHTML = `
       <select id="item" onchange="setSatuan()">${options}</select>
       <input id="satuan" readonly>
       <input id="qty" type="number" placeholder="Qty">
@@ -196,7 +196,7 @@ function renderDashboard() {
 
   let currentMonth = getCurrentMonth();
 
-  document.getElementById("content").innerHTML = `
+  content.innerHTML = `
     <div class="card">
       <h3>Dashboard</h3>
       <input type="month" id="filterBulan" value="${currentMonth}">
@@ -250,7 +250,7 @@ function loadDashboardToday() {
   });
 }
 
-// ================= ITEM =================
+// ================= ITEM CRUD =================
 function renderItem(){
 
   loading();
@@ -260,13 +260,14 @@ function renderItem(){
     let html = `
       <div class="card">
         <h3>Item</h3>
-        <button onclick="showAddItem()">+ Tambah</button>
+        <button onclick="showAddItem()">+ Tambah Item</button>
     `;
 
     html += items.map(i=>`
-      <div class="dash-row">
-        <b>${i[0]}</b>
-        <span>${i[1]}</span>
+      <div class="item-card">
+        <b>${i[0]}</b> (${i[1]})
+        <button onclick="editItem('${i[0]}','${i[1]}')">✏️</button>
+        <button onclick="deleteItem('${i[0]}')">🗑️</button>
       </div>
     `).join("");
 
@@ -276,18 +277,133 @@ function renderItem(){
   });
 }
 
+function showAddItem(){
+  content.innerHTML = `
+    <div class="card">
+      <input id="itemNama" placeholder="Nama">
+      <input id="itemSatuan" placeholder="Satuan">
+      <button onclick="addItem()">Simpan</button>
+      <button onclick="renderItem()">Kembali</button>
+    </div>
+  `;
+}
+
+function addItem(){
+  api({
+    action:"addItem",
+    nama:itemNama.value,
+    satuan:itemSatuan.value
+  }).then(()=>{
+    showToast("Berhasil","success");
+    renderItem();
+  });
+}
+
+function editItem(oldNama,satuan){
+  content.innerHTML = `
+    <div class="card">
+      <input id="itemNama" value="${oldNama}">
+      <input id="itemSatuan" value="${satuan}">
+      <button onclick="updateItem('${oldNama}')">Update</button>
+    </div>
+  `;
+}
+
+function updateItem(oldNama){
+  api({
+    action:"updateItem",
+    oldNama,
+    nama:itemNama.value,
+    satuan:itemSatuan.value
+  }).then(()=>{
+    showToast("Update berhasil","success");
+    renderItem();
+  });
+}
+
+function deleteItem(nama){
+  if(!confirm("Hapus?")) return;
+
+  api({ action:"deleteItem", nama }).then(()=>{
+    showToast("Dihapus","success");
+    renderItem();
+  });
+}
+
 // ================= USER =================
 function renderUser(){
   content.innerHTML = `
     <div class="card">
-      <h3>${user?.nama}</h3>
+      <h3>${user.nama}</h3>
+      <p>${user.role}</p>
     </div>
   `;
 }
 
 // ================= USER MANAGEMENT =================
 function renderUserManagement(){
-  content.innerHTML = `<div class="card">User Management</div>`;
+
+  api({ action:"getUsers" }).then(users=>{
+
+    let html = `
+      <div class="card">
+        <h3>User Management</h3>
+        <button onclick="showAddUser()">+ Tambah</button>
+    `;
+
+    html += users.map(u=>`
+      <div class="user-card">
+        ${u[0]} (${u[1]})
+        <button onclick="deleteUser('${u[1]}')">🗑️</button>
+      </div>
+    `).join("");
+
+    html += `</div>`;
+
+    content.innerHTML = html;
+  });
+}
+
+function showAddUser(){
+  content.innerHTML = `
+    <div class="card">
+      <input id="nama" placeholder="Nama">
+      <input id="nip" placeholder="NIP">
+      <select id="jabatan">
+        <option>Leader</option>
+        <option>Supervisor</option>
+        <option>HO</option>
+      </select>
+      <input id="password" placeholder="Password">
+      <button onclick="addUser()">Simpan</button>
+    </div>
+  `;
+}
+
+function addUser(){
+
+  let jabatan = document.getElementById("jabatan").value;
+
+  let role = (jabatan === "Supervisor" || jabatan === "HO") ? "admin" : "staff";
+
+  api({
+    action:"register",
+    nama:nama.value,
+    nip:nip.value,
+    jabatan,
+    password:password.value,
+    role
+  }).then(()=>{
+    showToast("User ditambah","success");
+    renderUserManagement();
+  });
+}
+
+function deleteUser(nip){
+  api({ action:"deleteUser", nip }).then(()=>{
+    showToast("User dihapus","success");
+    renderUserManagement();
+  });
 }
 
 // ================= LOGOUT =================
@@ -300,20 +416,15 @@ function logout(){
 
 // ================= UTIL =================
 function loading(el="content"){
-  document.getElementById(el).innerHTML = `
-    <div style="text-align:center">
-      <div class="spinner"></div>
-      <p>Loading...</p>
-    </div>
-  `;
+  document.getElementById(el).innerHTML = `<div class="spinner"></div>`;
 }
 
 function showLoading(){
-  document.getElementById("loading").style.display="flex";
+  loading.style.display="flex";
 }
 
 function hideLoading(){
-  document.getElementById("loading").style.display="none";
+  loading.style.display="none";
 }
 
 function showToast(msg,type="info"){
