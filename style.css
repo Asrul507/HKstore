@@ -405,3 +405,33 @@ label {
 .toggle-group button:nth-child(2).active {
   background: linear-gradient(135deg, #ef4444, #dc2626);
 }
+
+.dashboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.dash-card {
+  padding: 15px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.dash-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.dash-stock {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #22c55e;
+}
+
+.dash-stock.minus {
+  color: #ef4444;
+}
