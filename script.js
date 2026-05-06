@@ -342,17 +342,137 @@ function renderUser() {
 // ================= USER MANAGEMENT =================
 function renderUserManagement() {
 
+  if (user.role !== "admin") {
+    showToast("Akses ditolak", "error");
+    return;
+  }
+
   loading();
 
   api({ action: "getUsers" }).then(users => {
 
-    let html = `<div class="card"><h3>User Management</h3>`;
+    let html = `
+      <div class="card">
+        <h3>User Management</h3>
 
-    html += users.map(u => `<div>${u[0]} (${u[1]})</div>`).join("");
+        <button onclick="showAddUser()">+ Tambah User</button>
 
-    html += `</div>`;
+        <div class="user-list">
+    `;
+
+    html += users.map(u => `
+      <div class="user-card">
+        <div>
+          <b>${u[0]}</b><br>
+          <small>${u[1]} - ${u[2]}</small><br>
+          <span class="badge">${u[4]}</span>
+        </div>
+
+        <div class="user-action">
+          <button onclick="editUser('${u[1]}','${u[0]}','${u[2]}')">✏️</button>
+          <button onclick="deleteUser('${u[1]}')">🗑️</button>
+        </div>
+      </div>
+    `).join("");
+
+    html += `
+        </div>
+      </div>
+    `;
 
     document.getElementById("content").innerHTML = html;
+  });
+}
+function showAddUser() {
+
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Tambah User</h3>
+
+      <input id="nama" placeholder="Nama">
+      <input id="nip" placeholder="NIP">
+
+      <select id="jabatan">
+        <option>Leader</option>
+        <option>Supervisor</option>
+        <option>HO</option>
+      </select>
+
+      <input id="password" type="password" placeholder="Password">
+
+      <button onclick="addUser()">Simpan</button>
+      <button onclick="renderUserManagement()">Kembali</button>
+    </div>
+  `;
+}
+
+function addUser() {
+
+  let jabatan = document.getElementById("jabatan").value;
+
+  let role = (jabatan === "Supervisor" || jabatan === "HO")
+    ? "admin"
+    : "staff";
+
+  api({
+    action: "register",
+    nama: nama.value,
+    nip: nip.value,
+    jabatan,
+    password: password.value,
+    role
+  }).then(() => {
+
+    showToast("User ditambahkan", "success");
+    renderUserManagement();
+  });
+}
+function editUser(nip, nama, jabatan) {
+
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Edit User</h3>
+
+      <input id="nama" value="${nama}">
+
+      <select id="jabatan">
+        <option ${jabatan==="Leader"?"selected":""}>Leader</option>
+        <option ${jabatan==="Supervisor"?"selected":""}>Supervisor</option>
+        <option ${jabatan==="HO"?"selected":""}>HO</option>
+      </select>
+
+      <button onclick="updateUser('${nip}')">Update</button>
+      <button onclick="renderUserManagement()">Batal</button>
+    </div>
+  `;
+}
+
+function updateUser(nip) {
+
+  let jabatan = document.getElementById("jabatan").value;
+
+  api({
+    action: "updateUser",
+    nip,
+    nama: nama.value,
+    jabatan
+  }).then(() => {
+
+    showToast("User diupdate", "success");
+    renderUserManagement();
+  });
+}
+function deleteUser(nip) {
+
+  if (!confirm("Hapus user ini?")) return;
+
+  api({
+    action: "deleteUser",
+    nip
+  }).then(() => {
+
+    showToast("User dihapus", "success");
+    renderUserManagement();
   });
 }
 
