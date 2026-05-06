@@ -186,6 +186,19 @@ function setSatuan() {
 
   document.getElementById("satuan").value = satuan;
 }
+function setType(type) {
+
+  selectedType = type;
+
+  document.getElementById("btnIn").classList.remove("active");
+  document.getElementById("btnOut").classList.remove("active");
+
+  if (type === "IN") {
+    document.getElementById("btnIn").classList.add("active");
+  } else {
+    document.getElementById("btnOut").classList.add("active");
+  }
+}
 
 function submitBin(e) {
 
@@ -206,7 +219,7 @@ function submitBin(e) {
     item: document.getElementById("item").value,
     satuan: document.getElementById("satuan").value,
     qty: qty,
-    tipe: document.getElementById("tipe").value,
+    tipe: selectedType,
     user: user.nama
   }).then(() => {
 
