@@ -1,436 +1,467 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbyi1UnqP29wrVCPYk0kGGWpAhAgBpfuWNKT6NrixWzjqxcGbSxXZuyYPmKPHkkxjkPB/exec";
-
 let user = JSON.parse(localStorage.getItem("user")) || null;
-let selectedType = "IN";
+let selectedType = "IN"; 
 
 // ================= API =================
 function api(data) {
-  return fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify(data)
-  }).then(res => res.json());
+    return fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(data)
+    }).then(res => res.json());
 }
 
 function getCurrentMonth() {
-  return new Date().toISOString().slice(0,7);
+    let d = new Date();
+    return d.toISOString().slice(0, 7);
 }
 
 // ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
-  renderMenu();
-  renderBottomNav();
-
-  if (user) {
-    showApp();
-    renderHome();
-  } else {
-    showLogin();
-  }
+    renderMenu();
+    renderBottomNav();
+    if (user) {
+        showApp();
+        renderHome(); // Memanggil renderHome yang berisi Bin Card & Dashboard
+        setActiveNav(0);
+    } else {
+        showLogin();
+    }
 });
 
-// ================= PAGE =================
+// ================= PAGE CONTROL =================
 function showLogin() {
-  loginPage.style.display = "flex";
-  appPage.style.display = "none";
+    document.getElementById("loginPage").style.display = "flex";
+    document.getElementById("appPage").style.display = "none";
+    setTimeout(() => {
+        document.getElementById("username")?.focus();
+    }, 200);
 }
 
 function showApp() {
-  loginPage.style.display = "none";
-  appPage.style.display = "block";
+    document.getElementById("loginPage").style.display = "none";
+    document.getElementById("appPage").style.display = "block";
 }
 
-// ================= LOGIN =================
-function login() {
-
-  let username = document.getElementById("username").value;
-  let password = document.getElementById("password").value;
-
-  if(!username || !password){
-    showToast("Isi username & password","error");
-    return;
-  }
-
-  showLoading();
-
-  api({ action: "login", username, password }).then(res => {
-
-    hideLoading();
-
-    if (res.status === "success") {
-
-      user = res;
-      localStorage.setItem("user", JSON.stringify(res));
-
-      showApp();
-      renderMenu();
-      renderBottomNav();
-      renderHome();
-
-      showToast("Login berhasil", "success");
-
-    } else {
-      showToast("Login gagal", "error");
+// ================= ENTER KEY LOGIN =================
+document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && document.getElementById("loginPage").style.display !== "none") {
+        login();
     }
-  });
+});
+
+// ================= LOGIN =================
+function login(e) {
+    let btn = e?.target;
+    if (btn) btn.classList.add("loading");
+    showLoading();
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+
+    if (!username || !password) {
+        showToast("Isi username & password", "error");
+        hideLoading();
+        return;
+    }
+
+    api({ action: "login", username, password }).then(res => {
+        setTimeout(() => {
+            hideLoading();
+            if (btn) btn.classList.remove("loading");
+            if (res.status === "success") {
+                user = res;
+                localStorage.setItem("user", JSON.stringify(res));
+                showApp();
+                renderMenu();
+                renderBottomNav();
+                setActiveNav(0);
+                renderHome();
+                showToast("Login berhasil", "success");
+            } else {
+                showToast("Login gagal", "error");
+            }
+        }, 500);
+    });
 }
 
 // ================= MENU =================
 function renderMenu() {
-
-  let html = `<h3>HK STORE</h3>`;
-
-  if (!user) {
-    html += `<a onclick="showLogin()">Login</a>`;
-  } else {
-
-    html += `<a onclick="renderHome()">🏠 Home</a>`;
-    html += `<a onclick="renderDashboard()">📊 Dashboard</a>`;
-    html += `<a onclick="renderItem()">📋 Item</a>`;
-    html += `<a onclick="renderUser()">👤 User</a>`;
-
-    if (user.role === "admin") {
-      html += `<a onclick="renderUserManagement()">⚙️ User Management</a>`;
+    let html = `<h3>HK STORE</h3>`;
+    if (!user) {
+        html += `<a onclick="showLogin(); closeSidebar()">🔑 Login</a>`;
+    } else {
+        html += `<a onclick="renderHome(); closeSidebar()">🏠 Home</a>`;
+        html += `<a onclick="setActiveNav(1); renderItem(); closeSidebar()">📋 Item</a>`;
+        html += `<a onclick="setActiveNav(2); renderUser(); closeSidebar()">👤 User</a>`;
+        if (user.role === "admin") {
+            html += `<a onclick="renderUserManagement(); closeSidebar()">⚙️ User Management</a>`;
+        }
+        html += `<a onclick="logout(); closeSidebar()">🚪 Logout</a>`;
     }
-
-    html += `<a onclick="logout()">🚪 Logout</a>`;
-  }
-
-  sidebar.innerHTML = html;
-  userName.innerText = user?.nama || "";
+    document.getElementById("sidebar").innerHTML = html;
+    if (document.getElementById("userName")) {
+        document.getElementById("userName").innerText = user?.nama || "";
+    }
 }
 
 // ================= BOTTOM NAV =================
 function renderBottomNav() {
-  bottomNav.innerHTML = `
-    <button onclick="renderHome()">🏠<small>Home</small></button>
-    <button onclick="renderDashboard()">📊<small>Dash</small></button>
-    <button onclick="renderItem()">📋<small>Item</small></button>
-    <button onclick="renderUser()">👤<small>User</small></button>
-  `;
+    document.getElementById("bottomNav").innerHTML = `
+        <button onclick="setActiveNav(0); renderHome()">🏠<small>Home</small></button>
+        <button onclick="setActiveNav(1); renderDashboard()">📊<small>Dash</small></button>
+        <button onclick="setActiveNav(2); renderItem()">📋<small>Item</small></button>
+        <button onclick="setActiveNav(3); renderUser()">👤<small>Profile</small></button>
+    `;
 }
 
-// ================= HOME =================
-function renderHome() {
-
-  content.innerHTML = `
-    <div class="card">
-      <h3>BIN CARD</h3>
-      <div id="formArea"></div>
-    </div>
-
-    <div class="card">
-      <h3>Stock Saat Ini</h3>
-      <div id="dashboardArea"></div>
-    </div>
-  `;
-
-  renderBinCardHome();
-  loadDashboardToday();
+// ================= ACTIVE NAV =================
+function setActiveNav(index) {
+    let btns = document.querySelectorAll("#bottomNav button");
+    btns.forEach(b => b.classList.remove("active"));
+    if (btns[index]) btns[index].classList.add("active");
 }
 
 // ================= BIN CARD =================
-function renderBinCardHome() {
-
-  api({ action: "getItems" }).then(items => {
-
-    let options = items.map(i => `
-      <option value="${i[0]}" data-satuan="${i[1]}">${i[0]}</option>
-    `).join("");
-
-    formArea.innerHTML = `
-      <select id="item" onchange="setSatuan()">${options}</select>
-      <input id="satuan" readonly>
-      <input id="qty" type="number" placeholder="Qty">
-
-      <div class="toggle-group">
-        <button onclick="setType('IN')">IN</button>
-        <button onclick="setType('OUT')">OUT</button>
-      </div>
-
-      <button onclick="submitBin()">Submit</button>
-    `;
-
-    setSatuan();
-  });
+function renderBinCard(target = "content") {
+    loading(target);
+    api({ action: "getItems" }).then(items => {
+        let options = items.map(i => `<option value="${i[0]}" data-satuan="${i[1]}">${i[0]}</option>`).join("");
+        document.getElementById(target).innerHTML = `
+            <div class="card">
+                <h3>BIN CARD</h3>
+                <label>Item</label>
+                <select id="item" onchange="setSatuan()">${options}</select>
+                <label>Satuan</label>
+                <input id="satuan" readonly>
+                <label>Qty</label>
+                <input id="qty" type="number" placeholder="Qty">
+                <label>Tipe</label>
+                <div class="toggle-group">
+                    <button id="btnIn" class="active" onclick="setType('IN')">IN</button>
+                    <button id="btnOut" onclick="setType('OUT')">OUT</button>
+                </div>
+                <button onclick="submitBin(event)">Submit</button>
+            </div>
+        `;
+        setSatuan();
+    });
 }
 
 function setSatuan() {
-  let s = document.getElementById("item");
-  let satuan = s.options[s.selectedIndex].dataset.satuan;
-  document.getElementById("satuan").value = satuan;
+    let select = document.getElementById("item");
+    if (!select.options[select.selectedIndex]) return;
+    let satuan = select.options[select.selectedIndex].dataset.satuan;
+    document.getElementById("satuan").value = satuan;
 }
 
-function setType(type){
-  selectedType = type;
-}
-
-function submitBin() {
-
-  let qty = document.getElementById("qty").value;
-
-  if(!qty){
-    showToast("Qty kosong","error");
-    return;
-  }
-
-  showLoading();
-
-  api({
-    action:"saveBinCard",
-    item: item.value,
-    satuan: satuan.value,
-    qty,
-    tipe: selectedType,
-    user: user.nama
-  }).then(()=>{
-    hideLoading();
-    document.getElementById("qty").value="";
-    showToast("Tersimpan","success");
-    loadDashboardToday();
-  });
-}
-
-// ================= DASHBOARD =================
-function renderDashboard() {
-
-  let currentMonth = getCurrentMonth();
-
-  content.innerHTML = `
-    <div class="card">
-      <h3>Dashboard</h3>
-      <input type="month" id="filterBulan" value="${currentMonth}">
-      <button onclick="loadDashboard()">Tampilkan</button>
-      <div id="dashboardData"></div>
-    </div>
-  `;
-
-  loadDashboard();
-}
-
-function loadDashboard() {
-
-  let bulan = document.getElementById("filterBulan").value;
-
-  loading("dashboardData");
-
-  api({ action:"getDashboard", bulan }).then(data=>{
-
-    if(!data || data.length===0){
-      dashboardData.innerHTML="Tidak ada data";
-      return;
+function setType(type) {
+    selectedType = type;
+    document.getElementById("btnIn").classList.remove("active");
+    document.getElementById("btnOut").classList.remove("active");
+    if (type === "IN") {
+        document.getElementById("btnIn").classList.add("active");
+    } else {
+        document.getElementById("btnOut").classList.add("active");
     }
-
-    dashboardData.innerHTML = data.map(d=>`
-      <div class="dash-row">
-        <b>${d.item}</b>
-        <span>${d.stok}</span>
-      </div>
-    `).join("");
-  });
 }
 
-function loadDashboardToday() {
-
-  let bulan = getCurrentMonth();
-
-  api({ action:"getDashboard", bulan }).then(data=>{
-
-    if(!data || data.length===0){
-      dashboardArea.innerHTML="Belum ada data";
-      return;
+function submitBin(e) {
+    let btn = e?.target;
+    let qty = document.getElementById("qty").value;
+    if (!qty) {
+        showToast("Qty tidak boleh kosong", "error");
+        return;
     }
-
-    dashboardArea.innerHTML = data.map(d=>`
-      <div class="dash-row">
-        <b>${d.item}</b>
-        <span>${d.stok}</span>
-      </div>
-    `).join("");
-  });
+    if (btn) btn.classList.add("loading");
+    showLoading();
+    api({
+        action: "saveBinCard",
+        item: document.getElementById("item").value,
+        satuan: document.getElementById("satuan").value,
+        qty: qty,
+        tipe: selectedType,
+        user: user.nama
+    }).then(() => {
+        setTimeout(() => {
+            hideLoading();
+            if (btn) btn.classList.remove("loading");
+            document.getElementById("qty").value = "";
+            showToast("Data berhasil disimpan", "success");
+            loadDashboardToday();
+        }, 400);
+    });
 }
 
-// ================= ITEM CRUD =================
-function renderItem(){
+// ================= ITEM =================
+function renderItem() {
+    loading();
+    api({ action: "getItems" }).then(items => {
+        let html = `
+            <div class="card">
+                <h3>Item</h3>
+                <button onclick="showAddItem()">+ Tambah Item</button>
+                <div class="item-list">
+        `;
+        html += items.map(i => `
+            <div class="item-card">
+                <div><b>${i[0]}</b> <small>${i[1]}</small></div>
+                <div class="item-action">
+                    <button onclick="editItem('${i[0]}','${i[1]}')">✏️</button>
+                    <button onclick="deleteItem('${i[0]}')">🗑️</button>
+                </div>
+            </div>
+        `).join("");
+        html += `</div></div>`;
+        document.getElementById("content").innerHTML = html;
+    });
+}
 
-  loading();
-
-  api({ action:"getItems" }).then(items=>{
-
-    let html = `
-      <div class="card">
-        <h3>Item</h3>
-        <button onclick="showAddItem()">+ Tambah Item</button>
+function showAddItem() {
+    document.getElementById("content").innerHTML = `
+        <div class="card">
+            <h3>Tambah Item</h3>
+            <input id="itemNama" placeholder="Nama Item">
+            <input id="itemSatuan" placeholder="Satuan">
+            <button onclick="addItem()">Simpan</button>
+            <button onclick="renderItem()">Kembali</button>
+        </div>
     `;
-
-    html += items.map(i=>`
-      <div class="item-card">
-        <b>${i[0]}</b> (${i[1]})
-        <button onclick="editItem('${i[0]}','${i[1]}')">✏️</button>
-        <button onclick="deleteItem('${i[0]}')">🗑️</button>
-      </div>
-    `).join("");
-
-    html += `</div>`;
-
-    content.innerHTML = html;
-  });
 }
 
-function showAddItem(){
-  content.innerHTML = `
-    <div class="card">
-      <input id="itemNama" placeholder="Nama">
-      <input id="itemSatuan" placeholder="Satuan">
-      <button onclick="addItem()">Simpan</button>
-      <button onclick="renderItem()">Kembali</button>
-    </div>
-  `;
+function addItem() {
+    let nama = document.getElementById("itemNama").value;
+    let satuan = document.getElementById("itemSatuan").value;
+    if (!nama || !satuan) {
+        showToast("Lengkapi data", "error");
+        return;
+    }
+    showLoading();
+    api({ action: "addItem", nama, satuan }).then(() => {
+        hideLoading();
+        showToast("Item ditambahkan", "success");
+        renderItem();
+    });
 }
 
-function addItem(){
-  api({
-    action:"addItem",
-    nama:itemNama.value,
-    satuan:itemSatuan.value
-  }).then(()=>{
-    showToast("Berhasil","success");
-    renderItem();
-  });
+function editItem(oldNama, satuan) {
+    document.getElementById("content").innerHTML = `
+        <div class="card">
+            <h3>Edit Item</h3>
+            <input id="itemNama" value="${oldNama}">
+            <input id="itemSatuan" value="${satuan}">
+            <button onclick="updateItem('${oldNama}')">Update</button>
+            <button onclick="renderItem()">Batal</button>
+        </div>
+    `;
 }
 
-function editItem(oldNama,satuan){
-  content.innerHTML = `
-    <div class="card">
-      <input id="itemNama" value="${oldNama}">
-      <input id="itemSatuan" value="${satuan}">
-      <button onclick="updateItem('${oldNama}')">Update</button>
-    </div>
-  `;
+function updateItem(oldNama) {
+    let nama = document.getElementById("itemNama").value;
+    let satuan = document.getElementById("itemSatuan").value;
+    showLoading();
+    api({ action: "updateItem", oldNama, nama, satuan }).then(() => {
+        hideLoading();
+        showToast("Item diupdate", "success");
+        renderItem();
+    });
 }
 
-function updateItem(oldNama){
-  api({
-    action:"updateItem",
-    oldNama,
-    nama:itemNama.value,
-    satuan:itemSatuan.value
-  }).then(()=>{
-    showToast("Update berhasil","success");
-    renderItem();
-  });
-}
-
-function deleteItem(nama){
-  if(!confirm("Hapus?")) return;
-
-  api({ action:"deleteItem", nama }).then(()=>{
-    showToast("Dihapus","success");
-    renderItem();
-  });
+function deleteItem(nama) {
+    if (!confirm("Hapus item ini?")) return;
+    showLoading();
+    api({ action: "deleteItem", nama }).then(() => {
+        hideLoading();
+        showToast("Item dihapus", "success");
+        renderItem();
+    });
 }
 
 // ================= USER =================
-function renderUser(){
-  content.innerHTML = `
-    <div class="card">
-      <h3>${user.nama}</h3>
-      <p>${user.role}</p>
-    </div>
-  `;
+function renderUser() {
+    document.getElementById("content").innerHTML = `
+        <div class="card">
+            <h3>User Profile</h3>
+            <p>Nama: ${user?.nama || "-"}</p>
+            <p>NIP: ${user?.nip || "-"}</p>
+            <p>Role: ${user?.role || "-"}</p>
+        </div>
+    `;
 }
 
 // ================= USER MANAGEMENT =================
-function renderUserManagement(){
+function renderUserManagement() {
+    if (user.role !== "admin") {
+        showToast("Akses ditolak", "error");
+        return;
+    }
+    loading();
+    api({ action: "getUsers" }).then(users => {
+        let html = `
+            <div class="card">
+                <h3>User Management</h3>
+                <button onclick="showAddUser()">+ Tambah User</button>
+                <div class="user-list">
+        `;
+        html += users.map(u => `
+            <div class="user-card">
+                <div>
+                    <b>${u[0]}</b><br>
+                    <small>${u[1]} - ${u[2]}</small><br>
+                    <span class="badge">${u[4]}</span>
+                </div>
+                <div class="user-action">
+                    <button onclick="editUser('${u[1]}','${u[0]}','${u[2]}')">✏️</button>
+                    <button onclick="deleteUser('${u[1]}')">🗑️</button>
+                </div>
+            </div>
+        `).join("");
+        html += `</div></div>`;
+        document.getElementById("content").innerHTML = html;
+    });
+}
 
-  api({ action:"getUsers" }).then(users=>{
-
-    let html = `
-      <div class="card">
-        <h3>User Management</h3>
-        <button onclick="showAddUser()">+ Tambah</button>
+function showAddUser() {
+    document.getElementById("content").innerHTML = `
+        <div class="card">
+            <h3>Tambah User</h3>
+            <input id="nama" placeholder="Nama">
+            <input id="nip" placeholder="NIP">
+            <select id="jabatan">
+                <option>Leader</option>
+                <option>Supervisor</option>
+                <option>HO</option>
+            </select>
+            <input id="password" type="password" placeholder="Password">
+            <button onclick="addUser()">Simpan</button>
+            <button onclick="renderUserManagement()">Kembali</button>
+        </div>
     `;
-
-    html += users.map(u=>`
-      <div class="user-card">
-        ${u[0]} (${u[1]})
-        <button onclick="deleteUser('${u[1]}')">🗑️</button>
-      </div>
-    `).join("");
-
-    html += `</div>`;
-
-    content.innerHTML = html;
-  });
 }
 
-function showAddUser(){
-  content.innerHTML = `
-    <div class="card">
-      <input id="nama" placeholder="Nama">
-      <input id="nip" placeholder="NIP">
-      <select id="jabatan">
-        <option>Leader</option>
-        <option>Supervisor</option>
-        <option>HO</option>
-      </select>
-      <input id="password" placeholder="Password">
-      <button onclick="addUser()">Simpan</button>
-    </div>
-  `;
+function addUser() {
+    let namaVal = document.getElementById("nama").value;
+    let nipVal = document.getElementById("nip").value;
+    let passVal = document.getElementById("password").value;
+    let jabatan = document.getElementById("jabatan").value;
+    let role = (jabatan === "Supervisor" || jabatan === "HO") ? "admin" : "staff";
+    
+    showLoading();
+    api({ action: "register", nama: namaVal, nip: nipVal, jabatan, password: passVal, role }).then(() => {
+        hideLoading();
+        showToast("User ditambahkan", "success");
+        renderUserManagement();
+    });
 }
 
-function addUser(){
-
-  let jabatan = document.getElementById("jabatan").value;
-
-  let role = (jabatan === "Supervisor" || jabatan === "HO") ? "admin" : "staff";
-
-  api({
-    action:"register",
-    nama:nama.value,
-    nip:nip.value,
-    jabatan,
-    password:password.value,
-    role
-  }).then(()=>{
-    showToast("User ditambah","success");
-    renderUserManagement();
-  });
+// ================= SIDEBAR =================
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+    document.getElementById("overlay").classList.toggle("show");
 }
 
-function deleteUser(nip){
-  api({ action:"deleteUser", nip }).then(()=>{
-    showToast("User dihapus","success");
-    renderUserManagement();
-  });
+function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("show");
+    document.getElementById("overlay").classList.remove("show");
 }
 
 // ================= LOGOUT =================
-function logout(){
-  localStorage.removeItem("user");
-  user=null;
-  showLogin();
-  renderMenu();
+function logout() {
+    localStorage.removeItem("user");
+    user = null;
+    showLogin();
+    renderMenu();
+    renderBottomNav();
 }
 
-// ================= UTIL =================
-function loading(el="content"){
-  document.getElementById(el).innerHTML = `<div class="spinner"></div>`;
+// ================= LOADING & UI =================
+function loading(el = "content") {
+    document.getElementById(el).innerHTML = `
+        <div style="text-align:center;padding:20px;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    `;
 }
 
-function showLoading(){
-  loading.style.display="flex";
+function showLoading() {
+    document.getElementById("loading").style.display = "flex";
 }
 
-function hideLoading(){
-  loading.style.display="none";
+function hideLoading() {
+    document.getElementById("loading").style.display = "none";
 }
 
-function showToast(msg,type="info"){
-  let t=document.createElement("div");
-  t.className=`toast ${type}`;
-  t.innerText=msg;
-  document.getElementById("toast-container").appendChild(t);
-  setTimeout(()=>t.remove(),3000);
+function showToast(message, type = "info") {
+    let container = document.getElementById("toast-container");
+    let toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerText = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+//======= DASHBOARD ===========
+function renderDashboard() {
+    let currentMonth = getCurrentMonth();
+    document.getElementById("content").innerHTML = `
+        <div class="card">
+            <h3>Dashboard Stock</h3>
+            <input type="month" id="filterBulan" value="${currentMonth}">
+            <button onclick="loadDashboard()">Tampilkan</button>
+            <div id="dashboardData"></div>
+        </div>
+    `;
+    loadDashboard();
+}
+
+function loadDashboard() {
+    let bulan = document.getElementById("filterBulan").value;
+    loading("dashboardData");
+    api({ action: "getDashboard", bulan: bulan }).then(data => {
+        let html = `<div class="dashboard-list">`;
+        html += data.map(d => `
+            <div class="dash-card">
+                <b>${d.item}</b>
+                <div class="dash-row">
+                    <span>IN: ${d.masuk}</span>
+                    <span>OUT: ${d.keluar}</span>
+                </div>
+                <div class="dash-stock ${d.stok < 0 ? 'minus' : ''}">
+                    Stock: ${d.stok}
+                </div>
+            </div>
+        `).join("");
+        html += `</div>`;
+        document.getElementById("dashboardData").innerHTML = html;
+    });
+}
+
+//====== HOME =========
+function renderHome() {
+    document.getElementById("content").innerHTML = `
+        <div id="formArea"></div>
+        <div id="dashboardArea"></div>
+    `;
+    renderBinCard("formArea");
+    loadDashboardToday();
+}
+
+function loadDashboardToday() {
+    let bulan = getCurrentMonth();
+    loading("dashboardArea");
+    api({ action: "getDashboard", bulan: bulan }).then(data => {
+        if (!data || data.length === 0) {
+            document.getElementById("dashboardArea").innerHTML = "<p style='text-align:center'>Belum ada data bulan ini</p>";
+            return;
+        }
+        let html = `<div class="card"><h3>Stock Saat Ini (${bulan})</h3>`;
+        html += data.map(d => `
+            <div class="dash-row" style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;">
+                <b>${d.item}</b>
+                <span>${d.stok}</span>
+            </div>
+        `).join("");
+        html += `</div>`;
+        document.getElementById("dashboardArea").innerHTML = html;
+    });
 }
