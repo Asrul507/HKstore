@@ -128,7 +128,7 @@ function renderMenu() {
 function renderBottomNav() {
 
   document.getElementById("bottomNav").innerHTML = `
-    <button onclick="setActiveNav(0); renderBinCard()">📦<small>Bin</small></button>
+    <button onclick="setActiveNav(0); renderBinCard()">📦<small>Bin card</small></button>
     <button onclick="setActiveNav(1); renderItem()">📋<small>Item</small></button>
     <button onclick="setActiveNav(2); renderUser()">👤<small>Profile</small></button>
   `;
