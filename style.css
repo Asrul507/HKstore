@@ -1,5 +1,5 @@
 /* ===== GLOBAL ===== */
-//* {
+* {
   box-sizing: border-box;
 }
 
@@ -9,7 +9,7 @@
   --space-3: 15px;
   --space-4: 20px;
   --space-5: 30px;
-}*//
+}
 
 body {
   margin: 0;
