@@ -123,28 +123,44 @@ function setActiveNav(index) {
 
 // ================= BIN CARD =================
 function renderBinCard(target = "content") {
-    loading(target);
-    api({ action: "getItems" }).then(items => {
-        let options = items.map(i => `<option value="${i[0]}" data-satuan="${i[1]}">${i[0]}</option>`).join("");
-        document.getElementById(target).innerHTML = `
-            <div class="card">
-                <h3>BIN CARD</h3>
-                <label>Item</label>
-                <select id="item" onchange="setSatuan()">${options}</select>
-                <label>Satuan</label>
-                <input id="satuan" readonly>
-                <label>Qty</label>
-                <input id="qty" type="number" placeholder="Qty">
-                <label>Tipe</label>
-                <div class="toggle-group">
-                    <button id="btnIn" class="active" onclick="setType('IN')">IN</button>
-                    <button id="btnOut" onclick="setType('OUT')">OUT</button>
-                </div>
-                <button onclick="submitBin(event)">Submit</button>
-            </div>
-        `;
-        setSatuan();
-    });
+
+  loading(target);
+
+  api({ action: "getItems" }).then(items => {
+
+    let options = items.map(i => `
+      <option value="${i[0]}" data-satuan="${i[1]}">
+        ${i[0]}
+      </option>
+    `).join("");
+
+    document.getElementById(target).innerHTML = `
+      <div class="card">
+        <h3>BIN CARD</h3>
+
+        <label>Item</label>
+        <select id="item" onchange="setSatuan()">
+          ${options}
+        </select>
+
+        <label>Satuan</label>
+        <input id="satuan" readonly>
+
+        <label>Qty</label>
+        <input id="qty" type="number" placeholder="Qty">
+
+        <label>Tipe</label>
+        <div class="toggle-group">
+          <button id="btnIn" class="active" onclick="setType('IN')">IN</button>
+          <button id="btnOut" onclick="setType('OUT')">OUT</button>
+        </div>
+
+        <button onclick="submitBin(event)">Submit</button>
+      </div>
+    `;
+
+    setSatuan();
+  });
 }
 
 function setSatuan() {
@@ -438,14 +454,15 @@ function loadDashboard() {
 
 //====== HOME =========
 function renderHome() {
-    document.getElementById("content").innerHTML = `
-        <div id="formArea"></div>
-        <div id="dashboardArea"></div>
-    `;
-    renderBinCard("formArea");
-    loadDashboardToday();
-}
 
+  document.getElementById("content").innerHTML = `
+    <div id="formArea"></div>
+    <div id="dashboardArea"></div>
+  `;
+
+  renderBinCard("formArea");   // ✅ masuk ke formArea
+  loadDashboardToday();        // ✅ masuk ke dashboardArea
+}
 function loadDashboardToday() {
     let bulan = getCurrentMonth();
     loading("dashboardArea");
