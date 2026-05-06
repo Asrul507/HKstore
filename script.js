@@ -86,7 +86,7 @@ function login(e) {
         renderBottomNav();
 
         setActiveNav(0);
-        renderBinCard();
+        renderHome();;
 
         showToast("Login berhasil", "success");
 
