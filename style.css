@@ -1,103 +1,49 @@
 /* ==================================================
-   LIVING PLAZA INVENTORY SYSTEM - CLEAN VERSION
-   ==================================================
-*/
+   LIVING PLAZA - STABLE REFINED VERSION
+   ================================================== */
 
-/* ===== GLOBAL & RESET ===== */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 :root {
-  --space-1: 6px;
-  --space-2: 10px;
-  --space-3: 15px;
-  --space-4: 20px;
-  --space-5: 30px;
   --primary: #4a6cf7;
   --secondary: #9333ea;
-  --accent: #fbbf24;
-  --danger: #ef4444;
-  --success: #22c55e;
+  --dark: #0f172a;
+  --glass: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.15);
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #0f172a, #1e293b);
   color: #fff;
   overflow-x: hidden;
-  padding-bottom: 80px; /* Jarak untuk bottom nav */
-  transition: 0.3s;
+  padding-bottom: 80px; /* Jarak aman untuk bottom nav */
 }
 
-/* ===== HEADER ===== */
+/* ===== HEADER & NAVIGATION ===== */
 .header {
-  background: rgba(255,255,255,0.08);
+  background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(15px);
-  padding: var(--space-3);
+  padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  z-index: 900;
+  z-index: 100;
 }
 
-/* ===== SIDEBAR & OVERLAY ===== */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -265px;
-  width: 260px;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(18px);
-  padding: var(--space-4);
-  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1000;
-  border-right: 1px solid rgba(255,255,255,0.15);
-}
+.user-label { font-size: 14px; font-weight: 600; color: #fbbf24; }
 
-.sidebar.show { left: 0; }
-
-.sidebar a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 12px;
-  color: white;
-  text-decoration: none;
-  transition: 0.2s;
-}
-
-.sidebar a:hover { background: rgba(255,255,255,0.1); }
-
-.sidebar a i {
-  width: 20px;
-  text-align: center;
-}
-
-.overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  z-index: 999;
-}
-
-.overlay.show { display: block; }
-
-/* ===== MAIN CONTENT LAYOUT ===== */
+/* ===== LAYOUT KONTEN ===== */
 .content {
   width: 100%;
-  min-height: calc(100vh - 150px);
+  padding: 20px 10px; /* Jarak kiri-kanan tipis agar lebar di HP */
   display: flex;
-  justify-content: center;
-  padding: var(--space-4);
+  flex-direction: column;
+  align-items: center;
 }
 
 .home-grid {
@@ -108,102 +54,58 @@ body {
   align-items: center;
 }
 
-/* ===== CARD SYSTEM ===== */
+/* ===== CARD SYSTEM (Kunci Lebar) ===== */
 .card {
   width: 100%;
-  max-width: 500px;
-  padding: var(--space-4);
+  max-width: 450px; /* Di desktop tidak terlalu melar */
+  padding: 25px 20px;
+  background: var(--glass);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  border-radius: 20px;
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  gap: 15px;
 }
 
-.card h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.2rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  padding-bottom: 10px;
-}
-
-/* ===== FORM ELEMENTS ===== */
+/* ===== INPUT & TOMBOL ===== */
 input, select {
   width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
+  min-height: 50px;
+  padding: 12px 15px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.2);
   background: rgba(255,255,255,0.05);
-  color: white;
-  outline: none;
+  color: #fff;
   font-size: 16px;
-  transition: 0.3s;
+  outline: none;
 }
 
-input:focus, select:focus {
-  border-color: var(--primary);
-  background: rgba(255,255,255,0.1);
-  box-shadow: 0 0 12px rgba(74, 108, 247, 0.3);
-}
+input:focus { border-color: var(--primary); background: rgba(255,255,255,0.1); }
 
-label {
-  font-size: 13px;
-  font-weight: 600;
-  opacity: 0.8;
-  margin-bottom: -8px;
-  display: block;
-}
-
-/* ===== BUTTONS ===== */
 button {
   width: 100%;
-  min-height: 48px;
-  padding: 12px;
+  min-height: 50px;
   border-radius: 12px;
   border: none;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
   transition: 0.2s;
+}
+
+button:active { transform: scale(0.98); }
+
+/* ===== LOGIN PAGE STYLING ===== */
+.login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-}
-
-button:active { transform: scale(0.97); }
-
-.toggle-group {
-  display: flex;
-  gap: 10px;
-}
-
-.toggle-group button {
-  background: rgba(255,255,255,0.1);
-}
-
-.toggle-group button.active { background: var(--success); }
-.toggle-group button#btnOut.active { background: var(--danger); }
-
-/* ===== DASHBOARD & LISTS ===== */
-.dash-card, .item-card, .user-card {
-  padding: 15px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  margin-bottom: 10px;
-}
-
-.dash-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  min-height: 80vh; /* Agar tidak terlalu ke bawah */
+  width: 100%;
 }
 
 /* ===== BOTTOM NAVIGATION ===== */
@@ -213,110 +115,56 @@ button:active { transform: scale(0.97); }
   left: 0;
   width: 100%;
   height: 70px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  background: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255,255,255,0.15);
-  z-index: 999;
+  border-top: 1px solid var(--border);
+  z-index: 1000;
 }
 
 .bottom-nav button {
   background: none;
-  border: none;
   flex-direction: column;
-  font-size: 20px;
   opacity: 0.5;
-  transition: 0.3s;
+  font-size: 20px;
 }
 
-.bottom-nav button.active {
-  color: var(--accent);
-  opacity: 1;
-  transform: translateY(-5px);
-}
+.bottom-nav button.active { opacity: 1; color: #fbbf24; transform: translateY(-5px); }
+.bottom-nav small { font-size: 11px; margin-top: 4px; }
 
-.bottom-nav small {
-  font-size: 11px;
-  margin-top: 4px;
-}
-
-/* ===== LOGIN PAGE ===== */
-.login-wrapper {
-  display: flex;
+/* ===== LOADING & SPINNER ===== */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.8);
+  display: none; /* Dikontrol via JS */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 90vh;
-  padding: var(--space-4);
+  z-index: 9999;
 }
 
-.login-card {
-  text-align: center;
-  box-shadow: 0 0 30px rgba(74, 108, 247, 0.15);
-}
-
-/* ===== MOBILE OPTIMIZATION (THE MAGIC) ===== */
-@media (max-width: 600px) {
-  .content {
-    padding: 15px 10px; /* Jarak sangat tipis ke pinggir layar HP */
-  }
-
-  .card {
-    max-width: 100%;
-    width: 100%;
-    padding: 15px; /* Luas area input di dalam diperlebar */
-    border-radius: 15px;
-  }
-
-  .home-grid {
-    gap: 15px;
-  }
-}
-
-/* ===== DESKTOP OPTIMIZATION ===== */
-@media (min-width: 992px) {
-  .home-grid {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 30px;
-  }
-
-  #formArea, #dashboardArea {
-    flex: 1;
-  }
-  
-  .card { max-width: 100%; }
-}
-
-/* ===== UTILS ===== */
 .spinner {
-  width: 40px; height: 40px;
-  border: 4px solid rgba(255,255,255,0.1);
-  border-top: 4px solid var(--primary);
+  width: 50px; height: 50px;
+  border: 5px solid rgba(255,255,255,0.1);
+  border-top: 5px solid var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-#toast-container {
-  position: fixed;
-  top: 20px; right: 20px;
-  display: flex; flex-direction: column;
-  gap: 10px; z-index: 99999;
+/* ===== RESPONSIVE DESKTOP ===== */
+@media (min-width: 992px) {
+  .home-grid { flex-direction: row; justify-content: center; max-width: 1100px; gap: 30px; }
+  #formArea, #dashboardArea { flex: 1; }
+  .card { max-width: 100%; }
 }
 
-.toast {
-  padding: 12px 20px;
-  border-radius: 12px;
-  color: white;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  animation: slideIn 0.3s ease forwards;
+/* ===== RESPONSIVE HP (Lebar Maksimal) ===== */
+@media (max-width: 600px) {
+  .content { padding: 15px 5px; } /* Benar-benar mepet pinggir */
+  .card { border-radius: 15px; width: 95%; }
 }
-
-.toast.success { background: var(--success); }
-.toast.error { background: var(--danger); }
