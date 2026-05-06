@@ -628,7 +628,7 @@ function loadDashboard() {
 //======HOME=========
 function renderHome() {
 
-  document.getElementById("content").innerHTML = `
+  document.getElementById("formArea").innerHTML = `
     
     <!-- BIN CARD -->
     <div id="formArea"></div>
