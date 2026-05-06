@@ -15,11 +15,12 @@ function api(data) {
 document.addEventListener("DOMContentLoaded", () => {
 
   renderMenu();
-  renderBottomNav(); // 🔥 NEW
+  renderBottomNav();
 
   if (user) {
     showApp();
     renderBinCard();
+    setActiveNav(0);
   } else {
     showLogin();
   }
@@ -29,12 +30,23 @@ document.addEventListener("DOMContentLoaded", () => {
 function showLogin() {
   document.getElementById("loginPage").style.display = "flex";
   document.getElementById("appPage").style.display = "none";
+
+  setTimeout(() => {
+    document.getElementById("username")?.focus();
+  }, 200);
 }
 
 function showApp() {
   document.getElementById("loginPage").style.display = "none";
   document.getElementById("appPage").style.display = "block";
 }
+
+// ================= ENTER KEY LOGIN =================
+document.addEventListener("keydown", function(e){
+  if(e.key === "Enter" && document.getElementById("loginPage").style.display !== "none"){
+    login();
+  }
+});
 
 // ================= LOGIN =================
 function login(e) {
@@ -46,6 +58,12 @@ function login(e) {
 
   let username = document.getElementById("username").value;
   let password = document.getElementById("password").value;
+
+  if(!username || !password){
+    showToast("Isi username & password","error");
+    hideLoading();
+    return;
+  }
 
   api({ action: "login", username, password }).then(res => {
 
@@ -63,41 +81,20 @@ function login(e) {
         renderMenu();
         renderBottomNav();
 
+        setActiveNav(0);
         renderBinCard();
+
         showToast("Login berhasil", "success");
 
       } else {
         showToast("Login gagal", "error");
       }
 
-    }, 700);
+    }, 500);
   });
 }
 
-// ================= REGISTER =================
-function register() {
-
-  let jabatan = document.getElementById("jabatan").value;
-
-  let role = (jabatan === "Supervisor" || jabatan === "HO")
-    ? "admin"
-    : "staff";
-
-  let data = {
-    nama: document.getElementById("nama").value,
-    nip: document.getElementById("nip").value,
-    jabatan,
-    password: document.getElementById("pass").value,
-    role
-  };
-
-  api({ action: "register", ...data }).then(() => {
-    showToast("Berhasil daftar", "success");
-    renderLogin();
-  });
-}
-
-// ================= MENU (SIDEBAR) =================
+// ================= MENU =================
 function renderMenu() {
 
   let html = `<h3>HK STORE</h3>`;
@@ -107,9 +104,9 @@ function renderMenu() {
     html += `<a onclick="renderRegister(); closeSidebar()">📝 Sign Up</a>`;
   } else {
 
-    html += `<a onclick="renderBinCard(); closeSidebar()">📦 Bin Card</a>`;
-    html += `<a onclick="renderItem(); closeSidebar()">📋 Item</a>`;
-    html += `<a onclick="renderUser(); closeSidebar()">👤 User</a>`;
+    html += `<a onclick="setActiveNav(0); renderBinCard(); closeSidebar()">📦 Bin Card</a>`;
+    html += `<a onclick="setActiveNav(1); renderItem(); closeSidebar()">📋 Item</a>`;
+    html += `<a onclick="setActiveNav(2); renderUser(); closeSidebar()">👤 User</a>`;
 
     if (user.role === "admin") {
       html += `<a onclick="renderUserManagement(); closeSidebar()">⚙️ User Management</a>`;
@@ -122,14 +119,21 @@ function renderMenu() {
   document.getElementById("userName").innerText = user?.nama || "";
 }
 
-// ================= BOTTOM NAV (NEW MOBILE FEATURE) =================
+// ================= BOTTOM NAV =================
 function renderBottomNav() {
 
   document.getElementById("bottomNav").innerHTML = `
-    <button onclick="renderBinCard()">📦<small>Bin</small></button>
-    <button onclick="renderItem()">📋<small>Item</small></button>
-    <button onclick="renderUser()">👤<small>Profile</small></button>
+    <button onclick="setActiveNav(0); renderBinCard()">📦<small>Bin</small></button>
+    <button onclick="setActiveNav(1); renderItem()">📋<small>Item</small></button>
+    <button onclick="setActiveNav(2); renderUser()">👤<small>Profile</small></button>
   `;
+}
+
+// ================= ACTIVE NAV =================
+function setActiveNav(index){
+  let btns = document.querySelectorAll(".bottom-nav button");
+  btns.forEach(b => b.classList.remove("active"));
+  if(btns[index]) btns[index].classList.add("active");
 }
 
 // ================= BIN CARD =================
@@ -164,12 +168,19 @@ function submitBin(e) {
   let btn = e?.target;
   if (btn) btn.classList.add("loading");
 
+  let qty = document.getElementById("qty").value;
+
+  if(!qty){
+    showToast("Qty tidak boleh kosong","error");
+    return;
+  }
+
   showLoading();
 
   api({
     action: "saveBinCard",
     item: document.getElementById("item").value,
-    qty: document.getElementById("qty").value,
+    qty: qty,
     tipe: document.getElementById("tipe").value,
     user: user.nama
   }).then(() => {
@@ -179,10 +190,11 @@ function submitBin(e) {
       hideLoading();
       if (btn) btn.classList.remove("loading");
 
-      showToast("Data berhasil disimpan", "success");
-      renderBinCard();
+      document.getElementById("qty").value = "";
 
-    }, 500);
+      showToast("Data berhasil disimpan", "success");
+
+    }, 400);
   });
 }
 
@@ -252,7 +264,6 @@ function logout() {
   showLogin();
   renderMenu();
   renderBottomNav();
-  renderLogin();
 }
 
 // ================= LOADING =================
