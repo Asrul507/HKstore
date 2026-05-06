@@ -127,10 +127,22 @@ function renderMenu() {
 // ================= BOTTOM NAV =================
 function renderBottomNav() {
     document.getElementById("bottomNav").innerHTML = `
-        <button onclick="setActiveNav(0); renderHome()">🏠<small>Home</small></button>
-        <button onclick="setActiveNav(1); renderDashboard()">📊<small>Dash</small></button>
-        <button onclick="setActiveNav(2); renderItem()">📋<small>Item</small></button>
-        <button onclick="setActiveNav(3); renderUser()">👤<small>Profile</small></button>
+        <button onclick="setActiveNav(0); renderHome()">
+            <i class="fa-solid fa-house-chimney"></i>
+            <small>Home</small>
+        </button>
+        <button onclick="setActiveNav(1); renderDashboard()">
+            <i class="fa-solid fa-chart-simple"></i>
+            <small>Dash</small>
+        </button>
+        <button onclick="setActiveNav(2); renderItem()">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <small>Item</small>
+        </button>
+        <button onclick="setActiveNav(3); renderUser()">
+            <i class="fa-solid fa-user-gear"></i>
+            <small>Profile</small>
+        </button>
     `;
 }
 
