@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (user) {
     showApp();
-    renderHome(); // 🔥 langsung home
+    renderHome(); // ✅ langsung home
     setActiveNav(0);
   } else {
     showLogin();
@@ -69,7 +69,7 @@ function login(e) {
       renderMenu();
       renderBottomNav();
 
-      renderHome(); // 🔥 langsung ke HOME
+      renderHome(); // ✅ masuk HOME
       setActiveNav(0);
 
       showToast("Login berhasil", "success");
@@ -86,7 +86,7 @@ function renderMenu() {
   let html = `<h3>HK STORE</h3>`;
 
   if (!user) {
-    html += `<a onclick="renderLogin(); closeSidebar()">🔑 Login</a>`;
+    html += `<a onclick="showLogin()">🔑 Login</a>`;
   } else {
 
     html += `<a onclick="renderHome()">🏠 Home</a>`;
@@ -113,10 +113,17 @@ function renderBottomNav() {
   `;
 }
 
+function setActiveNav(index){
+  let btns = document.querySelectorAll(".bottom-nav button");
+  btns.forEach(b => b.classList.remove("active"));
+  if(btns[index]) btns[index].classList.add("active");
+}
+
 // ================= HOME =================
 function renderHome() {
 
   document.getElementById("content").innerHTML = `
+    
     <div class="card">
       <h3>BIN CARD</h3>
       <div id="formArea"></div>
@@ -126,10 +133,11 @@ function renderHome() {
       <h3>Stock Saat Ini</h3>
       <div id="dashboardArea"></div>
     </div>
+
   `;
 
-  renderBinCard();
-  loadDashboardToday();
+  renderBinCard();      // ke formArea
+  loadDashboardToday(); // ke dashboardArea
 }
 
 // ================= BIN CARD =================
@@ -202,7 +210,7 @@ function submitBin(e) {
 
     showToast("Tersimpan", "success");
 
-    loadDashboardToday(); // 🔥 AUTO REFRESH
+    loadDashboardToday(); // ✅ auto refresh stock
   });
 }
 
@@ -242,7 +250,7 @@ function logout() {
   renderMenu();
 }
 
-// ================= HELPER =================
+// ================= UTIL =================
 function loading(el="content"){
   document.getElementById(el).innerHTML = "Loading...";
 }
