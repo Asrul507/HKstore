@@ -497,7 +497,6 @@ function loadDashboard() {
 
 //====== HOME =========
 function renderHome() {
-
   let content = document.getElementById("content");
 
   if (!content) {
@@ -505,13 +504,15 @@ function renderHome() {
     return;
   }
 
-  // render kerangka dulu
+  // TEPAT DI SINI: Kita tambahkan <div class="home-grid"> sebagai pembungkus
   content.innerHTML = `
-    <div id="formArea"></div>
-    <div id="dashboardArea"></div>
+    <div class="home-grid">
+      <div id="formArea"></div>
+      <div id="dashboardArea"></div>
+    </div>
   `;
 
-  // render isi bertahap (biar tidak blank)
+  // Bagian ini tetap sama seperti punya kamu
   setTimeout(() => {
     try {
       renderBinCard("formArea");
@@ -526,6 +527,7 @@ function renderHome() {
     }
   }, 50);
 }
+
 function loadDashboardToday() {
     let bulan = getCurrentMonth();
     loading("dashboardArea");
