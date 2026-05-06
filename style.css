@@ -1,4 +1,9 @@
-/* ===== GLOBAL ===== */
+/* ==================================================
+   LIVING PLAZA INVENTORY SYSTEM - CLEAN VERSION
+   ==================================================
+*/
+
+/* ===== GLOBAL & RESET ===== */
 * {
   box-sizing: border-box;
 }
@@ -9,204 +14,210 @@
   --space-3: 15px;
   --space-4: 20px;
   --space-5: 30px;
+  --primary: #4a6cf7;
+  --secondary: #9333ea;
+  --accent: #fbbf24;
+  --danger: #ef4444;
+  --success: #22c55e;
 }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-
+  font-family: 'Segoe UI', Roboto, sans-serif;
   background: linear-gradient(135deg, #0f172a, #1e293b);
   color: #fff;
-
   overflow-x: hidden;
+  padding-bottom: 80px; /* Jarak untuk bottom nav */
   transition: 0.3s;
-  padding-bottom: 70px; /* 🔥 FIX untuk bottom nav */
 }
 
 /* ===== HEADER ===== */
 .header {
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(15px);
-  color: white;
   padding: var(--space-3);
-
   display: flex;
   justify-content: space-between;
-
+  align-items: center;
   border-bottom: 1px solid rgba(255,255,255,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 900;
 }
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR & OVERLAY ===== */
 .sidebar {
   position: fixed;
   top: 0;
-  left: -260px;
-
+  left: -265px;
   width: 260px;
   height: 100%;
-
-  background: rgba(255,255,255,0.08);
+  background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(18px);
-
   padding: var(--space-4);
-  transition: 0.3s;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
-
   border-right: 1px solid rgba(255,255,255,0.15);
 }
 
-.sidebar.show {
-  left: 0;
-}
+.sidebar.show { left: 0; }
 
 .sidebar a {
   display: flex;
   align-items: center;
-  gap: 10px;
-
+  gap: 12px;
   padding: 12px;
-  margin: 6px 0;
-
+  margin: 8px 0;
   border-radius: 12px;
   color: white;
   text-decoration: none;
-
   transition: 0.2s;
 }
 
-.sidebar a:hover {
-  background: rgba(255,255,255,0.1);
+.sidebar a:hover { background: rgba(255,255,255,0.1); }
+
+.sidebar a i {
+  width: 20px;
+  text-align: center;
 }
 
-/* ===== ACTIVE MENU (NEW) ===== */
-.sidebar a.active {
-  background: rgba(74,108,247,0.3);
-  border-left: 3px solid #4a6cf7;
-}
-
-/* ===== OVERLAY ===== */
 .overlay {
   display: none;
   position: fixed;
-  width: 100%;
-  height: 100%;
-
-  background: rgba(0,0,0,0.4);
+  inset: 0;
+  background: rgba(0,0,0,0.6);
   z-index: 999;
 }
 
-.overlay.show {
-  display: block;
-}
+.overlay.show { display: block; }
 
-/* ===== CONTENT ===== */
+/* ===== MAIN CONTENT LAYOUT ===== */
 .content {
-  min-height: calc(100dvh - 70px);
+  width: 100%;
+  min-height: calc(100vh - 150px);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-
   padding: var(--space-4);
 }
 
-/* ===== CARD ===== */
-.card {
-  margin-top: var(--space-4);
-
+.home-grid {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  max-width: 420px;
+  gap: 20px;
+  align-items: center;
+}
 
-  padding: var(--space-5);
-
+/* ===== CARD SYSTEM ===== */
+.card {
+  width: 100%;
+  max-width: 500px;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-
   border-radius: 20px;
-
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.06);
   backdrop-filter: blur(15px);
-
-  border: 1px solid rgba(255,255,255,0.15);
-
+  border: 1px solid rgba(255,255,255,0.12);
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* ===== INPUT ===== */
+.card h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 10px;
+}
+
+/* ===== FORM ELEMENTS ===== */
 input, select {
   width: 100%;
+  min-height: 48px;
   padding: 12px 14px;
-
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.2);
-
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
   color: white;
-
   outline: none;
+  font-size: 16px;
+  transition: 0.3s;
 }
 
-/* ===== BUTTON ===== */
+input:focus, select:focus {
+  border-color: var(--primary);
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 0 12px rgba(74, 108, 247, 0.3);
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.8;
+  margin-bottom: -8px;
+  display: block;
+}
+
+/* ===== BUTTONS ===== */
 button {
   width: 100%;
+  min-height: 48px;
   padding: 12px;
-
   border-radius: 12px;
   border: none;
-
   color: white;
+  font-weight: bold;
   cursor: pointer;
-
-  background: linear-gradient(135deg, #4a6cf7, #9333ea);
-
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   transition: 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 }
 
-button:active {
-  transform: scale(0.97);
+button:active { transform: scale(0.97); }
+
+.toggle-group {
+  display: flex;
+  gap: 10px;
 }
 
-/* ===== TABLE ===== */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  color: white;
+.toggle-group button {
+  background: rgba(255,255,255,0.1);
 }
 
-.table th {
-  background: rgba(255,255,255,0.12);
-  padding: 10px;
+.toggle-group button.active { background: var(--success); }
+.toggle-group button#btnOut.active { background: var(--danger); }
+
+/* ===== DASHBOARD & LISTS ===== */
+.dash-card, .item-card, .user-card {
+  padding: 15px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 10px;
 }
 
-.table td {
-  padding: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+.dash-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-/* ===== BADGE ===== */
-.badge {
-  padding: 5px 10px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.15);
-  font-size: 12px;
-}
-
-/* ===== BOTTOM NAV (🔥 NEW MOBILE APP STYLE) ===== */
+/* ===== BOTTOM NAVIGATION ===== */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
-
   width: 100%;
-  height: 65px;
-
+  height: 70px;
   display: flex;
   justify-content: space-around;
   align-items: center;
-
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(18px);
-
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255,255,255,0.15);
   z-index: 999;
 }
@@ -214,437 +225,98 @@ button:active {
 .bottom-nav button {
   background: none;
   border: none;
-  color: white;
-
-  display: flex;
   flex-direction: column;
-  align-items: center;
-
-  font-size: 18px;
+  font-size: 20px;
+  opacity: 0.5;
+  transition: 0.3s;
 }
-/* Kode tambahan agar ikon yang diklik berwarna kuning/emas */
+
 .bottom-nav button.active {
-  color: #fbbf24; /* Warna kuning emas */
-  transform: translateY(-5px); /* Efek sedikit naik ke atas */
+  color: var(--accent);
   opacity: 1;
+  transform: translateY(-5px);
 }
-
-.bottom-nav button {
-  transition: all 0.3s ease;
-  opacity: 0.6; /* Tombol yang tidak diklik akan sedikit pudar */
-}
-
 
 .bottom-nav small {
-  font-size: 10px;
-  opacity: 0.8;
+  font-size: 11px;
+  margin-top: 4px;
 }
 
-/* ===== LOADING ===== */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-
-  display: none;
-  justify-content: center;
-  align-items: center;
-
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-}
-
-/* ===== SPINNER ===== */
-.spinner {
-  width: 45px;
-  height: 45px;
-
-  border: 4px solid rgba(255,255,255,0.2);
-  border-top: 4px solid #4a6cf7;
-
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ===== TOAST ===== */
-#toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  z-index: 99999;
-}
-
-.toast {
-  padding: 12px 15px;
-  border-radius: 12px;
-  color: white;
-
-  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
-}
-
-.toast.success { background: linear-gradient(135deg,#22c55e,#16a34a); }
-.toast.error { background: linear-gradient(135deg,#ef4444,#dc2626); }
-.toast.info { background: linear-gradient(135deg,#3b82f6,#2563eb); }
-
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes fadeOut {
-  to { transform: translateX(100%); opacity: 0; }
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 600px) {
-  .header b {
-    font-size: 14px;
-  }
-}
-
-/* ITEM LIST */
-.item-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-/* CARD ITEM */
-.item-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 12px;
-
-  border-radius: 14px;
-
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-
-  border: 1px solid rgba(255,255,255,0.15);
-
-  transition: 0.2s;
-}
-
-.item-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255,255,255,0.12);
-}
-
-/* ACTION BUTTON */
-.item-action button {
-  width: auto;
-  padding: 6px 10px;
-  margin-left: 5px;
-  font-size: 14px;
-}
-/* USER LIST */
-.user-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-/* USER CARD */
-.user-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 12px;
-  border-radius: 14px;
-
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-
-  border: 1px solid rgba(255,255,255,0.15);
-
-  transition: 0.2s;
-}
-
-.user-card:hover {
-  transform: translateY(-2px);
-}
-
-/* ACTION BUTTON */
-.user-action button {
-  width: auto;
-  padding: 6px 10px;
-  margin-left: 5px;
-}
-
-label {
-  font-size: 12px;
-  opacity: 0.7;
-  margin-top: 5px;
-}
-
-/* TOGGLE BUTTON GROUP */
-.toggle-group {
-  display: flex;
-  gap: 10px;
-}
-
-.toggle-group button {
-  flex: 1;
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-
-  background: rgba(255,255,255,0.1);
-  color: white;
-
-  transition: 0.2s;
-}
-
-/* ACTIVE STATE */
-.toggle-group button.active {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-}
-
-/* OUT MODE */
-.toggle-group button:nth-child(2).active {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-.dashboard-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 15px;
-}
-
-.dash-card {
-  padding: 15px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-.dash-row {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 8px;
-}
-
-.dash-stock {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #22c55e;
-}
-
-.dash-stock.minus {
-  color: #ef4444;
-}
-
-.dash-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-/* Perbaikan Tampilan Login */
+/* ===== LOGIN PAGE ===== */
 .login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
+  min-height: 90vh;
+  padding: var(--space-4);
 }
 
 .login-card {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 25px rgba(74, 108, 247, 0.2);
   text-align: center;
+  box-shadow: 0 0 30px rgba(74, 108, 247, 0.15);
 }
 
-.login-header h2 {
-  margin: 10px 0 5px 0;
-  letter-spacing: 2px;
-  font-weight: 800;
+/* ===== MOBILE OPTIMIZATION (THE MAGIC) ===== */
+@media (max-width: 600px) {
+  .content {
+    padding: 15px 10px; /* Jarak sangat tipis ke pinggir layar HP */
+  }
+
+  .card {
+    max-width: 100%;
+    width: 100%;
+    padding: 15px; /* Luas area input di dalam diperlebar */
+    border-radius: 15px;
+  }
+
+  .home-grid {
+    gap: 15px;
+  }
 }
 
-.login-header p {
-  font-size: 12px;
-  opacity: 0.6;
-  margin-bottom: 25px;
-}
-
-.login-icon {
-  font-size: 40px;
-  margin-bottom: 10px;
-}
-
-.input-group {
-  text-align: left;
-  margin-bottom: 15px;
-}
-
-.input-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.btn-login {
-  margin-top: 10px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  height: 50px;
-}
-
-/* Efek saat input diklik */
-input:focus {
-  border-color: #4a6cf7 !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 0 15px rgba(74, 108, 247, 0.4);
-}
-/* Pengaturan Layout untuk HP (Default: Menurun) */
-.home-grid {
-  display: flex;
-  flex-direction: column; /* Berbaris ke bawah */
-  width: 100%;
-  gap: 20px;
-  align-items: center;
-}
-
-/* Pengaturan Layout untuk Desktop/Laptop (Layar di atas 992px) */
+/* ===== DESKTOP OPTIMIZATION ===== */
 @media (min-width: 992px) {
   .home-grid {
-    flex-direction: row; /* Berubah jadi menyamping (Kiri-Kanan) */
-    align-items: flex-start; /* Rata atas */
+    flex-direction: row;
     justify-content: center;
-    max-width: 1200px; /* Batas lebar maksimal biar tidak terlalu melar */
+    align-items: flex-start;
+    max-width: 1200px;
     margin: 0 auto;
+    gap: 30px;
   }
 
   #formArea, #dashboardArea {
-    flex: 1; /* Membagi ruang sama rata (50:50) */
-    width: 100%;
+    flex: 1;
   }
   
-  .card {
-    max-width: 100%; /* Agar card mengikuti lebar kotak pembaginya */
-  }
-}
-/* Update Gaya Card agar Responsif */
-.card {
-  margin-top: var(--space-4);
-  
-  /* Supaya di HP dia mengambil hampir seluruh lebar layar */
-  width: 100%; 
-  max-width: 550px; /* Kita besarkan sedikit batas maksimalnya */
-  
-  padding: var(--space-4); /* Padding sedikit dikurangi agar ruang input luas */
-  
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  
-  border-radius: 20px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  .card { max-width: 100%; }
 }
 
-/* Khusus untuk tampilan layar kecil (HP) */
-@media (max-width: 600px) {
-  .card {
-    padding: 15px; /* Ruang dalam lebih rapat biar input makin lebar */
-    max-width: 100%; /* Benar-benar selebar layar HP */
-  }
-  
-  .content {
-    padding: 10px; /* Margin luar di HP diperkecil */
-  }
-}
-/* Membuat area klik lebih luas di HP */
-input, select, .btn-login, button {
-  min-height: 48px; /* Ukuran standar jempol manusia agar nyaman */
-  font-size: 16px;  /* Mencegah otomatis zoom di iPhone saat klik input */
-}
-/* Membuat tampilan konten benar-benar lebar di HP */
-@media (max-width: 600px) {
-  .content {
-    padding: 10px 5px; /* Memperkecil jarak kiri-kanan luar */
-  }
-
-  .home-grid {
-    gap: 15px; /* Memperkecil jarak antar kotak Bin Card & Stock */
-    width: 100%;
-  }
-
-  .card {
-    max-width: 100%; /* Memastikan card mengambil 100% ruang yang ada */
-    width: 100%;
-    border-radius: 15px; /* Sedikit memperkecil lengkungan pojok agar lebih luas */
-    padding: 20px 15px; /* Memperluas area dalam card */
-  }
+/* ===== UTILS ===== */
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.card input, .card select, .card .toggle-group {
-    width: 100%; /* Memastikan semua elemen input memenuhi lebar card */
-}
-/* Membuat tampilan konten benar-benar lebar di HP */
-@media (max-width: 600px) {
-  .content {
-    padding: 10px 5px; /* Memperkecil jarak kiri-kanan luar */
-  }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  .home-grid {
-    gap: 15px; /* Memperkecil jarak antar kotak Bin Card & Stock */
-    width: 100%;
-  }
-
-  .card {
-    max-width: 100%; /* Memastikan card mengambil 100% ruang yang ada */
-    width: 100%;
-    border-radius: 15px; /* Sedikit memperkecil lengkungan pojok agar lebih luas */
-    padding: 20px 15px; /* Memperluas area dalam card */
-  }
+#toast-container {
+  position: fixed;
+  top: 20px; right: 20px;
+  display: flex; flex-direction: column;
+  gap: 10px; z-index: 99999;
 }
 
-.card input, .card select, .card .toggle-group {
-    width: 100%; /* Memastikan semua elemen input memenuhi lebar card */
-}
-/* MODIFIKASI AGAR CARD LEBIH LEBAR DI HP */
-@media (max-width: 600px) {
-  /* 1. Hilangkan jarak samping di container utama */
-  .content {
-    padding: 15px 8px !important; /* Angka 8px bikin jarak ke pinggir layar jadi tipis */
-  }
-
-  /* 2. Paksa grid untuk menggunakan seluruh lebar yang ada */
-  .home-grid {
-    width: 100%;
-    gap: 15px;
-  }
-
-  /* 3. Pastikan card tidak tertahan batas maksimal lebar */
-  .card {
-    max-width: 100% !important; 
-    width: 100% !important;
-    padding: 20px 15px; /* Luas di dalam kotak tetap terjaga */
-    margin-top: 10px;
-  }
+.toast {
+  padding: 12px 20px;
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  animation: slideIn 0.3s ease forwards;
 }
 
-
-
-
-
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
