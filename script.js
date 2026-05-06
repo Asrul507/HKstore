@@ -668,11 +668,4 @@ function loadDashboard() {
 
     document.getElementById("dashboardData").innerHTML = html;
   });
-  api({
-  action: "getDashboard",
-  bulan: bulan
-}).then(data => {
-
-  console.log("DASHBOARD DATA:", data); // 🔥 WAJIB
-
 }
