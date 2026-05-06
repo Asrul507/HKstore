@@ -15,6 +15,7 @@ function api(data) {
 document.addEventListener("DOMContentLoaded", () => {
 
   renderMenu();
+  renderBottomNav(); // 🔥 NEW
 
   if (user) {
     showApp();
@@ -36,10 +37,10 @@ function showApp() {
 }
 
 // ================= LOGIN =================
-function login() {
+function login(e) {
 
-  let btn = event.target;
-  btn.classList.add("loading");
+  let btn = e?.target;
+  if (btn) btn.classList.add("loading");
 
   showLoading();
 
@@ -48,27 +49,28 @@ function login() {
 
   api({ action: "login", username, password }).then(res => {
 
-    setTimeout(() => { // efek smooth
+    setTimeout(() => {
 
       hideLoading();
-      btn.classList.remove("loading");
+      if (btn) btn.classList.remove("loading");
 
       if (res.status === "success") {
 
         user = res;
         localStorage.setItem("user", JSON.stringify(res));
 
-        document.getElementById("loginPage").style.display = "none";
-        document.getElementById("appPage").style.display = "block";
-
+        showApp();
         renderMenu();
+        renderBottomNav();
+
         renderBinCard();
+        showToast("Login berhasil", "success");
 
       } else {
         showToast("Login gagal", "error");
       }
 
-    }, 800);
+    }, 700);
   });
 }
 
@@ -84,40 +86,50 @@ function register() {
   let data = {
     nama: document.getElementById("nama").value,
     nip: document.getElementById("nip").value,
-    jabatan: jabatan,
+    jabatan,
     password: document.getElementById("pass").value,
-    role: role
+    role
   };
 
   api({ action: "register", ...data }).then(() => {
-   showToast("Berhasil daftar", "success");
+    showToast("Berhasil daftar", "success");
     renderLogin();
   });
 }
 
-// ================= MENU =================
+// ================= MENU (SIDEBAR) =================
 function renderMenu() {
 
-  let html = "<h3>HK STORE</h3>";
+  let html = `<h3>HK STORE</h3>`;
 
   if (!user) {
-    html += `<a onclick="renderLogin()">Login</a>`;
-    html += `<a onclick="renderRegister()">Sign Up</a>`;
+    html += `<a onclick="renderLogin(); closeSidebar()">🔑 Login</a>`;
+    html += `<a onclick="renderRegister(); closeSidebar()">📝 Sign Up</a>`;
   } else {
 
-    html += `<a onclick="renderBinCard()">Bin Card</a>`;
-    html += `<a onclick="renderItem()">Item</a>`;
-    html += `<a onclick="renderUser()">User</a>`;
+    html += `<a onclick="renderBinCard(); closeSidebar()">📦 Bin Card</a>`;
+    html += `<a onclick="renderItem(); closeSidebar()">📋 Item</a>`;
+    html += `<a onclick="renderUser(); closeSidebar()">👤 User</a>`;
 
     if (user.role === "admin") {
-      html += `<a onclick="renderUserManagement()">User Management</a>`;
+      html += `<a onclick="renderUserManagement(); closeSidebar()">⚙️ User Management</a>`;
     }
 
-    html += `<a onclick="logout()">Logout</a>`;
+    html += `<a onclick="logout(); closeSidebar()">🚪 Logout</a>`;
   }
 
   document.getElementById("sidebar").innerHTML = html;
-  document.getElementById("userName").innerText = user ? user.nama : "";
+  document.getElementById("userName").innerText = user?.nama || "";
+}
+
+// ================= BOTTOM NAV (NEW MOBILE FEATURE) =================
+function renderBottomNav() {
+
+  document.getElementById("bottomNav").innerHTML = `
+    <button onclick="renderBinCard()">📦<small>Bin</small></button>
+    <button onclick="renderItem()">📋<small>Item</small></button>
+    <button onclick="renderUser()">👤<small>Profile</small></button>
+  `;
 }
 
 // ================= BIN CARD =================
@@ -134,7 +146,6 @@ function renderBinCard() {
         <h3>BIN CARD</h3>
 
         <select id="item">${options}</select>
-
         <input id="qty" type="number" placeholder="Qty">
 
         <select id="tipe">
@@ -142,16 +153,16 @@ function renderBinCard() {
           <option value="OUT">OUT</option>
         </select>
 
-        <button onclick="submitBin()">Submit</button>
+        <button onclick="submitBin(event)">Submit</button>
       </div>
     `;
   });
 }
 
-function submitBin() {
+function submitBin(e) {
 
-  let btn = event.target;
-  btn.classList.add("loading");
+  let btn = e?.target;
+  if (btn) btn.classList.add("loading");
 
   showLoading();
 
@@ -166,12 +177,12 @@ function submitBin() {
     setTimeout(() => {
 
       hideLoading();
-      btn.classList.remove("loading");
+      if (btn) btn.classList.remove("loading");
 
       showToast("Data berhasil disimpan", "success");
       renderBinCard();
 
-    }, 600);
+    }, 500);
   });
 }
 
@@ -200,7 +211,7 @@ function renderUser() {
   document.getElementById("content").innerHTML = `
     <div class="card">
       <h3>User</h3>
-      <p>${user.nama}</p>
+      <p>${user?.nama || "-"}</p>
     </div>
   `;
 }
@@ -222,44 +233,15 @@ function renderUserManagement() {
   });
 }
 
-// ================= REGISTER / LOGIN VIEW =================
-function renderLogin() {
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-      <h3>Login</h3>
-      <input id="username" placeholder="NIP">
-      <input id="password" type="password" placeholder="Password">
-      <button onclick="login()">Login</button>
-    </div>
-  `;
-}
-
-function renderRegister() {
-  document.getElementById("content").innerHTML = `
-    <div class="card">
-
-      <h3>Daftar</h3>
-
-      <input id="nama" placeholder="Nama">
-      <input id="nip" placeholder="NIP">
-
-      <select id="jabatan">
-        <option>Leader</option>
-        <option>Supervisor</option>
-        <option>HO</option>
-      </select>
-
-      <input id="pass" type="password" placeholder="Password">
-
-      <button onclick="register()">Daftar</button>
-    </div>
-  `;
-}
-
 // ================= SIDEBAR =================
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("show");
   document.getElementById("overlay").classList.toggle("show");
+}
+
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("show");
+  document.getElementById("overlay").classList.remove("show");
 }
 
 // ================= LOGOUT =================
@@ -269,11 +251,11 @@ function logout() {
 
   showLogin();
   renderMenu();
+  renderBottomNav();
   renderLogin();
 }
 
-
-/* ===== SHOW / HIDE LOADING ===== */
+// ================= LOADING =================
 function loading(el = "content") {
   document.getElementById(el).innerHTML = `
     <div style="text-align:center;padding:20px;">
@@ -282,6 +264,7 @@ function loading(el = "content") {
     </div>
   `;
 }
+
 function showLoading() {
   document.getElementById("loading").style.display = "flex";
 }
@@ -290,20 +273,16 @@ function hideLoading() {
   document.getElementById("loading").style.display = "none";
 }
 
-/* ===== TOAST SYSTEM ===== */
+// ================= TOAST =================
 function showToast(message, type = "info") {
 
   let container = document.getElementById("toast-container");
 
   let toast = document.createElement("div");
-  toast.classList.add("toast", type);
-
+  toast.className = `toast ${type}`;
   toast.innerText = message;
 
   container.appendChild(toast);
 
-  // auto remove
-  setTimeout(() => {
-    toast.remove();
-  }, 3000);
+  setTimeout(() => toast.remove(), 3000);
 }
