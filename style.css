@@ -622,6 +622,28 @@ input, select, .btn-login, button {
 .card input, .card select, .card .toggle-group {
     width: 100%; /* Memastikan semua elemen input memenuhi lebar card */
 }
+/* MODIFIKASI AGAR CARD LEBIH LEBAR DI HP */
+@media (max-width: 600px) {
+  /* 1. Hilangkan jarak samping di container utama */
+  .content {
+    padding: 15px 8px !important; /* Angka 8px bikin jarak ke pinggir layar jadi tipis */
+  }
+
+  /* 2. Paksa grid untuk menggunakan seluruh lebar yang ada */
+  .home-grid {
+    width: 100%;
+    gap: 15px;
+  }
+
+  /* 3. Pastikan card tidak tertahan batas maksimal lebar */
+  .card {
+    max-width: 100% !important; 
+    width: 100% !important;
+    padding: 20px 15px; /* Luas di dalam kotak tetap terjaga */
+    margin-top: 10px;
+  }
+}
+
 
 
 
