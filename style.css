@@ -222,6 +222,18 @@ button:active {
 
   font-size: 18px;
 }
+/* Kode tambahan agar ikon yang diklik berwarna kuning/emas */
+.bottom-nav button.active {
+  color: #fbbf24; /* Warna kuning emas */
+  transform: translateY(-5px); /* Efek sedikit naik ke atas */
+  opacity: 1;
+}
+
+.bottom-nav button {
+  transition: all 0.3s ease;
+  opacity: 0.6; /* Tombol yang tidak diklik akan sedikit pudar */
+}
+
 
 .bottom-nav small {
   font-size: 10px;
