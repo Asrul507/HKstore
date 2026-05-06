@@ -65,7 +65,7 @@ function login() {
         renderBinCard();
 
       } else {
-        alert("Login gagal");
+        showToast("Login gagal", "error");
       }
 
     }, 800);
@@ -90,7 +90,7 @@ function register() {
   };
 
   api({ action: "register", ...data }).then(() => {
-    alert("Berhasil daftar");
+   showToast("Berhasil daftar", "success");
     renderLogin();
   });
 }
@@ -168,7 +168,7 @@ function submitBin() {
       hideLoading();
       btn.classList.remove("loading");
 
-      alert("Berhasil disimpan");
+      showToast("Data berhasil disimpan", "success");
       renderBinCard();
 
     }, 600);
