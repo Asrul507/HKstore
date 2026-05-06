@@ -205,15 +205,126 @@ function renderItem() {
 
   api({ action: "getItems" }).then(items => {
 
-    let html = `<div class="card"><h3>Item</h3>`;
+    let html = `
+      <div class="card">
+        <h3>Item</h3>
+
+        <button onclick="showAddItem()">+ Tambah Item</button>
+
+        <div class="item-list">
+    `;
 
     html += items.map(i => `
-      <div>${i[0]} (${i[1]})</div>
+      <div class="item-card">
+        <div>
+          <b>${i[0]}</b>
+          <small>${i[1]}</small>
+        </div>
+
+        <div class="item-action">
+          <button onclick="editItem('${i[0]}','${i[1]}')">✏️</button>
+          <button onclick="deleteItem('${i[0]}')">🗑️</button>
+        </div>
+      </div>
     `).join("");
 
-    html += `</div>`;
+    html += `
+        </div>
+      </div>
+    `;
 
     document.getElementById("content").innerHTML = html;
+  });
+}
+function showAddItem() {
+
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Tambah Item</h3>
+
+      <input id="itemNama" placeholder="Nama Item">
+      <input id="itemSatuan" placeholder="Satuan">
+
+      <button onclick="addItem()">Simpan</button>
+      <button onclick="renderItem()">Kembali</button>
+    </div>
+  `;
+}
+
+function addItem() {
+
+  let nama = document.getElementById("itemNama").value;
+  let satuan = document.getElementById("itemSatuan").value;
+
+  if(!nama || !satuan){
+    showToast("Lengkapi data","error");
+    return;
+  }
+
+  showLoading();
+
+  api({
+    action: "addItem",
+    nama,
+    satuan
+  }).then(() => {
+
+    hideLoading();
+    showToast("Item ditambahkan","success");
+
+    renderItem();
+  });
+}
+function editItem(oldNama, satuan) {
+
+  document.getElementById("content").innerHTML = `
+    <div class="card">
+      <h3>Edit Item</h3>
+
+      <input id="itemNama" value="${oldNama}">
+      <input id="itemSatuan" value="${satuan}">
+
+      <button onclick="updateItem('${oldNama}')">Update</button>
+      <button onclick="renderItem()">Batal</button>
+    </div>
+  `;
+}
+
+function updateItem(oldNama) {
+
+  let nama = document.getElementById("itemNama").value;
+  let satuan = document.getElementById("itemSatuan").value;
+
+  showLoading();
+
+  api({
+    action: "updateItem",
+    oldNama,
+    nama,
+    satuan
+  }).then(() => {
+
+    hideLoading();
+    showToast("Item diupdate","success");
+
+    renderItem();
+  });
+}
+function deleteItem(nama) {
+
+  if (!confirm("Hapus item ini?")) return;
+
+  showLoading();
+
+  api({
+    action: "deleteItem",
+    nama
+  }).then(() => {
+
+    hideLoading();
+    showToast("Item dihapus","success");
+
+    renderItem();
   });
 }
 
