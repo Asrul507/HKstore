@@ -578,6 +578,28 @@ input, select, .btn-login, button {
   min-height: 48px; /* Ukuran standar jempol manusia agar nyaman */
   font-size: 16px;  /* Mencegah otomatis zoom di iPhone saat klik input */
 }
+/* Membuat tampilan konten benar-benar lebar di HP */
+@media (max-width: 600px) {
+  .content {
+    padding: 10px 5px; /* Memperkecil jarak kiri-kanan luar */
+  }
+
+  .home-grid {
+    gap: 15px; /* Memperkecil jarak antar kotak Bin Card & Stock */
+    width: 100%;
+  }
+
+  .card {
+    max-width: 100%; /* Memastikan card mengambil 100% ruang yang ada */
+    width: 100%;
+    border-radius: 15px; /* Sedikit memperkecil lengkungan pojok agar lebih luas */
+    padding: 20px 15px; /* Memperluas area dalam card */
+  }
+}
+
+.card input, .card select, .card .toggle-group {
+    width: 100%; /* Memastikan semua elemen input memenuhi lebar card */
+}
 
 
 
