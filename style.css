@@ -336,3 +336,38 @@ button:active {
   margin-left: 5px;
   font-size: 14px;
 }
+/* USER LIST */
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* USER CARD */
+.user-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 12px;
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  transition: 0.2s;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+}
+
+/* ACTION BUTTON */
+.user-action button {
+  width: auto;
+  padding: 6px 10px;
+  margin-left: 5px;
+}
