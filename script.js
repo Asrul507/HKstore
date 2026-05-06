@@ -101,7 +101,7 @@ function login(e) {
 // ================= MENU =================
 function renderMenu() {
 
-  let html = <h3>HK STORE</h3>;
+  let html = `<h3>HK STORE</h3>`;
 
   if (!user) {
     html += <a onclick="renderLogin(); closeSidebar()">🔑 Login</a>;
@@ -126,7 +126,7 @@ function renderMenu() {
 // ================= BOTTOM NAV =================
 function renderBottomNav() {
 
-  document.getElementById("bottomNav").innerHTML = 
+  document.getElementById("bottomNav").innerHTML = ` 
     <button onclick="setActiveNav(0); renderDashboard()">📊<small>Dashboard</small></button>
     <button onclick="setActiveNav(0); renderBinCard()">📦<small>Bin card</small></button>
     <button onclick="setActiveNav(1); renderItem()">📋<small>Item</small></button>
@@ -156,7 +156,7 @@ function renderBinCard() {
       </option>
     ).join("");
 
-    document.getElementById("content").innerHTML = 
+    document.getElementById("content").innerHTML =  `
       <div class="card">
         <h3>BIN CARD</h3>
 
@@ -321,7 +321,7 @@ function addItem() {
 }
 function editItem(oldNama, satuan) {
 
-  document.getElementById("content").innerHTML = 
+  document.getElementById("content").innerHTML =  
     <div class="card">
       <h3>Edit Item</h3>
 
@@ -375,7 +375,7 @@ function deleteItem(nama) {
 // ================= USER =================
 function renderUser() {
 
-  document.getElementById("content").innerHTML = 
+  document.getElementById("content").innerHTML =   `
     <div class="card">
       <h3>User</h3>
       <p>${user?.nama || "-"}</p>
@@ -395,7 +395,7 @@ function renderUserManagement() {
 
   api({ action: "getUsers" }).then(users => {
 
-    let html = 
+    let html =  `
       <div class="card">
         <h3>User Management</h3>
 
@@ -429,7 +429,7 @@ function renderUserManagement() {
 }
 function showAddUser() {
 
-  document.getElementById("content").innerHTML = 
+  document.getElementById("content").innerHTML =
     <div class="card">
       <h3>Tambah User</h3>
 
@@ -543,7 +543,7 @@ function logout() {
 
 // ================= LOADING =================
 function loading(el = "content") {
-  document.getElementById(el).innerHTML = 
+  document.getElementById(el).innerHTML =   
     <div style="text-align:center;padding:20px;">
       <div class="spinner"></div>
       <p>Loading...</p>
