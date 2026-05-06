@@ -109,7 +109,7 @@ function renderMenu() {
   } else {
 
     html += `<a onclick="renderDashboard(); closeSidebar()">📊 Dashboard</a>`;
-    html += `<a onclick="setActiveNav(0); renderBinCard(); closeSidebar()">📦 Bin Card</a>`;
+    html += `<a onclick="setActiveNav(0); renderBinCard(); closeSidebar()">📦 Bin card Card</a>`;
     html += `<a onclick="setActiveNav(1); renderItem(); closeSidebar()">📋 Item</a>`;
     html += `<a onclick="setActiveNav(2); renderUser(); closeSidebar()">👤 User</a>`;
 
@@ -128,6 +128,7 @@ function renderMenu() {
 function renderBottomNav() {
 
   document.getElementById("bottomNav").innerHTML = `
+    <button onclick="setActiveNav(0); renderDashboard()">📊<small>Dashboard</small></button>
     <button onclick="setActiveNav(0); renderBinCard()">📦<small>Bin card</small></button>
     <button onclick="setActiveNav(1); renderItem()">📋<small>Item</small></button>
     <button onclick="setActiveNav(2); renderUser()">👤<small>Profile</small></button>
