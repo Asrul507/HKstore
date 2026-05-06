@@ -513,4 +513,34 @@ input:focus {
   background: rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 0 15px rgba(74, 108, 247, 0.4);
 }
+/* Pengaturan Layout untuk HP (Default: Menurun) */
+.home-grid {
+  display: flex;
+  flex-direction: column; /* Berbaris ke bawah */
+  width: 100%;
+  gap: 20px;
+  align-items: center;
+}
+
+/* Pengaturan Layout untuk Desktop/Laptop (Layar di atas 992px) */
+@media (min-width: 992px) {
+  .home-grid {
+    flex-direction: row; /* Berubah jadi menyamping (Kiri-Kanan) */
+    align-items: flex-start; /* Rata atas */
+    justify-content: center;
+    max-width: 1200px; /* Batas lebar maksimal biar tidak terlalu melar */
+    margin: 0 auto;
+  }
+
+  #formArea, #dashboardArea {
+    flex: 1; /* Membagi ruang sama rata (50:50) */
+    width: 100%;
+  }
+  
+  .card {
+    max-width: 100%; /* Agar card mengikuti lebar kotak pembaginya */
+  }
+}
+
+
 
