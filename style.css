@@ -541,6 +541,44 @@ input:focus {
     max-width: 100%; /* Agar card mengikuti lebar kotak pembaginya */
   }
 }
+/* Update Gaya Card agar Responsif */
+.card {
+  margin-top: var(--space-4);
+  
+  /* Supaya di HP dia mengambil hampir seluruh lebar layar */
+  width: 100%; 
+  max-width: 550px; /* Kita besarkan sedikit batas maksimalnya */
+  
+  padding: var(--space-4); /* Padding sedikit dikurangi agar ruang input luas */
+  
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Khusus untuk tampilan layar kecil (HP) */
+@media (max-width: 600px) {
+  .card {
+    padding: 15px; /* Ruang dalam lebih rapat biar input makin lebar */
+    max-width: 100%; /* Benar-benar selebar layar HP */
+  }
+  
+  .content {
+    padding: 10px; /* Margin luar di HP diperkecil */
+  }
+}
+/* Membuat area klik lebih luas di HP */
+input, select, .btn-login, button {
+  min-height: 48px; /* Ukuran standar jempol manusia agar nyaman */
+  font-size: 16px;  /* Mencegah otomatis zoom di iPhone saat klik input */
+}
+
 
 
 
