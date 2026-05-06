@@ -108,8 +108,7 @@ function renderMenu() {
     html += `<a onclick="renderRegister(); closeSidebar()">📝 Sign Up</a>`;
   } else {
 
-    html += `<a onclick="renderDashboard(); closeSidebar()">📊 Dashboard</a>`;
-    html += `<a onclick="setActiveNav(0); renderBinCard(); closeSidebar()">📦 Bin card Card</a>`;
+    html += `<a onclick="renderHome()">🏠 Home</a>`;
     html += `<a onclick="setActiveNav(1); renderItem(); closeSidebar()">📋 Item</a>`;
     html += `<a onclick="setActiveNav(2); renderUser(); closeSidebar()">👤 User</a>`;
 
@@ -237,6 +236,7 @@ function submitBin(e) {
       document.getElementById("qty").value = "";
 
       showToast("Data berhasil disimpan", "success");
+      loadDashboardToday(); // 🔥 refresh otomatis
 
     }, 400);
   });
@@ -621,7 +621,55 @@ function loadDashboard() {
     `).join("");
 
     html += `</div>`;
-
     document.getElementById("dashboardData").innerHTML = html;
+  });
+}
+
+//======HOME=========
+function renderHome() {
+
+  document.getElementById("content").innerHTML = `
+    
+    <!-- BIN CARD -->
+    <div id="formArea"></div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboardArea"></div>
+
+  `;
+
+  renderBinCard();      // tampilkan form
+  loadDashboardToday(); // tampilkan stock
+}
+function loadDashboardToday() {
+
+  let today = new Date();
+  let bulan = today.toISOString().slice(0,7);
+
+  loading("dashboardArea");
+
+  api({
+    action: "getDashboard",
+    bulan: bulan
+  }).then(data => {
+
+    if (!data || data.length === 0) {
+      document.getElementById("dashboardArea").innerHTML =
+        "<p style='text-align:center'>Belum ada data</p>";
+      return;
+    }
+
+    let html = `<div class="card"><h3>Stock Saat Ini</h3>`;
+
+    html += data.map(d => `
+      <div class="dash-row">
+        <b>${d.item}</b>
+        <span>${d.stok}</span>
+      </div>
+    `).join("");
+
+    html += `</div>`;
+
+    document.getElementById("dashboardArea").innerHTML = html;
   });
 }
