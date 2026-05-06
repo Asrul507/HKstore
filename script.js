@@ -59,7 +59,9 @@ document.addEventListener("keydown", function (e) {
 function login(e) {
     let btn = e?.target;
     if (btn) btn.classList.add("loading");
+
     showLoading();
+
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
 
@@ -70,22 +72,35 @@ function login(e) {
     }
 
     api({ action: "login", username, password }).then(res => {
+
         setTimeout(() => {
+
             hideLoading();
             if (btn) btn.classList.remove("loading");
+
             if (res.status === "success") {
+
                 user = res;
                 localStorage.setItem("user", JSON.stringify(res));
+
                 showApp();
                 renderMenu();
                 renderBottomNav();
-                setActiveNav(0);
-                renderHome();
+
+                // 🔥 PINDAH KE SINI
+                setTimeout(() => {
+                    setActiveNav(0);
+                    renderHome();
+                }, 100);
+
                 showToast("Login berhasil", "success");
+
             } else {
                 showToast("Login gagal", "error");
             }
+
         }, 500);
+
     });
 }
 
