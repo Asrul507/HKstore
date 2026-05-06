@@ -106,23 +106,39 @@ function login(e) {
 
 // ================= MENU =================
 function renderMenu() {
-    let html = `<h3>HK STORE</h3>`;
+    // Bagian Header Sidebar dengan Ikon 3D-ish
+    let html = `
+        <div class="sidebar-header" style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+            <div style="font-size: 50px; margin-bottom: 10px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">🏢</div>
+            <h3 style="margin: 0; letter-spacing: 2px; color: #fff;">LIVING PLAZA</h3>
+            <small style="opacity: 0.6; font-size: 10px;">INVENTORY SYSTEM</small>
+        </div>
+    `;
+
     if (!user) {
-        html += `<a onclick="showLogin(); closeSidebar()">🔑 Login</a>`;
+        html += `<a onclick="showLogin(); closeSidebar()"><i class="fa-solid fa-right-to-bracket"></i> Login</a>`;
     } else {
-        html += `<a onclick="renderHome(); closeSidebar()">🏠 Home</a>`;
-        html += `<a onclick="setActiveNav(1); renderItem(); closeSidebar()">📋 Item</a>`;
-        html += `<a onclick="setActiveNav(2); renderUser(); closeSidebar()">👤 User</a>`;
+        // Menggunakan ikon Font Awesome agar seragam dengan Bottom Nav
+        html += `<a onclick="renderHome(); closeSidebar()"><i class="fa-solid fa-house"></i> Home</a>`;
+        html += `<a onclick="setActiveNav(1); renderDashboard(); closeSidebar()"><i class="fa-solid fa-chart-line"></i> Dashboard</a>`;
+        html += `<a onclick="setActiveNav(2); renderItem(); closeSidebar()"><i class="fa-solid fa-box"></i> Item List</a>`;
+        html += `<a onclick="setActiveNav(3); renderUser(); closeSidebar()"><i class="fa-solid fa-user"></i> My Profile</a>`;
+        
         if (user.role === "admin") {
-            html += `<a onclick="renderUserManagement(); closeSidebar()">⚙️ User Management</a>`;
+            html += `<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">`;
+            html += `<a onclick="renderUserManagement(); closeSidebar()"><i class="fa-solid fa-users-gear"></i> User Admin</a>`;
         }
-        html += `<a onclick="logout(); closeSidebar()">🚪 Logout</a>`;
+        
+        html += `<a onclick="logout(); closeSidebar()" style="color: #ef4444; margin-top: 20px;"><i class="fa-solid fa-power-off"></i> Logout</a>`;
     }
+
     document.getElementById("sidebar").innerHTML = html;
+    
     if (document.getElementById("userName")) {
         document.getElementById("userName").innerText = user?.nama || "";
     }
 }
+
 
 // ================= BOTTOM NAV =================
 function renderBottomNav() {
