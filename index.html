@@ -11,16 +11,25 @@
 
 <!-- ================= LOGIN PAGE ================= -->
 <div id="loginPage" class="login-wrapper">
+  <div class="card login-card">
+    <div class="login-header">
+      <div class="login-icon">🏢</div>
+      <h2>LIVING PLAZA</h2>
+      <p>Inventory System Management</p>
+    </div>
+    
+    <div class="input-group">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Masukkan username">
+    </div>
 
-  <div class="card">
-    <h2>Login</h2>
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Masukkan password">
+    </div>
 
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-
-    <button onclick="login(event)">Login</button>
+    <button class="btn-login" onclick="login(event)">Masuk ke Aplikasi</button>
   </div>
-
 </div>
 
 <!-- ================= APP PAGE ================= -->
