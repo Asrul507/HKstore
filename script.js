@@ -18,17 +18,22 @@ function getCurrentMonth() {
 
 // ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
-    renderMenu();
-    renderBottomNav();
-    if (user) {
-        showApp();
-        renderHome(); // Memanggil renderHome yang berisi Bin Card & Dashboard
-        setActiveNav(0);
-    } else {
-        showLogin();
-    }
-});
 
+  renderMenu();
+  renderBottomNav();
+
+  if (user) {
+    showApp();
+
+    setTimeout(() => {
+      renderHome();
+      setActiveNav(0);
+    }, 100);
+
+  } else {
+    showLogin();
+  }
+});
 // ================= PAGE CONTROL =================
 function showLogin() {
     document.getElementById("loginPage").style.display = "flex";
@@ -138,20 +143,15 @@ function renderBinCard(target = "content") {
       <div class="card">
         <h3>BIN CARD</h3>
 
-        <label>Item</label>
         <select id="item" onchange="setSatuan()">
           ${options}
         </select>
 
-        <label>Satuan</label>
         <input id="satuan" readonly>
-
-        <label>Qty</label>
         <input id="qty" type="number" placeholder="Qty">
 
-        <label>Tipe</label>
         <div class="toggle-group">
-          <button id="btnIn" class="active" onclick="setType('IN')">IN</button>
+          <button id="btnIn" onclick="setType('IN')" class="active">IN</button>
           <button id="btnOut" onclick="setType('OUT')">OUT</button>
         </div>
 
@@ -455,13 +455,33 @@ function loadDashboard() {
 //====== HOME =========
 function renderHome() {
 
-  document.getElementById("content").innerHTML = `
+  let content = document.getElementById("content");
+
+  if (!content) {
+    console.error("❌ content tidak ditemukan");
+    return;
+  }
+
+  // render kerangka dulu
+  content.innerHTML = `
     <div id="formArea"></div>
     <div id="dashboardArea"></div>
   `;
 
-  renderBinCard("formArea");   // ✅ masuk ke formArea
-  loadDashboardToday();        // ✅ masuk ke dashboardArea
+  // render isi bertahap (biar tidak blank)
+  setTimeout(() => {
+    try {
+      renderBinCard("formArea");
+    } catch (e) {
+      console.error("❌ renderBinCard error:", e);
+    }
+
+    try {
+      loadDashboardToday();
+    } catch (e) {
+      console.error("❌ dashboard error:", e);
+    }
+  }, 50);
 }
 function loadDashboardToday() {
     let bulan = getCurrentMonth();
