@@ -377,3 +377,31 @@ label {
   opacity: 0.7;
   margin-top: 5px;
 }
+
+/* TOGGLE BUTTON GROUP */
+.toggle-group {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-group button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+
+  background: rgba(255,255,255,0.1);
+  color: white;
+
+  transition: 0.2s;
+}
+
+/* ACTIVE STATE */
+.toggle-group button.active {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+/* OUT MODE */
+.toggle-group button:nth-child(2).active {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
