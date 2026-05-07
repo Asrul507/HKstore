@@ -443,9 +443,17 @@ function loading(el = "content") {
     `;
 }
 
-function showLoading() {
-    document.getElementById("loading").style.display = "flex";
+function showLoading(show) {
+  // Cek apakah elemen ada sebelum mengatur style-nya
+  const loader = document.getElementById("loading-overlay");
+  if (loader) {
+    loader.style.display = show ? "flex" : "none";
+  } else {
+    // Kalau elemen tidak ada, kodingan tetap lanjut (tidak crash)
+    console.warn("Elemen loading-overlay tidak ditemukan, tapi proses tetap lanjut.");
+  }
 }
+
 
 function hideLoading() {
     document.getElementById("loading").style.display = "none";
