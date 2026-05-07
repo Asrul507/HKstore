@@ -808,11 +808,32 @@ function showToast(message, type = "info") {
 
 
 function logout() {
+    // 1. Tampilkan konfirmasi (Opsional, tapi bagus untuk keamanan)
     if (confirm("Apakah Anda yakin ingin keluar?")) {
-        // Hapus data login di local storage jika ada
-        localStorage.removeItem("userSession"); 
         
-        // Refresh halaman untuk kembali ke menu login
-        location.reload(); 
+        // 2. Tampilkan Loading (Biar terasa prosesnya)
+        document.getElementById("loading-overlay").style.display = "flex";
+
+        // 3. Hapus data sesi (Jika kamu menggunakan localStorage)
+        localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("userData");
+
+        // 4. Sembunyikan halaman aplikasi, munculkan halaman login
+        document.getElementById("appPage").style.display = "none";
+        document.getElementById("loginPage").style.display = "flex";
+
+        // 5. Bersihkan input username & password agar tidak nyangkut
+        document.getElementById("username").value = "";
+        document.getElementById("password").value = "";
+
+        // 6. Hilangkan loading setelah pindah halaman
+        setTimeout(() => {
+            document.getElementById("loading-overlay").style.display = "none";
+            // Beri notifikasi sukses
+            showToast("Berhasil keluar dari sistem", "success");
+        }, 500);
+
+        // Alternatif paling ampuh: Refresh halaman total
+        // location.reload(); 
     }
 }
