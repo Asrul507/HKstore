@@ -552,59 +552,57 @@ function loadDashboardToday() {
 //=====RIWAYAT========
 function renderHistory() {
   const content = document.getElementById("content");
-  if (!content) return;
-
-  // Tutup sidebar jika di HP
-  if (typeof closeSidebar === "function") closeSidebar();
-
-  content.innerHTML = `<div class="card"><h3>Memuat Riwayat...</h3></div>`;
+  if(typeof loading === "function") loading(true);
 
   api({ action: "getHistory" })
     .then(data => {
-      console.log("Data dari Apps Script:", data); // LIHAT DI CONSOLE F12
-
-      if (!data || data.length === 0) {
-        content.innerHTML = `<div class="card"><h3>Riwayat Kosong</h3><p>Data diterima tapi isinya kosong. Cek nama sheet atau baris data.</p></div>`;
-        return;
+      if(typeof loading === "function") loading(false);
+      
+      // PENGAMAN: Cek apakah data benar-benar daftar (array)
+      if (!Array.isArray(data)) {
+        console.error("Data bukan array:", data);
+        data = []; 
       }
 
       let html = `
-        <div class="card" style="max-width: 100%; width: 100%;">
-          <h3 style="margin-bottom:15px;">Riwayat BIN CARD</h3>
+        <div class="card" style="max-width: 1000px;">
+          <h3>Riwayat Bin Card</h3>
           <div style="overflow-x: auto;">
             <table class="table">
               <thead>
                 <tr>
                   <th>Tanggal</th>
                   <th>Item</th>
-                  <th>Satuan</th>
-                  <th>IN</th>
-                  <th>OUT</th>
+                  <th>In</th>
+                  <th>Out</th>
                   <th>User</th>
                 </tr>
               </thead>
               <tbody>
       `;
 
-      data.forEach((row, index) => {
-        // Gunakan nama property yang SAMA PERSIS dengan di Apps Script
-        html += `
-          <tr>
-            <td style="font-size: 11px;">${row.tanggal || '-'}</td>
-            <td><b>${row.item || '-'}</b></td>
-            <td>${row.satuan || '-'}</td>
-            <td style="color: #22c55e; font-weight: bold;">${row.in || '0'}</td>
-            <td style="color: #ef4444; font-weight: bold;">${row.out || '0'}</td>
-            <td style="font-size: 11px; opacity: 0.8;">${row.user || '-'}</td>
-          </tr>
-        `;
-      });
+      if (data.length > 0) {
+        data.forEach(row => {
+          html += `
+            <tr>
+              <td style="font-size: 11px;">${row.tanggal || '-'}</td>
+              <td><b>${row.item || '-'}</b></td>
+              <td style="color: #22c55e;">${row.in || 0}</td>
+              <td style="color: #ef4444;">${row.out || 0}</td>
+              <td style="font-size: 11px;">${row.user || '-'}</td>
+            </tr>
+          `;
+        });
+      } else {
+        html += `<tr><td colspan="5" style="text-align:center;">Data tidak ditemukan atau Sheet kosong</td></tr>`;
+      }
 
       html += `</tbody></table></div></div>`;
       content.innerHTML = html;
     })
     .catch(err => {
-      console.error("Gagal ambil data:", err);
+      if(typeof loading === "function") loading(false);
+      console.error(err);
       content.innerHTML = `<div class="card"><h3 style="color:red">Error Koneksi</h3><p>${err.message}</p></div>`;
     });
 }
