@@ -48,7 +48,19 @@
   <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
   <!-- HEADER (mobile app style) -->
-  <div class="header">
+  <div class="header main-header-sticky">
+    <div class="header-left">
+      <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+      <b class="title">LIVING PLAZA</b>
+    </div>
+
+    <div class="user-info-header">
+      <span id="userName" class="user-label"></span>
+      <button onclick="logout()" class="btn-logout-header">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </div>
+  </div>
     <span class="menu-btn" onclick="toggleSidebar()">☰</span>
 
     <b class="title">LIVING PLAZA</b>
