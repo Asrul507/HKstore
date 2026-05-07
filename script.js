@@ -552,11 +552,11 @@ function loadDashboardToday() {
 //=====RIWAYAT========
 function renderHistory() {
   const content = document.getElementById("content");
-  if(typeof loading === "function") loading(true);
+  //if(typeof loading === "function") loading(true);
 
   api({ action: "getHistory" })
     .then(data => {
-      if(typeof loading === "function") loading(false);
+      //if(typeof loading === "function") loading(false);
       
       // PENGAMAN: Cek apakah data benar-benar daftar (array)
       if (!Array.isArray(data)) {
@@ -601,7 +601,7 @@ function renderHistory() {
       content.innerHTML = html;
     })
     .catch(err => {
-      if(typeof loading === "function") loading(false);
+      //if(typeof loading === "function") loading(false);
       console.error(err);
       content.innerHTML = `<div class="card"><h3 style="color:red">Error Koneksi</h3><p>${err.message}</p></div>`;
     });
