@@ -700,3 +700,26 @@ function resetHistoryFilter() {
         }
     }, 1000); // Tunggu 1 detik agar script lain selesai dulu
 })();
+
+function showToast(message, type = "info") {
+    let container = document.getElementById("toast-container");
+    
+    // Jika container toast belum ada di HTML, kita buatkan otomatis
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "toast-container";
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerText = message;
+    
+    container.appendChild(toast);
+
+    // Hilangkan toast setelah 3 detik
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
