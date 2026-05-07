@@ -614,19 +614,37 @@ function displayHistoryTable(data) {
 /**
  * 3. FUNGSI BANTU: Generate isi baris tabel (TR)
  */
+/**
+ * FUNGSI BANTU: Generate isi baris tabel (TR)
+ * Mengubah format tanggal dari YYYY-MM-DD ke DD/MM/YYYY
+ */
 function renderTableRows(data) {
   if (data.length === 0) return `<tr><td colspan="6" style="text-align:center; padding: 20px;">Data tidak ditemukan</td></tr>`;
   
-  return data.map(row => `
+  return data.map(row => {
+    // LOGIKA UBAH FORMAT TANGGAL
+    let tanggalTampil = row.tanggal || '-';
+    
+    // Jika formatnya TTTT-MM-DD (panjang 10 dan mengandung strip)
+    if (tanggalTampil.includes('-') && tanggalTampil.length >= 10) {
+        const parts = tanggalTampil.split(' ')[0].split('-'); // Ambil tanggalnya saja, abaikan jam dulu
+        if (parts.length === 3) {
+            // Susun jadi DD/MM/YYYY
+            tanggalTampil = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+    }
+
+    return `
     <tr>
-      <td class="col-tgl" style="font-size: 11px; white-space: nowrap;">${row.tanggal || '-'}</td>
+      <td class="col-tgl" style="font-size: 11px; white-space: nowrap;">${tanggalTampil}</td>
       <td class="col-wkt" style="font-size: 11px;">${row.waktu || '-'}</td>
       <td class="col-item"><b>${row.item || '-'}</b></td>
       <td class="col-qty" style="color: #22c55e; font-weight: bold;">${row.in || 0}</td>
       <td class="col-qty" style="color: #ef4444; font-weight: bold;">${row.out || 0}</td>
       <td class="col-user" style="font-size: 11px; opacity: 0.8;">${row.user || '-'}</td>
     </tr>
-  `).join('');
+    `;
+  }).join('');
 }
 
 /**
