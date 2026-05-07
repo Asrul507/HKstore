@@ -554,11 +554,11 @@ let allHistoryData = []; // Simpan data asli untuk difilter
 
 function renderHistory() {
   const content = document.getElementById("content");
-  if(typeof loading === "function") loading(true);
+  if(typeof loading === "function") loading();
 
   api({ action: "getHistory" })
     .then(data => {
-      if(typeof loading === "function") loading(false);
+      if(typeof loading === "function") loading();
       allHistoryData = Array.isArray(data) ? data : [];
       displayHistoryTable(allHistoryData);
     });
