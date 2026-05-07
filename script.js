@@ -550,61 +550,73 @@ function loadDashboardToday() {
 }
 
 //=====RIWAYAT========
+let allHistoryData = []; // Simpan data asli untuk difilter
+
 function renderHistory() {
   const content = document.getElementById("content");
-  //if(typeof loading === "function") loading(true);
+  if(typeof loading === "function") loading(true);
 
   api({ action: "getHistory" })
     .then(data => {
-      //if(typeof loading === "function") loading(false);
-      
-      // PENGAMAN: Cek apakah data benar-benar daftar (array)
-      if (!Array.isArray(data)) {
-        console.error("Data bukan array:", data);
-        data = []; 
-      }
-
-      let html = `
-        <div class="card" style="max-width: 1000px;">
-          <h3>Riwayat Bin Card</h3>
-          <div style="overflow-x: auto;">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Tanggal</th>
-                  <th>Waktu</th>
-                  <th>Item</th>
-                  <th>In</th>
-                  <th>Out</th>
-                  <th>User</th>
-                </tr>
-              </thead>
-              <tbody>
-      `;
-
-      if (data.length > 0) {
-        data.forEach(row => {
-          html += `
-            <tr>
-              <td style="font-size: 11px;">${row.tanggal || '-'}</td>
-              <td style="font-size: 12px;">${row.waktu}</td>
-              <td><b>${row.item || '-'}</b></td>
-              <td style="color: #22c55e;">${row.in || 0}</td>
-              <td style="color: #ef4444;">${row.out || 0}</td>
-              <td style="font-size: 11px;">${row.user || '-'}</td>
-            </tr>
-          `;
-        });
-      } else {
-        html += `<tr><td colspan="5" style="text-align:center;">Data tidak ditemukan atau Sheet kosong</td></tr>`;
-      }
-
-      html += `</tbody></table></div></div>`;
-      content.innerHTML = html;
-    })
-    .catch(err => {
-      //if(typeof loading === "function") loading(false);
-      console.error(err);
-      content.innerHTML = `<div class="card"><h3 style="color:red">Error Koneksi</h3><p>${err.message}</p></div>`;
+      if(typeof loading === "function") loading(false);
+      allHistoryData = Array.isArray(data) ? data : [];
+      displayHistoryTable(allHistoryData);
     });
+}
+
+function displayHistoryTable(data) {
+  const content = document.getElementById("content");
+  
+  let html = `
+    <div class="card" style="max-width: 1000px;">
+      <div class="card-header-wrapper">
+        <h3 style="margin:0">Riwayat Bin Card</h3>
+        <div class="search-wrapper">
+          <input type="text" id="searchTgl" placeholder="Cari Tanggal..." onkeyup="filterHistory()">
+        </div>
+      </div>
+      
+      <div style="overflow-x: auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="col-tgl">Tanggal</th>
+              <th class="col-wkt">Waktu</th>
+              <th class="col-item">Item</th>
+              <th class="col-qty">IN</th>
+              <th class="col-qty">OUT</th>
+              <th class="col-user">User</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+  `;
+
+  html += renderTableRows(data);
+  html += `</tbody></table></div></div>`;
+  content.innerHTML = html;
+}
+
+// Fungsi bantu untuk isi baris tabel
+function renderTableRows(data) {
+  if (data.length === 0) return `<tr><td colspan="6" style="text-align:center;">Data tidak ditemukan</td></tr>`;
+  
+  return data.map(row => `
+    <tr>
+      <td class="col-tgl" style="font-size: 11px;">${row.tanggal}</td>
+      <td class="col-wkt" style="font-size: 11px;">${row.waktu}</td>
+      <td class="col-item"><b>${row.item}</b></td>
+      <td class="col-qty" style="color: #22c55e;">${row.in || 0}</td>
+      <td class="col-qty" style="color: #ef4444;">${row.out || 0}</td>
+      <td class="col-user" style="font-size: 11px;">${row.user}</td>
+    </tr>
+  `).join('');
+}
+
+// Fungsi Pencarian Tanggal
+function filterHistory() {
+  const val = document.getElementById("searchTgl").value.toLowerCase();
+  const filtered = allHistoryData.filter(row => 
+    row.tanggal.toLowerCase().includes(val)
+  );
+  document.getElementById("historyBody").innerHTML = renderTableRows(filtered);
 }
