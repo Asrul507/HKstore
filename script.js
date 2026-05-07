@@ -582,10 +582,11 @@ function displayHistoryTable(data) {
       <div class="card-header-wrapper" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
         <h3 style="margin:0">Riwayat Bin Card</h3>
         
-        <div class="search-wrapper" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-          <label for="searchTgl" style="font-size: 12px; color: #fbbf24; margin:0;">Cari Tanggal:</label>
-          <input type="date" id="searchTgl" onchange="filterHistory()" style="background: transparent; border: none; color: white; outline: none; cursor: pointer; font-family: inherit;">
-          <button onclick="resetHistoryFilter()" style="background: rgba(239, 68, 68, 0.2); border: none; color: #ef4444; cursor: pointer; font-size: 11px; padding: 4px 8px; border-radius: 5px;">Reset</button>
+        <div class="search-wrapper" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);">
+          <i class="fa-solid fa-calendar-alt" style="color: #fbbf24; font-size: 14px;"></i>
+          <input type="date" id="searchTgl" onchange="filterHistory()" 
+                 style="background: transparent; border: none; color: white; outline: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 13px; height: 35px;">
+          <button onclick="resetHistoryFilter()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 18px; padding: 0 5px;">&times;</button>
         </div>
       </div>
       
@@ -610,7 +611,6 @@ function displayHistoryTable(data) {
   `;
   content.innerHTML = html;
 }
-
 /**
  * 3. FUNGSI BANTU: Generate isi baris tabel (TR)
  */
