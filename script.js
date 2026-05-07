@@ -58,9 +58,9 @@ document.addEventListener("keydown", function (e) {
 // ================= LOGIN =================
 function login(e) {
     let btn = e?.target;
-    //if (btn) btn.classList.add("loading");
+    if (btn) btn.classList.add("loading");
 
-    //showLoading();
+    showLoading();
 
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
@@ -75,8 +75,8 @@ function login(e) {
 
         setTimeout(() => {
 
-            //hideLoading();
-            //if (btn) btn.classList.remove("loading");
+            hideLoading();
+            if (btn) btn.classList.remove("loading");
 
             if (res.status === "success") {
 
@@ -684,3 +684,8 @@ function resetHistoryFilter() {
   document.getElementById("searchTgl").value = "";
   document.getElementById("historyBody").innerHTML = renderTableRows(allHistoryData);
 }
+
+// Pasikan loading mati saat halaman baru terbuka
+window.addEventListener('load', function() {
+    showLoading(false);
+});
