@@ -4,11 +4,29 @@ let selectedType = "IN";
 
 // ================= API =================
 function api(data) {
+    // 1. Nyalakan loading setiap kali fungsi api dipanggil
+    showLoading(true); 
+
     return fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(data)
-    }).then(res => res.json());
+    })
+    .then(res => res.json())
+    .then(response => {
+        // 2. MATIKAN loading saat data berhasil diterima
+        showLoading(false); 
+        return response;
+    })
+    .catch(err => {
+        // 3. MATIKAN juga kalau error supaya tidak "loading abadi"
+        showLoading(false); 
+        console.error("API Error:", err);
+        if (typeof showToast === "function") {
+            showToast("Gagal terhubung ke server", "error");
+        }
+        throw err;
+    });
 }
 
 function getCurrentMonth() {
