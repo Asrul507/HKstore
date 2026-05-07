@@ -613,30 +613,27 @@ function displayHistoryTable(data) {
 }
 /**
  * 3. FUNGSI BANTU: Generate isi baris tabel (TR)
- */
 /**
- * FUNGSI BANTU: Generate isi baris tabel (TR)
- * Mengubah format tanggal dari YYYY-MM-DD ke DD/MM/YYYY
+ * 1. FUNGSI UNTUK MERUBAH FORMAT TANGGAL DI TABEL
  */
 function renderTableRows(data) {
   if (data.length === 0) return `<tr><td colspan="6" style="text-align:center; padding: 20px;">Data tidak ditemukan</td></tr>`;
   
   return data.map(row => {
-    // LOGIKA UBAH FORMAT TANGGAL
-    let tanggalTampil = row.tanggal || '-';
-    
-    // Jika formatnya TTTT-MM-DD (panjang 10 dan mengandung strip)
-    if (tanggalTampil.includes('-') && tanggalTampil.length >= 10) {
-        const parts = tanggalTampil.split(' ')[0].split('-'); // Ambil tanggalnya saja, abaikan jam dulu
-        if (parts.length === 3) {
-            // Susun jadi DD/MM/YYYY
-            tanggalTampil = `${parts[2]}/${parts[1]}/${parts[0]}`;
+    let tglOri = row.tanggal || '-';
+    let tglTampil = tglOri;
+
+    // Jika format dari Apps Script TTTT-MM-DD, ubah ke DD/MM/YYYY
+    if (tglOri.includes('-')) {
+        const bagian = tglOri.split(' ')[0].split('-'); 
+        if (bagian.length === 3) {
+            tglTampil = `${bagian[2]}/${bagian[1]}/${bagian[0]}`;
         }
     }
 
     return `
     <tr>
-      <td class="col-tgl" style="font-size: 11px; white-space: nowrap;">${tanggalTampil}</td>
+      <td class="col-tgl" style="font-size: 11px;">${tglTampil}</td>
       <td class="col-wkt" style="font-size: 11px;">${row.waktu || '-'}</td>
       <td class="col-item"><b>${row.item || '-'}</b></td>
       <td class="col-qty" style="color: #22c55e; font-weight: bold;">${row.in || 0}</td>
@@ -648,23 +645,35 @@ function renderTableRows(data) {
 }
 
 /**
- * 4. FUNGSI LOGIKA: Filter berdasarkan Kalender
+ * 2. FUNGSI FILTER YANG DISINKRONKAN
  */
 function filterHistory() {
-  const val = document.getElementById("searchTgl").value; // Format YYYY-MM-DD
-  if (!val) return;
+  const inputVal = document.getElementById("searchTgl").value; // Format: YYYY-MM-DD
+  if (!inputVal) {
+    resetHistoryFilter();
+    return;
+  }
 
-  // Konversi format Kalender ke format teks tabel (DD/MM/YY)
-  const d = new Date(val);
-  const day = ("0" + d.getDate()).slice(-2);
-  const month = ("0" + (d.getMonth() + 1)).slice(-2);
-  const year = d.getFullYear().toString().substr(-2);
-  const searchString = `${day}/${month}/${year}`;
-
-  const filtered = allHistoryData.filter(row => 
-    row.tanggal && row.tanggal.includes(searchString)
-  );
+  // Langkah 1: Ubah input kalender (2026-05-07) jadi (07/05/2026)
+  const p = inputVal.split('-');
+  const searchString = `${p[2]}/${p[1]}/${p[0]}`;
   
+  console.log("Mencari tanggal:", searchString); // Cek di F12 apakah formatnya sudah bener
+
+  // Langkah 2: Filter data asli
+  const filtered = allHistoryData.filter(row => {
+    let tglData = row.tanggal || '';
+    
+    // Samakan format data di memori dengan format pencarian
+    if (tglData.includes('-')) {
+        const d = tglData.split(' ')[0].split('-');
+        tglData = `${d[2]}/${d[1]}/${d[0]}`;
+    }
+    
+    return tglData.includes(searchString);
+  });
+  
+  // Langkah 3: Update isi tabel
   document.getElementById("historyBody").innerHTML = renderTableRows(filtered);
 }
 
