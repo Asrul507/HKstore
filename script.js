@@ -245,7 +245,7 @@ function submitBin(e) {
         user: user.nama
     }).then(() => {
         setTimeout(() => {
-            hideLoading();
+            showLoading(false);
             if (btn) btn.classList.remove("loading");
             document.getElementById("qty").value = "";
             showToast("Data berhasil disimpan", "success");
@@ -299,7 +299,7 @@ function addItem() {
     }
     showLoading();
     api({ action: "addItem", nama, satuan }).then(() => {
-        hideLoading();
+        showLoading(false);
         showToast("Item ditambahkan", "success");
         renderItem();
     });
@@ -322,7 +322,7 @@ function updateItem(oldNama) {
     let satuan = document.getElementById("itemSatuan").value;
     showLoading();
     api({ action: "updateItem", oldNama, nama, satuan }).then(() => {
-        hideLoading();
+        showLoading(false);
         showToast("Item diupdate", "success");
         renderItem();
     });
@@ -332,7 +332,7 @@ function deleteItem(nama) {
     if (!confirm("Hapus item ini?")) return;
     showLoading();
     api({ action: "deleteItem", nama }).then(() => {
-        hideLoading();
+        showLoading(false);
         showToast("Item dihapus", "success");
         renderItem();
     });
@@ -409,7 +409,7 @@ function addUser() {
     
     showLoading();
     api({ action: "register", nama: namaVal, nip: nipVal, jabatan, password: passVal, role }).then(() => {
-        hideLoading();
+        showLoading(false);
         showToast("User ditambahkan", "success");
         renderUserManagement();
     });
@@ -459,7 +459,7 @@ function loading(show) {
 }
 
 // Alias untuk hideLoading agar tidak error saat dipanggil
-function hideLoading() {
+function showLoading(false) {
     showLoading(false);
 }
 //======= DASHBOARD ===========
