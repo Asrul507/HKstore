@@ -432,6 +432,39 @@ function addUser() {
         renderUserManagement();
     });
 }
+function editUser(id) {
+    console.log("Mengedit user dengan ID:", id);
+    // Di sini kamu bisa memanggil modal edit atau alert dulu untuk tes
+    const newRole = prompt("Masukkan Role baru (admin/supervisor/staff):");
+    if (newRole) {
+        showLoading(true);
+        api({ action: "editUser", id: id, role: newRole })
+            .then(res => {
+                showLoading(false);
+                showToast("User berhasil diperbarui", "success");
+                renderUserManagement(); // Refresh tampilan
+            })
+            .catch(err => {
+                showLoading(false);
+                showToast("Gagal edit user", "error");
+            });
+    }
+}
+function deleteUser(id) {
+    if (confirm("Apakah Anda yakin ingin menghapus user ini?")) {
+        showLoading(true);
+        api({ action: "deleteUser", id: id })
+            .then(res => {
+                showLoading(false);
+                showToast("User dihapus", "success");
+                renderUserManagement();
+            })
+            .catch(err => {
+                showLoading(false);
+                showToast("Gagal hapus user", "error");
+            });
+    }
+}
 
 // ================= SIDEBAR =================
 function toggleSidebar() {
