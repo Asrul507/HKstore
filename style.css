@@ -595,7 +595,7 @@ input, select, .btn-login, button {
 
 /* 2. Beri jarak antara label dan inputnya agar tidak menempel */
 .card label {
-  margin-bottom: -10px; /* Menarik input sedikit lebih dekat ke labelnya sendiri */
+  margin-bottom: 0px; /* Menarik input sedikit lebih dekat ke labelnya sendiri */
   font-weight: 600;
   color: rgba(255, 255, 255, 0.7);
 }
