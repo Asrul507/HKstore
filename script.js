@@ -60,6 +60,7 @@ function login(e) {
     let btn = e?.target;
     if (btn) btn.classList.add("loading");
 
+    // 1. Nyalakan Loading
     showLoading(true);
 
     let username = document.getElementById("username").value;
@@ -67,43 +68,44 @@ function login(e) {
 
     if (!username || !password) {
         showToast("Isi username & password", "error");
-        hideLoading();
+        // 2. Matikan jika input kosong
+        showLoading(false); 
+        if (btn) btn.classList.remove("loading");
         return;
     }
 
-    api({ action: "login", username, password }).then(res => {
+    api({ action: "login", username, password })
+    .then(res => {
+        // 3. Matikan setelah dapat respon dari API
+        showLoading(false);
+        if (btn) btn.classList.remove("loading");
 
-        setTimeout(() => {
+        if (res.status === "success") {
+            user = res;
+            localStorage.setItem("user", JSON.stringify(res));
 
-            hideLoading();
-            if (btn) btn.classList.remove("loading");
+            showApp();
+            renderMenu();
+            renderBottomNav();
 
-            if (res.status === "success") {
+            setTimeout(() => {
+                setActiveNav(0);
+                renderHome();
+            }, 100);
 
-                user = res;
-                localStorage.setItem("user", JSON.stringify(res));
-
-                showApp();
-                renderMenu();
-                renderBottomNav();
-
-                // 🔥 PINDAH KE SINI
-                setTimeout(() => {
-                    setActiveNav(0);
-                    renderHome();
-                }, 100);
-
-                showToast("Login berhasil", "success");
-
-            } else {
-                showToast("Login gagal", "error");
-            }
-
-        }, 500);
-
+            showToast("Login berhasil", "success");
+        } else {
+            showToast("Login gagal: " + (res.message || "Cek kembali akun anda"), "error");
+        }
+    })
+    .catch(err => {
+        // 4. PENTING: Matikan jika koneksi internet error/putus
+        showLoading(false);
+        if (btn) btn.classList.remove("loading");
+        showToast("Kesalahan server/koneksi", "error");
+        console.error(err);
     });
 }
-
 // ================= MENU =================
 function renderMenu() {
     // Bagian Header Sidebar dengan Ikon 3D-ish
