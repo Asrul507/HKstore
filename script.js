@@ -690,14 +690,13 @@ function resetHistoryFilter() {
   document.getElementById("historyBody").innerHTML = renderTableRows(allHistoryData);
 }
 
-// Memastikan loading mati saat halaman selesai dimuat
-window.addEventListener('load', function() {
-    showLoading(false);
-});
-// Paksa loading mati setelah semua script selesai dibaca
-setTimeout(() => {
-    const loader = document.getElementById("loading-overlay");
-    if (loader) {
-        loader.style.setProperty('display', 'none', 'important');
-    }
-}, 100);
+// Paksa semua loading mati saat halaman baru terbuka
+(function() {
+    setTimeout(() => {
+        const loader = document.getElementById("loading-overlay");
+        if (loader) {
+            loader.style.display = "none";
+            console.log("Loading otomatis dimatikan oleh sistem.");
+        }
+    }, 1000); // Tunggu 1 detik agar script lain selesai dulu
+})();
