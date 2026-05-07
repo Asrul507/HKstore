@@ -24,7 +24,7 @@ body {
 }
 
 /* ===== HEADER ===== */
-.header {
+/*.header {
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(15px);
   color: white;
@@ -803,4 +803,38 @@ body {
 
 .btn-logout-header:hover {
     background-color: #dc2626;
+}
+/* Style Tombol Logout agar Kecil dan Rapi */
+.btn-logout-header {
+    background-color: #ef4444; /* Warna merah */
+    color: white;
+    border: none;
+    padding: 6px 12px;      /* Ukuran dalam yang pas */
+    border-radius: 6px;     /* Sudut tumpul */
+    cursor: pointer;
+    font-size: 11px;        /* Ukuran teks kecil */
+    font-weight: bold;
+    display: flex;          /* Agar ikon dan teks sejajar */
+    align-items: center;
+    gap: 5px;
+    width: auto;            /* PENTING: Supaya tidak panjang ke samping */
+    height: fit-content;    /* Supaya tidak tinggi ke bawah */
+    line-height: normal;
+    white-space: nowrap;    /* Supaya teks tidak turun ke bawah */
+}
+
+.btn-logout-header i {
+    font-size: 12px;        /* Ukuran ikon logout */
+}
+
+.btn-logout-header:hover {
+    background-color: #dc2626;
+}
+
+/* Pastikan pembungkusnya tidak memaksa tombol jadi lebar */
+.user-info-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;         /* Mencegah area ini gepeng */
 }
