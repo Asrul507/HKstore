@@ -556,7 +556,7 @@ function renderHistory() {
 
   api({ action: "getHistory" })
     .then(data => {
-      loading(false);
+      //loading(false);
       let html = `
         <div class="card" style="max-width: 1000px;">
           <h3>Riwayat Bin Card</h3>
@@ -596,7 +596,7 @@ function renderHistory() {
       content.innerHTML = html;
     })
     .catch(err => {
-      loading(false);
+      //loading(false);
       showToast("Gagal memuat riwayat", "error");
     });
 }
