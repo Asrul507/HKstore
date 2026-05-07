@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxuw-yszUfk6WH3QKOcwe7tQocu0MfSHxjEB0nUCWhXRo-jqhthS6fxmBZ3hBA3mRU7/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbx1DkvhQNNrHPWdxnexEx3BKVvUXiHtWSqEk1HMMQL241g9dqV0m1URn6HN5KYxpwg/exec";
 let user = JSON.parse(localStorage.getItem("user")) || null;
 let selectedType = "IN"; 
 
