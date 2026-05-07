@@ -459,8 +459,11 @@ function loading(show) {
 }
 
 // Alias untuk hideLoading agar tidak error saat dipanggil
-function showLoading(false) {
-    showLoading(false);
+function showLoading(show) {
+    const loader = document.getElementById("loading-overlay");
+    if (loader) {
+        loader.style.display = show ? "flex" : "none";
+    }
 }
 //======= DASHBOARD ===========
 function renderDashboard() {
