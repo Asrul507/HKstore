@@ -413,12 +413,14 @@ label {
 }
 
 .login-header p {
+  align-items: center;
   font-size: 12px;
   opacity: 0.6;
   margin-bottom: 25px;
 }
 
 .login-icon {
+  align-items: center;
   font-size: 40px;
   margin-bottom: 10px;
 }
