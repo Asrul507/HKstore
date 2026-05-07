@@ -805,3 +805,14 @@ function showToast(message, type = "info") {
         setTimeout(() => toast.remove(), 500);
     }, 3000);
 }
+
+
+function logout() {
+    if (confirm("Apakah Anda yakin ingin keluar?")) {
+        // Hapus data login di local storage jika ada
+        localStorage.removeItem("userSession"); 
+        
+        // Refresh halaman untuk kembali ke menu login
+        location.reload(); 
+    }
+}
