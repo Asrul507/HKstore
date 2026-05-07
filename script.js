@@ -572,6 +572,7 @@ function renderHistory() {
               <thead>
                 <tr>
                   <th>Tanggal</th>
+                  <th>Waktu</th>
                   <th>Item</th>
                   <th>In</th>
                   <th>Out</th>
