@@ -91,42 +91,42 @@
 
 <!-- ================= FORM EDIT ================ -->
   <div id="modal-edit-user" class="loading-overlay" style="display: none;">
-    <div class="card" style="max-width: 400px; width: 90%; background: #1e293b; color: white;">
-        <h3 style="margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px;">Edit Data User</h3>
+    <div class="card" style="max-width: 380px; width: 92%; background: #1e293b; color: white; padding: 15px; border-radius: 12px;">
+        <h3 style="margin: 0 0 15px 0; font-size: 18px; border-bottom: 1px solid #334155; padding-bottom: 8px;">Edit User</h3>
         
         <input type="hidden" id="edit-user-id">
         
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-size: 12px; margin-bottom: 5px;">Nama Lengkap</label>
-            <input type="text" id="edit-nama" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <div style="flex: 2;">
+                <label style="display:block; font-size: 11px; color: #94a3b8; margin-bottom: 4px;">Nama</label>
+                <input type="text" id="edit-nama" style="width:100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 13px;">
+            </div>
+            <div style="flex: 1;">
+                <label style="display:block; font-size: 11px; color: #94a3b8; margin-bottom: 4px;">NIP</label>
+                <input type="text" id="edit-nip" style="width:100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 13px;">
+            </div>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-size: 12px; margin-bottom: 5px;">NIP</label>
-            <input type="text" id="edit-nip" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display:block; font-size: 12px; margin-bottom: 5px;">Jabatan</label>
-            <select id="edit-jabatan" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
-                <option value="HO">Admin</option>
+        <div style="margin-bottom: 10px;">
+            <label style="display:block; font-size: 11px; color: #94a3b8; margin-bottom: 4px;">Jabatan</label>
+            <select id="edit-jabatan" style="width:100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 13px;">
+                <option value="Leader">Leader</option>
+                <option value="HO">HO</option>
                 <option value="Supervisor">Supervisor</option>
-                <option value="Leader">Staff</option>
             </select>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <label style="display:block; font-size: 12px; margin-bottom: 5px;">Password Baru (Kosongkan jika tidak ganti)</label>
-            <input type="password" id="edit-password" placeholder="******" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-size: 11px; color: #94a3b8; margin-bottom: 4px;">Password Baru (Opsional)</label>
+            <input type="password" id="edit-password" placeholder="Kosongkan jika tidak ganti" style="width:100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 13px;">
         </div>
 
-        <div style="display: flex; gap: 10px;">
-            <button onclick="saveEditUser()" style="flex: 1; background: #7c3aed; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">Simpan</button>
-            <button onclick="closeModalEdit()" style="flex: 1; background: #475569; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">Batal</button>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="saveEditUser()" style="flex: 1; background: #7c3aed; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;">Simpan</button>
+            <button onclick="closeModalEdit()" style="flex: 1; background: #334155; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">Batal</button>
         </div>
     </div>
 </div>
-
 <!-- ================= SCRIPT ================= -->
 <script src="script.js"></script>
 
