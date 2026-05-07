@@ -550,42 +550,52 @@ function loadDashboardToday() {
 
 //=====RIWAYAT========
 function renderHistory() {
-    loading();
-    // Kita minta data ke Apps Script dengan action 'getHistory'
-    api({ action: "getHistory" }).then(data => {
-        let html = `
-            <div class="card" style="max-width: 100%;">
-                <h3>Riwayat Bin Card</h3>
-                <div style="overflow-x: auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Item</th>
-                                <th>Tipe</th>
-                                <th>Qty</th>
-                                <th>User</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
+  const content = document.getElementById("content");
+  loading(true);
 
-        if (data && data.length > 0) {
-            html += data.map(row => `
+  api({ action: "getHistory" })
+    .then(data => {
+      loading(false);
+      let html = `
+        <div class="card" style="max-width: 1000px;">
+          <h3>Riwayat Bin Card</h3>
+          <div style="overflow-x: auto;">
+            <table class="table">
+              <thead>
                 <tr>
-                    <td>${new Date(row.tanggal).toLocaleDateString('id-ID')}</td>
-                    <td>${row.item}</td>
-                    <td><span class="badge" style="background:${row.tipe === 'IN' ? '#22c55e' : '#ef4444'}">${row.tipe}</span></td>
-                    <td>${row.qty}</td>
-                    <td>${row.user}</td>
+                  <th>Tanggal/Waktu</th>
+                  <th>Item</th>
+                  <th>Satuan</th>
+                  <th>Masuk (IN)</th>
+                  <th>Keluar (OUT)</th>
+                  <th>User</th>
                 </tr>
-            `).join("");
-        } else {
-            html += `<tr><td colspan="5" style="text-align:center">Belum ada riwayat</td></tr>`;
-        }
+              </thead>
+              <tbody>
+      `;
 
-        html += `</tbody></table></div></div>`;
-        document.getElementById("content").innerHTML = html;
+      if (data && data.length > 0) {
+        data.forEach(row => {
+          html += `
+            <tr>
+              <td style="font-size: 11px;">${row.tanggal}</td>
+              <td><b>${row.item}</b></td>
+              <td><span class="badge">${row.satuan}</span></td>
+              <td style="color: #22c55e; font-weight: bold;">${row.in || '-'}</td>
+              <td style="color: #ef4444; font-weight: bold;">${row.out || '-'}</td>
+              <td style="font-size: 11px; opacity: 0.8;">${row.user}</td>
+            </tr>
+          `;
+        });
+      } else {
+        html += `<tr><td colspan="6" style="text-align:center;">Belum ada riwayat transaksi.</td></tr>`;
+      }
+
+      html += `</tbody></table></div></div>`;
+      content.innerHTML = html;
+    })
+    .catch(err => {
+      loading(false);
+      showToast("Gagal memuat riwayat", "error");
     });
 }
-
