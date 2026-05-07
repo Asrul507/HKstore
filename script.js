@@ -363,7 +363,7 @@ function renderUser() {
             <h3>User Profile</h3>
             <p>Nama: ${user?.nama || "-"}</p>
             <p>NIP: ${user?.nip || "-"}</p>
-            <p>Role: ${user?.jabatan || "-"}</p>
+            <p>Jabatan: ${user?.jabatan || "-"}</p>
         </div>
     `;
 }
