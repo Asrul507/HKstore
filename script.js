@@ -60,7 +60,7 @@ function login(e) {
     let btn = e?.target;
     if (btn) btn.classList.add("loading");
 
-    showLoading();
+    //showLoading();
 
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
@@ -75,8 +75,8 @@ function login(e) {
 
         setTimeout(() => {
 
-            hideLoading();
-            if (btn) btn.classList.remove("loading");
+            //hideLoading();
+            //if (btn) btn.classList.remove("loading");
 
             if (res.status === "success") {
 
