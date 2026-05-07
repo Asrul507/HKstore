@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwy61MHAIBg-je75rvp9IyG5T7Cs5ecm4Q90dmkRsi1vSi4ExHJRNHsKoEbSi3NL3DG/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz1pESLgWH3c8B4N4GkOWO-GDY8XbQssWQQ527kieOdtymTa9NrwkNuKgIr30KPKYnZ/exec";
 let user = JSON.parse(localStorage.getItem("user")) || null;
 let selectedType = "IN"; 
 
@@ -587,6 +587,7 @@ function renderHistory() {
           html += `
             <tr>
               <td style="font-size: 11px;">${row.tanggal || '-'}</td>
+              <td style="font-size: 12px;">${row.waktu}</td>
               <td><b>${row.item || '-'}</b></td>
               <td style="color: #22c55e;">${row.in || 0}</td>
               <td style="color: #ef4444;">${row.out || 0}</td>
