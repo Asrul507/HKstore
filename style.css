@@ -636,3 +636,60 @@ input, select, .btn-login, button {
   gap: 15px !important; /* Beri spasi antara tombol IN dan tombol OUT */
   margin-bottom: 5px;
 }
+
+/* Container untuk judul dan pencarian */
+.card-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Kotak pencarian di pojok kanan */
+.search-wrapper {
+  position: relative;
+}
+
+.search-wrapper input {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  font-size: 14px;
+  width: 180px;
+}
+
+/* Menyamakan lebar kolom agar sejajar */
+.table {
+  width: 100%;
+  table-layout: fixed; /* Kunci lebar kolom */
+  border-collapse: collapse;
+}
+
+.table th, .table td {
+  text-align: left;
+  padding: 12px 8px;
+  word-wrap: break-word; /* Bungkus teks jika kepanjangan */
+  vertical-align: middle;
+}
+
+/* Atur lebar spesifik tiap kolom (Total 100%) */
+.col-tgl { width: 100px; }
+.col-wkt { width: 70px; }
+.col-item { width: 180px; }
+.col-qty { width: 60px; }
+.col-user { width: 100px; }
+
+/* Style untuk filter dropdown kecil ala Excel */
+.filter-select {
+  background: transparent;
+  color: #fbbf24;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  display: block;
+  margin-top: 4px;
+}
