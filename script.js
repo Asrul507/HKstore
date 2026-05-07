@@ -56,7 +56,7 @@ document.addEventListener("keydown", function (e) {
 });
 
 // ================= LOGIN =================
-function login() {
+function login(e) {
     let btn = e?.target;
     if (btn) btn.classList.add("loading");
 
