@@ -218,35 +218,6 @@ button:active {
   opacity: 0.8;
 }
 
-/* ===== LOADING ===== */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-
-  display: none;
-  justify-content: center;
-  align-items: center;
-
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-}
-
-/* ===== SPINNER ===== */
-.spinner {
-  width: 45px;
-  height: 45px;
-
-  border: 4px solid rgba(255,255,255,0.2);
-  border-top: 4px solid #4a6cf7;
-
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* ===== TOAST ===== */
 #toast-container {
   position: fixed;
@@ -744,16 +715,20 @@ input[type="date"]:valid::before {
 /* Container Utama Loading */
 /* Container Utama */
 .loading-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Gelap transparan */
-    display: none; /* Sembunyi dulu */
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-    backdrop-filter: blur(3px);
-    flex-direction: column;
-    color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Gelap */
+  z-index: 99999; /* Pastikan paling atas */
+  
+  /* INI KUNCINYA */
+  display: none; /* Sembunyikan secara default */
+  
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
 }
 
 /* Spinnernya */
