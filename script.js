@@ -550,29 +550,42 @@ function loadDashboardToday() {
 }
 
 //=====RIWAYAT========
-let allHistoryData = []; // Simpan data asli untuk difilter
+let allHistoryData = []; // Simpan data asli di memori untuk difilter
 
+/**
+ * 1. FUNGSI UTAMA: Ambil data dari Apps Script
+ */
 function renderHistory() {
   const content = document.getElementById("content");
-  if(typeof loading === "function") loading();
+  if (typeof loading === "function") loading();
 
   api({ action: "getHistory" })
     .then(data => {
-      if(typeof loading === "function") loading();
+      // Simpan data ke variabel global agar bisa difilter tanpa panggil API lagi
       allHistoryData = Array.isArray(data) ? data : [];
       displayHistoryTable(allHistoryData);
+    })
+    .catch(err => {
+      console.error(err);
+      content.innerHTML = `<div class="card"><h3 style="color:#ef4444">Error Koneksi</h3><p>${err.message}</p></div>`;
     });
 }
 
+/**
+ * 2. FUNGSI TAMPILAN: Membuat struktur Card dan Tabel
+ */
 function displayHistoryTable(data) {
   const content = document.getElementById("content");
   
   let html = `
     <div class="card" style="max-width: 1000px;">
-      <div class="card-header-wrapper">
+      <div class="card-header-wrapper" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
         <h3 style="margin:0">Riwayat Bin Card</h3>
-        <div class="search-wrapper">
-          <input type="text" id="searchTgl" placeholder="Cari Tanggal..." onkeyup="filterHistory()">
+        
+        <div class="search-wrapper" style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+          <label for="searchTgl" style="font-size: 12px; color: #fbbf24; margin:0;">Cari Tanggal:</label>
+          <input type="date" id="searchTgl" onchange="filterHistory()" style="background: transparent; border: none; color: white; outline: none; cursor: pointer; font-family: inherit;">
+          <button onclick="resetHistoryFilter()" style="background: rgba(239, 68, 68, 0.2); border: none; color: #ef4444; cursor: pointer; font-size: 11px; padding: 4px 8px; border-radius: 5px;">Reset</button>
         </div>
       </div>
       
@@ -589,34 +602,58 @@ function displayHistoryTable(data) {
             </tr>
           </thead>
           <tbody id="historyBody">
+            ${renderTableRows(data)}
+          </tbody>
+        </table>
+      </div>
+    </div>
   `;
-
-  html += renderTableRows(data);
-  html += `</tbody></table></div></div>`;
   content.innerHTML = html;
 }
 
-// Fungsi bantu untuk isi baris tabel
+/**
+ * 3. FUNGSI BANTU: Generate isi baris tabel (TR)
+ */
 function renderTableRows(data) {
-  if (data.length === 0) return `<tr><td colspan="6" style="text-align:center;">Data tidak ditemukan</td></tr>`;
+  if (data.length === 0) return `<tr><td colspan="6" style="text-align:center; padding: 20px;">Data tidak ditemukan</td></tr>`;
   
   return data.map(row => `
     <tr>
-      <td class="col-tgl" style="font-size: 11px;">${row.tanggal}</td>
-      <td class="col-wkt" style="font-size: 11px;">${row.waktu}</td>
-      <td class="col-item"><b>${row.item}</b></td>
-      <td class="col-qty" style="color: #22c55e;">${row.in || 0}</td>
-      <td class="col-qty" style="color: #ef4444;">${row.out || 0}</td>
-      <td class="col-user" style="font-size: 11px;">${row.user}</td>
+      <td class="col-tgl" style="font-size: 11px; white-space: nowrap;">${row.tanggal || '-'}</td>
+      <td class="col-wkt" style="font-size: 11px;">${row.waktu || '-'}</td>
+      <td class="col-item"><b>${row.item || '-'}</b></td>
+      <td class="col-qty" style="color: #22c55e; font-weight: bold;">${row.in || 0}</td>
+      <td class="col-qty" style="color: #ef4444; font-weight: bold;">${row.out || 0}</td>
+      <td class="col-user" style="font-size: 11px; opacity: 0.8;">${row.user || '-'}</td>
     </tr>
   `).join('');
 }
 
-// Fungsi Pencarian Tanggal
+/**
+ * 4. FUNGSI LOGIKA: Filter berdasarkan Kalender
+ */
 function filterHistory() {
-  const val = document.getElementById("searchTgl").value.toLowerCase();
+  const val = document.getElementById("searchTgl").value; // Format YYYY-MM-DD
+  if (!val) return;
+
+  // Konversi format Kalender ke format teks tabel (DD/MM/YY)
+  const d = new Date(val);
+  const day = ("0" + d.getDate()).slice(-2);
+  const month = ("0" + (d.getMonth() + 1)).slice(-2);
+  const year = d.getFullYear().toString().substr(-2);
+  const searchString = `${day}/${month}/${year}`;
+
   const filtered = allHistoryData.filter(row => 
-    row.tanggal.toLowerCase().includes(val)
+    row.tanggal && row.tanggal.includes(searchString)
   );
+  
   document.getElementById("historyBody").innerHTML = renderTableRows(filtered);
+}
+
+/**
+ * 5. FUNGSI LOGIKA: Reset pencarian
+ */
+function resetHistoryFilter() {
+  document.getElementById("searchTgl").value = "";
+  document.getElementById("historyBody").innerHTML = renderTableRows(allHistoryData);
 }
