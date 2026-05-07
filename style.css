@@ -698,3 +698,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1); /* Bikin ikon kalendernya jadi putih */
     cursor: pointer;
 }
+
+/* Styling Input Date agar terlihat Pro */
+input[type="date"] {
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Bikin ikon kalender bawaan jadi warna putih & cantik */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+    z-index: 1;
+}
+
+/* Custom placeholder warna putih jika belum pilih tanggal */
+input[type="date"]::before {
+    content: "Pilih Tanggal ";
+    color: rgba(255,255,255,0.5);
+    margin-right: 5px;
+}
+
+/* Hilangkan teks placeholder saat tanggal sudah dipilih */
+input[type="date"]:focus::before,
+input[type="date"]:valid::before {
+    content: "";
+}
+
+/* Styling Pop-up Kalender (Untuk beberapa browser pendukung) */
+::-webkit-datetime-edit-fields-wrapper { padding: 2px; }
+::-webkit-datetime-edit-text { color: white; padding: 0 0.3em; }
+::-webkit-datetime-edit-month-field { color: #fbbf24; }
+::-webkit-datetime-edit-day-field { color: #fbbf24; }
+::-webkit-datetime-edit-year-field { color: #fbbf24; }
