@@ -434,40 +434,32 @@ function logout() {
 }
 
 // ================= LOADING & UI =================
-function loading(el = "content") {
-    document.getElementById(el).innerHTML = `
-        <div style="text-align:center;padding:20px;">
-            <div class="spinner"></div>
-            <p>Loading...</p>
-        </div>
-    `;
-}
-
+// SATU FUNGSI UNTUK SEMUA (Ganti fungsi loading & showLoading lama dengan ini)
 function showLoading(show) {
-  // Cek apakah elemen ada sebelum mengatur style-nya
-  const loader = document.getElementById("loading-overlay");
-  if (loader) {
-    loader.style.display = show ? "flex" : "none";
-  } else {
-    // Kalau elemen tidak ada, kodingan tetap lanjut (tidak crash)
-    console.warn("Elemen loading-overlay tidak ditemukan, tapi proses tetap lanjut.");
-  }
+    const loader = document.getElementById("loading-overlay");
+    if (loader) {
+        loader.style.display = show ? "flex" : "none";
+    } else {
+        console.warn("Elemen loading-overlay tidak ditemukan di HTML.");
+    }
 }
 
+// Supaya kode lama yang memanggil loading() tidak error, kita buatkan alias
+function loading(show) {
+    // Jika inputnya boolean (true/false), gunakan showLoading
+    if (typeof show === "boolean") {
+        showLoading(show);
+    } else {
+        // Jika inputnya ID elemen (seperti "content"), kita abaikan saja 
+        // atau tampilkan loader transparan agar lebih modern
+        showLoading(true);
+    }
+}
 
+// Alias untuk hideLoading agar tidak error saat dipanggil
 function hideLoading() {
-    document.getElementById("loading").style.display = "none";
+    showLoading(false);
 }
-
-function showToast(message, type = "info") {
-    let container = document.getElementById("toast-container");
-    let toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.innerText = message;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
 //======= DASHBOARD ===========
 function renderDashboard() {
     let currentMonth = getCurrentMonth();
