@@ -585,3 +585,29 @@ input, select, .btn-login, button {
     max-width: 100%; /* Ikuti lebar box 50% tadi */
   }
 }
+
+/* 1. Atur jarak antar elemen di dalam kartu */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px !important; /* Tambah jarak antar baris/kolom form jadi 20px */
+}
+
+/* 2. Beri jarak antara label dan inputnya agar tidak menempel */
+.card label {
+  margin-bottom: -10px; /* Menarik input sedikit lebih dekat ke labelnya sendiri */
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 3. Beri jarak ekstra khusus untuk tombol Submit */
+.card button[onclick*="save"], 
+.card button#submitBtn {
+  margin-top: 10px; /* Biar tombol submit gak nempel sama input di atasnya */
+}
+
+/* 4. Atur jarak di dalam Toggle Group (Tombol IN/OUT) */
+.toggle-group {
+  gap: 15px !important; /* Beri spasi antara tombol IN dan tombol OUT */
+  margin-bottom: 5px;
+}
