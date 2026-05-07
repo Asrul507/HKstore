@@ -390,7 +390,7 @@ function renderUserManagement() {
                     <span class="badge">${u[4]}</span>
                 </div>
                 <div class="user-action">
-                    <button onclick="editUser('${u[1]}','${u[0]}','${u[2]}')">✏️</button>
+                    <button onclick="editUser('${u[0]}','${u[1]}','${u[2]}')">✏️</button>
                     <button onclick="deleteUser('${u[1]}')">🗑️</button>
                 </div>
             </div>
