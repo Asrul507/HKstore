@@ -432,23 +432,52 @@ function addUser() {
         renderUserManagement();
     });
 }
-function editUser(id) {
-    console.log("Mengedit user dengan ID:", id);
-    // Di sini kamu bisa memanggil modal edit atau alert dulu untuk tes
-    const newRole = prompt("Masukkan Role baru (admin/supervisor/staff):");
-    if (newRole) {
-        showLoading(true);
-        api({ action: "editUser", id: id, role: newRole })
-            .then(res => {
-                showLoading(false);
-                showToast("User berhasil diperbarui", "success");
-                renderUserManagement(); // Refresh tampilan
-            })
-            .catch(err => {
-                showLoading(false);
-                showToast("Gagal edit user", "error");
-            });
-    }
+// Fungsi untuk Membuka Modal dan Mengisi Data Lama
+function editUser(id, nama, nip, jabatan) {
+    document.getElementById("edit-user-id").value = id;
+    document.getElementById("edit-nama").value = nama;
+    document.getElementById("edit-nip").value = nip;
+    document.getElementById("edit-jabatan").value = jabatan;
+    document.getElementById("edit-password").value = ""; // Reset field password
+    
+    document.getElementById("modal-edit-user").style.display = "flex";
+}
+
+// Fungsi untuk Menutup Modal
+function closeModalEdit() {
+    document.getElementById("modal-edit-user").style.display = "none";
+}
+
+// Fungsi untuk Mengirim Data ke Google Sheets
+function saveEditUser() {
+    const id = document.getElementById("edit-user-id").value;
+    const nama = document.getElementById("edit-nama").value;
+    const nip = document.getElementById("edit-nip").value;
+    const jabatan = document.getElementById("edit-jabatan").value;
+    const password = document.getElementById("edit-password").value;
+
+    if (!nama || !nip) return showToast("Nama dan NIP wajib diisi", "error");
+
+    showLoading(true);
+    closeModalEdit();
+
+    api({ 
+        action: "updateUser", 
+        id: id, 
+        nama: nama, 
+        nip: nip, 
+        jabatan: jabatan, 
+        password: password 
+    })
+    .then(res => {
+        showLoading(false);
+        showToast("Data user berhasil diperbarui!", "success");
+        renderUserManagement(); // Refresh daftar user
+    })
+    .catch(err => {
+        showLoading(false);
+        showToast("Gagal memperbarui data", "error");
+    });
 }
 function deleteUser(id) {
     if (confirm("Apakah Anda yakin ingin menghapus user ini?")) {
