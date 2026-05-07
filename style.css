@@ -513,7 +513,32 @@ input:focus {
     padding: 15px; /* Ruang dalam lebih rapat biar input makin lebar */
     max-width: 100%; /* Benar-benar selebar layar HP */
   }
-  
+  /* Tambahkan atau pastikan kode ini ada di style.css */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  min-width: 600px; /* Supaya di HP bisa di-scroll horizontal dengan rapi */
+}
+
+.table th {
+  text-align: left;
+  padding: 12px 8px;
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  font-size: 13px;
+  color: #fbbf24; /* Warna kuning emas untuk judul kolom */
+}
+
+.table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 14px;
+}
+
+/* Biar barisnya selang-seling warnanya (zebra style) */
+.table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
   .content {
     padding: 10px; /* Margin luar di HP diperkecil */
   }
