@@ -693,3 +693,8 @@ input, select, .btn-login, button {
   display: block;
   margin-top: 4px;
 }
+/* Menghapus ikon kalender bawaan browser agar lebih menyatu dengan tema dark */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Bikin ikon kalendernya jadi putih */
+    cursor: pointer;
+}
