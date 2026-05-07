@@ -831,10 +831,60 @@ body {
     background-color: #dc2626;
 }
 
+
 /* Pastikan pembungkusnya tidak memaksa tombol jadi lebar */
 .user-info-header {
     display: flex;
     align-items: center;
     gap: 10px;
     flex-shrink: 0;         /* Mencegah area ini gepeng */
+}
+/* Update CSS Header */
+.main-header-sticky {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 70px;
+    background-color: #1e293b;
+    
+    /* INI KUNCINYA: Memisahkan kiri (Menu & Judul) dan kanan (Nama & Logout) */
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    
+    padding: 0 15px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    box-sizing: border-box;
+    color: white;
+}
+
+/* Bagian Kiri: Menu & Logo */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Jarak antara ikon ☰ dan tulisan LIVING PLAZA */
+}
+
+/* Bagian Kanan: Nama & Tombol */
+.user-info-header {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Jarak antara nama user dan tombol logout */
+}
+
+.btn-logout-header {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: auto; /* Biar tidak panjang banget */
+    white-space: nowrap; /* Teks tidak tertekuk ke bawah */
 }
