@@ -552,7 +552,7 @@ function loadDashboardToday() {
 //=====RIWAYAT========
 function renderHistory() {
   const content = document.getElementById("content");
-  loading(true);
+  //loading(true);
 
   api({ action: "getHistory" })
     .then(data => {
