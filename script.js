@@ -433,13 +433,15 @@ function addUser() {
     });
 }
 // Fungsi untuk Membuka Modal dan Mengisi Data Lama
-function editUser(id, nama, nip, jabatan) {
-    document.getElementById("edit-user-id").value = id;
+function editUser(nama, nip, jabatan) { 
+    // Kita isi field form berdasarkan urutan yang kamu punya
     document.getElementById("edit-nama").value = nama;
-    document.getElementById("edit-nip").value = nip;
-    document.getElementById("edit-jabatan").value = jabatan;
-    document.getElementById("edit-password").value = ""; // Reset field password
+    document.getElementById("edit-nip").value = nip;       
+    document.getElementById("edit-jabatan").value = jabatan; 
     
+    // Kita simpan NIP di field hidden sebagai "kunci" untuk mencari baris di Google Sheets nanti
+    document.getElementById("edit-user-id").value = nip; 
+
     document.getElementById("modal-edit-user").style.display = "flex";
 }
 
