@@ -109,28 +109,6 @@ body {
   padding: var(--space-4);
 }
 
-/* ===== CARD ===== */
-.card {
-  margin-top: var(--space-4);
-
-  width: 100%;
-  max-width: 420px;
-
-  padding: var(--space-5);
-
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-
-  border-radius: 20px;
-
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(15px);
-
-  border: 1px solid rgba(255,255,255,0.15);
-
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
 
 /* ===== INPUT ===== */
 input, select {
@@ -528,26 +506,6 @@ input:focus {
     max-width: 100%; /* Agar card mengikuti lebar kotak pembaginya */
   }
 }
-/* Update Gaya Card agar Responsif */
-.card {
-  margin-top: var(--space-4);
-  
-  /* Supaya di HP dia mengambil hampir seluruh lebar layar */
-  width: 100%; 
-  max-width: 550px; /* Kita besarkan sedikit batas maksimalnya */
-  
-  padding: var(--space-4); /* Padding sedikit dikurangi agar ruang input luas */
-  
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  
-  border-radius: 20px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
 
 /* Khusus untuk tampilan layar kecil (HP) */
 @media (max-width: 600px) {
@@ -565,115 +523,65 @@ input, select, .btn-login, button {
   min-height: 48px; /* Ukuran standar jempol manusia agar nyaman */
   font-size: 16px;  /* Mencegah otomatis zoom di iPhone saat klik input */
 }
-/* Membuat tampilan konten benar-benar lebar di HP */
+/* 1. KUNCI UTAMA: Biar kartu berada di tengah dan tidak gepeng */
+.content {
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Menjaga semua kartu tetap di tengah */
+  padding: var(--space-4) var(--space-2); /* Atas-bawah tetap, kiri-kanan diperkecil */
+}
+
+/* 2. GRID HOME: Biar rapi saat ada 2 menu (Bin Card & Dashboard) */
+.home-grid {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+/* 3. CARD: Ini rahasia biar lebar di HP tapi proporsional di PC */
+.card {
+  width: 100%; /* Default ambil seluruh lebar yang ada */
+  max-width: 480px; /* Batas lebar di PC agar tidak melar */
+  padding: var(--space-4);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  margin-top: 10px;
+}
+
+/* 4. MEDIA QUERY: Settingan khusus buat HP Sempit */
 @media (max-width: 600px) {
   .content {
-    padding: 10px 5px; /* Memperkecil jarak kiri-kanan luar */
+    padding: 15px 8px; /* Jarak ke pinggir layar HP cuma 8px (Sangat Lebar!) */
   }
+  
+  .card {
+    border-radius: 15px; /* Sedikit lebih kotak di HP agar terasa luas */
+    padding: var(--space-3); /* Padding dalam dikecilkan biar input makin lebar */
+  }
+}
 
+/* 5. MEDIA QUERY: Settingan khusus buat Layar Lebar (Desktop) */
+@media (min-width: 992px) {
   .home-grid {
-    gap: 15px; /* Memperkecil jarak antar kotak Bin Card & Stock */
+    flex-direction: row; /* Berjejer kiri-kanan */
+    justify-content: center;
+    max-width: 1100px;
+    gap: 30px;
+  }
+  
+  #formArea, #dashboardArea {
+    flex: 1; /* Bagi rata 50:50 */
     width: 100%;
   }
 
   .card {
-    max-width: 100%; /* Memastikan card mengambil 100% ruang yang ada */
-    width: 100%;
-    border-radius: 15px; /* Sedikit memperkecil lengkungan pojok agar lebih luas */
-    padding: 20px 15px; /* Memperluas area dalam card */
+    max-width: 100%; /* Ikuti lebar box 50% tadi */
   }
 }
-
-.card input, .card select, .card .toggle-group {
-    width: 100%; /* Memastikan semua elemen input memenuhi lebar card */
-}
-/* Membuat tampilan konten benar-benar lebar di HP */
-@media (max-width: 600px) {
-  .content {
-    padding: 10px 5px; /* Memperkecil jarak kiri-kanan luar */
-  }
-
-  .home-grid {
-    gap: 15px; /* Memperkecil jarak antar kotak Bin Card & Stock */
-    width: 100%;
-  }
-
-  .card {
-    max-width: 100%; /* Memastikan card mengambil 100% ruang yang ada */
-    width: 100%;
-    border-radius: 15px; /* Sedikit memperkecil lengkungan pojok agar lebih luas */
-    padding: 20px 15px; /* Memperluas area dalam card */
-  }
-}
-
-.card input, .card select, .card .toggle-group {
-    width: 100%; /* Memastikan semua elemen input memenuhi lebar card */
-}
-/* MODIFIKASI AGAR CARD LEBIH LEBAR DI HP */
-@media (max-width: 600px) {
-  /* 1. Hilangkan jarak samping di container utama */
-  .content {
-    padding: 15px 8px !important; /* Angka 8px bikin jarak ke pinggir layar jadi tipis */
-  }
-
-  /* 2. Paksa grid untuk menggunakan seluruh lebar yang ada */
-  .home-grid {
-    width: 100%;
-    gap: 15px;
-  }
-
-  /* 3. Pastikan card tidak tertahan batas maksimal lebar */
-  .card {
-    max-width: 100% !important; 
-    width: 100% !important;
-    padding: 20px 15px; /* Luas di dalam kotak tetap terjaga */
-    margin-top: 10px;
-  }
-}
-
-/* TAMBAHKAN DI PALING BAWAH CSS LAMA */
-@media (max-width: 600px) {
-  /* Hilangkan jarak samping di layar utama */
-  .content {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-  }
-
-  /* Paksa semua kotak (Card) selebar layar HP */
-  .card {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding: 20px 15px !important; /* Ruang dalam kotak tetap lega */
-  }
-
-  /* Pastikan elemen di dalam Card juga ikut melebar */
-  .card input, .card select, .card button {
-    width: 100% !important;
-  }
-}
-/* TAMBAHKAN DI PALING BAWAH CSS LAMA */
-@media (max-width: 600px) {
-  /* Hilangkan jarak samping di layar utama */
-  .content {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-  }
-
-  /* Paksa semua kotak (Card) selebar layar HP */
-  .card {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    padding: 20px 15px !important; /* Ruang dalam kotak tetap lega */
-  }
-
-  /* Pastikan elemen di dalam Card juga ikut melebar */
-  .card input, .card select, .card button {
-    width: 100% !important;
-  }
-}
-
-
