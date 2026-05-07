@@ -685,7 +685,7 @@ function resetHistoryFilter() {
   document.getElementById("historyBody").innerHTML = renderTableRows(allHistoryData);
 }
 
-// Pasikan loading mati saat halaman baru terbuka
+// Memastikan loading mati saat halaman selesai dimuat
 window.addEventListener('load', function() {
     showLoading(false);
 });
