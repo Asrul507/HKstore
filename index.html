@@ -89,6 +89,44 @@
 <!-- ================= TOAST ================= -->
 <div id="toast-container"></div>
 
+<!-- ================= FORM EDIT ================ -->
+  <div id="modal-edit-user" class="loading-overlay" style="display: none;">
+    <div class="card" style="max-width: 400px; width: 90%; background: #1e293b; color: white;">
+        <h3 style="margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px;">Edit Data User</h3>
+        
+        <input type="hidden" id="edit-user-id">
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-size: 12px; margin-bottom: 5px;">Nama Lengkap</label>
+            <input type="text" id="edit-nama" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-size: 12px; margin-bottom: 5px;">NIP</label>
+            <input type="text" id="edit-nip" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-size: 12px; margin-bottom: 5px;">Jabatan</label>
+            <select id="edit-jabatan" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
+                <option value="Admin">Admin</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Staff">Staff</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display:block; font-size: 12px; margin-bottom: 5px;">Password Baru (Kosongkan jika tidak ganti)</label>
+            <input type="password" id="edit-password" placeholder="******" style="width:100%; padding: 10px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white;">
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button onclick="saveEditUser()" style="flex: 1; background: #7c3aed; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">Simpan</button>
+            <button onclick="closeModalEdit()" style="flex: 1; background: #475569; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">Batal</button>
+        </div>
+    </div>
+</div>
+
 <!-- ================= SCRIPT ================= -->
 <script src="script.js"></script>
 
