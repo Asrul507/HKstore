@@ -60,7 +60,7 @@ function login(e) {
     let btn = e?.target;
     if (btn) btn.classList.add("loading");
 
-    showLoading();
+    showLoading(true);
 
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
@@ -689,3 +689,10 @@ function resetHistoryFilter() {
 window.addEventListener('load', function() {
     showLoading(false);
 });
+// Paksa loading mati setelah semua script selesai dibaca
+setTimeout(() => {
+    const loader = document.getElementById("loading-overlay");
+    if (loader) {
+        loader.style.setProperty('display', 'none', 'important');
+    }
+}, 100);
