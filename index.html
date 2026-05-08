@@ -87,21 +87,20 @@
       </div>
 
       <div class="user-info-header">
-        <span id="userName" class="user-label"></span>
-        <button onclick="logout()" class="btn-logout-header">
-          <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </button>
-      </div>
-    </div>
+  <div class="user-chip">
+    <i class="fa-solid fa-circle-user"></i>
+    <span id="userName"></span>
+  </div>
+  <button onclick="logout()" class="btn-logout-header">
+    <i class="fa-solid fa-right-from-bracket"></i>
+  </button>
+</div>
+
 
     <div id="content" class="content"></div>
 
-    <div id="bottomNav" class="bottom-nav">
-      <button onclick="renderDashboard()">📊<small>Dash</small></button>
-      <button onclick="renderBinCard()">📦<small>Bin</small></button>
-      <button onclick="renderItem()">📋<small>Item</small></button>
-      <button onclick="renderUser()">👤<small>Profile</small></button>
-    </div>
+    <div id="bottomNav" class="bottom-nav"></div>
+
 
   </div>
 
