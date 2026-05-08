@@ -646,11 +646,11 @@ function renderHome() {
 
   // TEPAT DI SINI: Kita tambahkan <div class="home-grid"> sebagai pembungkus
   content.innerHTML = `
-    <div class="home-grid">
-      <div id="formArea"></div>
-      <div id="dashboardArea"></div>
-    </div>
-  `;
+  <div style="width:100%; max-width:480px; margin:0 auto; padding:16px; display:flex; flex-direction:column; gap:16px;">
+    <div id="formArea"></div>
+    <div id="dashboardArea"></div>
+  </div>
+`;
 
   // Bagian ini tetap sama seperti punya kamu
   setTimeout(() => {
