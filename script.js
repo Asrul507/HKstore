@@ -192,40 +192,92 @@ function setActiveNav(index) {
 
 // ================= BIN CARD =================
 function renderBinCard(target = "content") {
-
-  loading(target);
-
   api({ action: "getItems" }).then(items => {
-
     let options = items.map(i => `
-      <option value="${i[0]}" data-satuan="${i[1]}">
-        ${i[0]}
-      </option>
+      <option value="${i[0]}" data-satuan="${i[1]}">${i[0]}</option>
     `).join("");
 
     document.getElementById(target).innerHTML = `
+      <div class="section-title">Input Stok</div>
       <div class="card">
-        <h3>BIN CARD</h3>
-
-        <select id="item" onchange="setSatuan()">
-          ${options}
-        </select>
-
-        <input id="satuan" readonly>
-        <input id="qty" type="number" placeholder="Qty">
-
-        <div class="toggle-group">
-          <button id="btnIn" onclick="setType('IN')" class="active">IN</button>
-          <button id="btnOut" onclick="setType('OUT')">OUT</button>
+        <div class="bin-header">
+          <div class="bin-icon">📦</div>
+          <div>
+            <div class="bin-title">BIN CARD</div>
+            <div class="bin-subtitle">Input keluar masuk barang</div>
+          </div>
         </div>
 
-        <button onclick="submitBin(event)">Submit</button>
+        <div class="form-field" style="margin-bottom:12px">
+          <label>Nama Barang</label>
+          <select id="item" onchange="setSatuan()">${options}</select>
+        </div>
+
+        <div class="row-2" style="margin-bottom:16px">
+          <div class="form-field">
+            <label>Satuan</label>
+            <input id="satuan" readonly>
+          </div>
+          <div class="form-field">
+            <label>Qty</label>
+            <input id="qty" type="number" placeholder="0" min="1"
+              oninput="checkQty()">
+          </div>
+        </div>
+
+        <div class="switch-section">
+          <span class="switch-label">Tipe Transaksi</span>
+          <div class="switch-wrapper">
+            <span class="sw-lbl in" id="lbl-in">IN</span>
+            <div class="switch-track" id="swTrack" onclick="toggleSwitch()">
+              <div class="switch-thumb"></div>
+            </div>
+            <span class="sw-lbl out" id="lbl-out">OUT</span>
+            <span class="mode-badge in-badge" id="modeBadge">Barang Masuk</span>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="btnSubmit" disabled onclick="submitBin(event)">
+          <i class="fa-solid fa-paper-plane" style="font-size:14px"></i>
+          <span>Simpan Data</span>
+        </button>
       </div>
     `;
-
     setSatuan();
   });
 }
+
+function checkQty() {
+  const qty = document.getElementById('qty').value;
+  const btn = document.getElementById('btnSubmit');
+  if (btn) btn.disabled = !qty || qty <= 0;
+}
+
+function toggleSwitch() {
+  const track  = document.getElementById('swTrack');
+  const lblIn  = document.getElementById('lbl-in');
+  const lblOut = document.getElementById('lbl-out');
+  const badge  = document.getElementById('modeBadge');
+
+  if (!track) return;
+
+  if (!track.classList.contains('out-mode')) {
+    selectedType = 'OUT';
+    track.classList.add('out-mode');
+    lblIn.classList.add('dim');
+    lblOut.classList.add('lit');
+    badge.textContent = 'Barang Keluar';
+    badge.className = 'mode-badge out-badge';
+  } else {
+    selectedType = 'IN';
+    track.classList.remove('out-mode');
+    lblIn.classList.remove('dim');
+    lblOut.classList.remove('lit');
+    badge.textContent = 'Barang Masuk';
+    badge.className = 'mode-badge in-badge';
+  }
+}
+
 
 function setSatuan() {
     let select = document.getElementById("item");
@@ -626,11 +678,17 @@ function loadDashboardToday() {
         }
         let html = `<div class="card"><h3>Stock Saat Ini (${bulan})</h3>`;
         html += data.map(d => `
-            <div class="dash-row" style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee;">
-                <b>${d.item}</b>
-                <span>${d.stok}</span>
-            </div>
-        `).join("");
+  <div class="stock-item">
+    <div>
+      <div class="stock-name">${d.item}</div>
+      <div class="stock-meta">${d.stok < 10 ? '⚠️ Stok menipis' : 'Stok aman'}</div>
+    </div>
+    <div class="stock-count ${d.stok < 0 ? 'minus' : d.stok < 10 ? 'low' : ''}">
+      ${d.stok}
+    </div>
+  </div>
+`).join("");
+
         html += `</div>`;
         document.getElementById("dashboardArea").innerHTML = html;
     });
