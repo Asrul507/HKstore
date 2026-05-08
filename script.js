@@ -410,14 +410,104 @@ function deleteItem(nama) {
 
 // ================= USER =================
 function renderUser() {
-    document.getElementById("content").innerHTML = `
-        <div class="card">
-            <h3>User Profile</h3>
-            <p>Nama: ${user?.nama || "-"}</p>
-            <p>NIP: ${user?.nip || "-"}</p>
-            <p>Jabatan: ${user?.jabatan || "-"}</p>
+  const content = document.getElementById("content");
+  if (!content) return;
+
+  const jabatanIcon = {
+    "Supervisor": "fa-shield-halved",
+    "Leader": "fa-star",
+    "HO": "fa-crown"
+  };
+  const icon = jabatanIcon[user?.jabatan] || "fa-user-tie";
+
+  content.innerHTML = `
+    <div class="page-wrap">
+
+      <div class="profile-hero">
+        <div class="avatar">👤</div>
+        <div class="profile-name">${user?.nama || "-"}</div>
+        <div class="profile-jabatan">
+          <i class="fa-solid ${icon}" style="font-size:10px"></i>
+          ${user?.jabatan || "-"}
         </div>
-    `;
+      </div>
+
+      <div class="section-title">Informasi Akun</div>
+      <div class="info-card">
+        <div class="info-row">
+          <div class="info-icon icon-gold">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="info-content">
+            <div class="info-label">Nama Lengkap</div>
+            <div class="info-value">${user?.nama || "-"}</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon icon-blue">
+            <i class="fa-solid fa-id-card"></i>
+          </div>
+          <div class="info-content">
+            <div class="info-label">NIP</div>
+            <div class="info-value">${user?.nip || "-"}</div>
+          </div>
+        </div>
+
+        <div class="info-row">
+          <div class="info-icon icon-green">
+            <i class="fa-solid fa-briefcase"></i>
+          </div>
+          <div class="info-content">
+            <div class="info-label">Jabatan</div>
+            <div class="info-value">${user?.jabatan || "-"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Aktivitas Bulan Ini</div>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon">📥</div>
+          <div class="stat-value" id="statInput">-</div>
+          <div class="stat-label">Total Input</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-value" id="statItem">-</div>
+          <div class="stat-label">Item Diinput</div>
+        </div>
+      </div>
+
+      <button class="btn-logout-big" onclick="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Keluar dari Aplikasi
+      </button>
+
+    </div>
+  `;
+
+  loadUserStats();
+}
+
+function loadUserStats() {
+  api({ action: "getHistory" }).then(data => {
+    if (!Array.isArray(data)) return;
+    const bulan = getCurrentMonth();
+    const filtered = data.filter(d => {
+      return d.user === user?.nama && (d.tanggal || "").startsWith(bulan);
+    });
+    const items = [...new Set(filtered.map(d => d.item))];
+    const statInput = document.getElementById("statInput");
+    const statItem  = document.getElementById("statItem");
+    if (statInput) statInput.textContent = filtered.length;
+    if (statItem)  statItem.textContent  = items.length;
+  }).catch(() => {
+    const statInput = document.getElementById("statInput");
+    const statItem  = document.getElementById("statItem");
+    if (statInput) statInput.textContent = "0";
+    if (statItem)  statItem.textContent  = "0";
+  });
 }
 
 // ================= USER MANAGEMENT =================
