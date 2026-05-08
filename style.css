@@ -1388,4 +1388,32 @@ body {
   color: #f0a500;
 }
 
+/* ===== FIX HOME LAYOUT ===== */
+.home-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  margin: 0 auto !important;
+  padding: 16px !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+}
+
+.content {
+  display: block !important;
+  padding: 0 !important;
+}
+
+.main-header-sticky {
+  height: 60px !important;
+  padding: 0 14px !important;
+}
+
+.title {
+  font-size: 13px !important;
+  letter-spacing: 1.5px !important;
+}
+
+
 
