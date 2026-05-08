@@ -18,27 +18,62 @@
     </div>
   </div>
 
-  <div id="loginPage" class="login-wrapper">
-    <div class="card login-card">
-      <div class="login-header">
-        <div class="login-icon">🏢</div>
-        <h2>LIVING PLAZA</h2>
-        <p>Inventory System Management</p>
-      </div>
-      
-      <div class="input-group">
-        <label>Username</label>
-        <input type="text" id="username" placeholder="Masukkan username">
-      </div>
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
 
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="Masukkan password">
-      </div>
+<div id="loginPage" class="login-wrapper">
+  <div class="brand">
+    <div class="brand-icon">🏢</div>
+    <h1>Living Plaza</h1>
+    <p>Inventory System · Balikpapan</p>
+  </div>
 
-      <button class="btn-login" onclick="login(event)">Masuk ke Aplikasi</button>
+  <div class="login-card">
+    <div class="card-label">
+      <i class="fa-solid fa-lock" style="font-size:11px"></i>
+      Masuk ke Sistem
+    </div>
+
+    <div class="field">
+      <label>Username</label>
+      <div class="input-wrap">
+        <input type="text" id="username" placeholder="Masukkan username"
+          autocomplete="username" onkeydown="if(event.key==='Enter')login(event)">
+        <i class="fa-solid fa-user input-icon"></i>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <div class="input-wrap">
+        <input type="password" id="password" placeholder="Masukkan password"
+          autocomplete="current-password" onkeydown="if(event.key==='Enter')login(event)">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <button class="eye-btn" type="button" onclick="
+          var inp=this.closest('.input-wrap').querySelector('input');
+          var ico=this.querySelector('i');
+          if(inp.type==='password'){inp.type='text';ico.className='fa-solid fa-eye';}
+          else{inp.type='password';ico.className='fa-solid fa-eye-slash';}
+        ">
+          <i class="fa-solid fa-eye-slash"></i>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="login(event)">
+      <div class="spinner-ring"></div>
+      <span class="btn-text">Masuk</span>
+      <i class="fa-solid fa-arrow-right" style="font-size:13px"></i>
+    </button>
+
+    <div class="login-divider"><span>Housekeeping Division</span></div>
+
+    <div class="login-footer">
+      Sistem hanya untuk <span>staf resmi</span> Living Plaza Balikpapan
     </div>
   </div>
+</div>
+
 
   <div id="appPage" style="display:none;">
 
