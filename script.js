@@ -689,41 +689,127 @@ function showLoading(show) {
         loader.style.display = show ? "flex" : "none";
     }
 }
-//======= DASHBOARD ===========
+// ================= DASHBOARD =================
 function renderDashboard() {
-    let currentMonth = getCurrentMonth();
-    document.getElementById("content").innerHTML = `
-        <div class="card">
-            <h3>Dashboard Stock</h3>
-            <input type="month" id="filterBulan" value="${currentMonth}">
-            <button onclick="loadDashboard()">Tampilkan</button>
-            <div id="dashboardData"></div>
+  const content = document.getElementById("content");
+  if (!content) return;
+
+  const currentMonth = getCurrentMonth();
+
+  content.innerHTML = `
+    <div class="page-wrap">
+      <div class="section-title">
+        <i class="fa-solid fa-chart-simple" style="font-size:10px"></i>
+        Dashboard Stock
+      </div>
+
+      <div class="month-selector">
+        <div class="month-input-wrap">
+          <i class="fa-solid fa-calendar-days"></i>
+          <input type="month" id="filterBulan" value="${currentMonth}">
         </div>
-    `;
-    loadDashboard();
+        <button class="btn-tampil" onclick="loadDashboard()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          Tampilkan
+        </button>
+      </div>
+
+      <div class="section-title">Detail Per Barang</div>
+      <div id="dashList" style="display:flex; flex-direction:column; gap:10px;">
+        <div class="dash-empty">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Memuat data...</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  loadDashboard();
 }
 
 function loadDashboard() {
-    let bulan = document.getElementById("filterBulan").value;
-    loading("dashboardData");
-    api({ action: "getDashboard", bulan: bulan }).then(data => {
-        let html = `<div class="dashboard-list">`;
-        html += data.map(d => `
-            <div class="dash-card">
-                <b>${d.item}</b>
-                <div class="dash-row">
-                    <span>IN: ${d.masuk}</span>
-                    <span>OUT: ${d.keluar}</span>
+  const bulan = document.getElementById("filterBulan")?.value;
+  const dashList = document.getElementById("dashList");
+  if (!dashList) return;
+
+  dashList.innerHTML = `
+    <div class="dash-empty">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p>Memuat data...</p>
+    </div>
+  `;
+
+  api({ action: "getDashboard", bulan: bulan })
+    .then(data => {
+      if (!data || data.length === 0) {
+        dashList.innerHTML = `
+          <div class="dash-empty">
+            <i class="fa-solid fa-box-open"></i>
+            <p>Belum ada data bulan ini</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Cari nilai stok maksimal untuk hitung panjang bar
+      const maxStok = Math.max(...data.map(d => Math.max(d.masuk || 0, 1)));
+
+      let html = '';
+      data.forEach(d => {
+        const stok    = d.stok || 0;
+        const masuk   = d.masuk || 0;
+        const keluar  = d.keluar || 0;
+
+        // Panjang bar berdasarkan stok vs total masuk
+        const barWidth = masuk > 0
+          ? Math.max(3, Math.min(100, Math.round((stok / masuk) * 100)))
+          : (stok > 0 ? 100 : 3);
+
+        const barClass = stok < 0  ? 'bar-danger'
+                       : stok < 20 ? 'bar-low'
+                       : 'bar-safe';
+
+        const stkClass = stok < 0  ? 'stok-danger'
+                       : stok < 20 ? 'stok-low'
+                       : 'stok-safe';
+
+        html += `
+          <div class="item-card-dash">
+            <div class="item-dash-icon">📦</div>
+            <div class="item-dash-body">
+              <div class="item-dash-name">${d.item}</div>
+              <div class="item-dash-bar-wrap">
+                <div class="item-dash-bar ${barClass}"
+                     style="width:${barWidth}%"></div>
+              </div>
+              <div class="item-dash-meta">
+                <div class="item-in-out">
+                  <span class="inout-tag in">
+                    <i class="fa-solid fa-arrow-up"></i>${masuk}
+                  </span>
+                  <span class="inout-tag out">
+                    <i class="fa-solid fa-arrow-down"></i>${keluar}
+                  </span>
                 </div>
-                <div class="dash-stock ${d.stok < 0 ? 'minus' : ''}">
-                    Stock: ${d.stok}
-                </div>
+                <div class="item-stok-val ${stkClass}">${stok}</div>
+              </div>
             </div>
-        `).join("");
-        html += `</div>`;
-        document.getElementById("dashboardData").innerHTML = html;
+          </div>
+        `;
+      });
+
+      dashList.innerHTML = html;
+    })
+    .catch(() => {
+      dashList.innerHTML = `
+        <div class="dash-empty">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <p>Gagal memuat data. Coba lagi.</p>
+        </div>
+      `;
     });
 }
+
 
 //====== HOME =========
 function renderHome() {
