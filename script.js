@@ -785,7 +785,7 @@ function loadDashboardToday() {
 }
 
 //=====RIWAYAT========
-let allHistoryData = []; // Simpan data asli di memori untuk difilter
+// Simpan data asli di memori untuk difilter
 
 /**
  * 1. FUNGSI UTAMA: Ambil data dari Apps Script
