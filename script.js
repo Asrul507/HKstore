@@ -1093,8 +1093,7 @@ function logout() {
     }
 }
 
-// ================= CORE MENU MODUL PERALATAN =================
-// ================= INTERFACE MODUL PERALATAN (UPDATED) =================
+// ================= INTERFACE MODUL PERALATAN =================
 function renderPeralatanMenu() {
   const content = document.getElementById("content");
   if (!content) return;
@@ -1124,127 +1123,6 @@ function renderPeralatanMenu() {
   switchTabPeralatan('datang'); 
 }
 
-// ================= FORM ACTION TAMBAH & KELOLA ITEM BARANG =================
-function getPeralatanData() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Peralatan");
-  
-  // Jika sheet belum ada, buat otomatis agar tidak error
-  if (!sheet) {
-    sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Peralatan");
-    sheet.appendRow(["id_alat", "nama_alat", "satuan"]);
-  }
-  
-  var lastRow = sheet.getLastRow();
-  // Jika sheet kosong atau hanya ada baris header, langsung kembalikan array kosong []
-  if (lastRow <= 1) {
-    return [];
-  }
-  
-  var data = sheet.getRange(2, 1, lastRow - 1, 3).getValues();
-  return data;
-}
-
-function loadKelolaPeralatan() {
-  // Matikan highlight tab aktif saat masuk menu kelola
-  const tabs = ['datang', 'musnah', 'opname', 'laporan'];
-  tabs.forEach(t => {
-    const btn = document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1));
-    if (btn) btn.classList.remove("active");
-  });
-
-  document.getElementById("peralatanSubContent").innerHTML = `
-    <div class="card" style="border-top: 4px solid #a855f7; margin-bottom: 20px;">
-      <div class="section-title" style="color: #a855f7;"><i class="fa-solid fa-square-plus"></i> Tambah Alat Baru ke Sistem</div>
-      
-      <div class="form-field" style="margin-bottom:12px">
-        <label>Nama Peralatan / Item Baru</label>
-        <input id="newMasterNama" type="text" placeholder="Contoh: Mesin Polisher, Tangga Alumunium">
-      </div>
-      
-      <div class="form-field" style="margin-bottom:20px">
-        <label>Satuan Besaran</label>
-        <select id="newMasterSatuan">
-          <option value="Unit">Unit</option>
-          <option value="Pcs">Pcs</option>
-          <option value="Botol">Botol</option>
-          <option value="Pack">Pack</option>
-        </select>
-      </div>
-
-      <button class="btn-submit" onclick="submitMasterPeralatanBaru()" style="background: linear-gradient(135deg, #a855f7, #9333ea); color: white;">
-        <i class="fa-solid fa-floppy-disk"></i> Daftarkan Alat Baru
-      </button>
-    </div>
-
-    <div class="card">
-      <div class="section-title"><i class="fa-solid fa-list"></i> Daftar Master Alat Saat Ini</div>
-      <div id="masterAlatListTable" style="margin-top:10px;">
-        <p style="text-align:center; opacity:0.5; font-size:11px;">Memuat list item...</p>
-      </div>
-    </div>
-  `;
-
-  renderMasterAlatList();
-}
-
-// Ambil data dan tampilkan list master item dengan tombol hapus
-function renderMasterAlatList() {
-  api({ action: "getPeralatan" }).then(tools => {
-    if(tools.length === 0) {
-      document.getElementById("masterAlatListTable").innerHTML = `<p style="text-align:center; opacity:0.5; font-size:12px; padding:15px 0;">Belum ada alat terdaftar</p>`;
-      return;
-    }
-
-    let html = tools.map(t => `
-      <div class="dash-row" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <span style="font-size:11px; opacity:0.4; display:block;">${t[0]}</span>
-          <b style="font-size:13px; color:#fff;">${t[1]}</b> <span style="font-size:11px; opacity:0.6;">(${t[2]})</span>
-        </div>
-        <button onclick="hapusMasterPeralatan('${t[0]}', '${t[1]}')" style="background:#ef4444; border:none; color:white; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">
-          <i class="fa-solid fa-trash"></i> Hapus
-        </button>
-      </div>
-    `).join("");
-    
-    document.getElementById("masterAlatListTable").innerHTML = html;
-  });
-}
-
-// Kirim action input barang baru ke Google Sheet
-function submitMasterPeralatanBaru() {
-  let nama = document.getElementById("newMasterNama").value.trim();
-  let satuan = document.getElementById("newMasterSatuan").value;
-
-  if(!nama) return showToast("Nama peralatan tidak boleh kosong!", "error");
-
-  showLoading(true);
-  api({
-    action: "addPeralatan",
-    nama: nama,
-    satuan: satuan
-  }).then(res => {
-    showLoading(false);
-    showToast("Item baru berhasil didaftarkan!", "success");
-    document.getElementById("newMasterNama").value = "";
-    renderMasterAlatList(); // Refresh list tabel di bawahnya
-  });
-}
-
-// Kirim action hapus barang ke Google Sheet
-function hapusMasterPeralatan(id, nama) {
-  if(!confirm(`Apakah Anda yakin ingin menghapus "${nama}" dari daftar master? Semua form pilihan barang ini nantinya akan hilang.`)) return;
-
-  showLoading(true);
-  api({
-    action: "deletePeralatan",
-    id: id
-  }).then(res => {
-    showLoading(false);
-    showToast("Item berhasil dihapus dari master", "success");
-    renderMasterAlatList(); // Refresh list tabel kembali
-  });
-}
 function switchTabPeralatan(tab) {
   const tabs = ['datang', 'musnah', 'opname', 'laporan'];
   tabs.forEach(t => {
@@ -1255,14 +1133,12 @@ function switchTabPeralatan(tab) {
   const activeBtn = document.getElementById('btnTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (activeBtn) activeBtn.classList.add("active");
 
-  // Tampilkan loading lokal di dalam box sub-content
   document.getElementById("peralatanSubContent").innerHTML = `
     <div id="sub-loader" style="text-align:center; padding: 30px; opacity:0.6; font-weight:600;">
       <i class="fa-solid fa-spinner fa-spin"></i> MEMUAT FORM...
     </div>
   `;
 
-  // Jalankan fungsi dengan proteksi Try-Catch agar tidak loading abadi
   try {
     if (tab === 'datang') loadFormBarangDatang();
     else if (tab === 'musnah') loadFormPemusnahan();
@@ -1270,7 +1146,7 @@ function switchTabPeralatan(tab) {
     else if (tab === 'laporan') loadLaporanPeralatan();
   } catch (error) {
     console.error("Gagal memuat tab:", error);
-    showLoading(false); // Paksa matikan loading overlay utama jika aktif
+    if (typeof showLoading === "function") showLoading(false);
     document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="text-align:center; color:#ef4444; padding:20px;">
         <i class="fa-solid fa-triangle-exclamation" style="font-size:30px; margin-bottom:10px;"></i>
@@ -1283,7 +1159,13 @@ function switchTabPeralatan(tab) {
 // 1. SUB-MENU: FORM BARANG DATANG
 function loadFormBarangDatang() {
   api({ action: "getPeralatan" }).then(tools => {
+    if (!Array.isArray(tools)) tools = [];
+    
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    if (tools.length === 0) {
+      options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
+    }
+
     document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #22c55e;">
         <div class="section-title" style="color: #22c55e;">Penerimaan / Penambahan Alat Baru</div>
@@ -1299,12 +1181,12 @@ function loadFormBarangDatang() {
           <label>Link Foto Bukti Fisik Barang Datang</label>
           <input id="datangFoto" type="text" placeholder="Masukkan URL tautan foto bukti">
         </div>
-        <button class="btn-submit" onclick="submitBarangDatang()" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white;">
+        <button class="btn-submit" onclick="submitBarangDatang()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white;">
           <i class="fa-solid fa-circle-plus"></i> Simpan Barang Datang
         </button>
       </div>
     `;
-  });
+  }).catch(err => handlePeralatanLoadError(err));
 }
 
 function submitBarangDatang() {
@@ -1329,7 +1211,13 @@ function submitBarangDatang() {
 // 2. SUB-MENU: FORM PEMUSNAHAN BARANG
 function loadFormPemusnahan() {
   api({ action: "getPeralatan" }).then(tools => {
+    if (!Array.isArray(tools)) tools = [];
+    
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    if (tools.length === 0) {
+      options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
+    }
+
     document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #ef4444;">
         <div class="section-title" style="color: #ef4444;">Pemusnahan Alat (Rusak & Dibuang)</div>
@@ -1345,12 +1233,12 @@ function loadFormPemusnahan() {
           <label>Link Foto Dokumentasi Pemusnahan</label>
           <input id="musnahFoto" type="text" placeholder="Masukkan URL tautan foto bukti pemusnahan">
         </div>
-        <button class="btn-submit" onclick="submitPemusnahan()" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+        <button class="btn-submit" onclick="submitPemusnahan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
           <i class="fa-solid fa-trash-can"></i> Konfirmasi Pemusnahan
         </button>
       </div>
     `;
-  });
+  }).catch(err => handlePeralatanLoadError(err));
 }
 
 function submitPemusnahan() {
@@ -1376,7 +1264,13 @@ function submitPemusnahan() {
 // 3. SUB-MENU: FORM STOCK OPNAME BERKALA
 function loadFormOpnamePeralatan() {
   api({ action: "getPeralatan" }).then(tools => {
+    if (!Array.isArray(tools)) tools = [];
+    
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    if (tools.length === 0) {
+      options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
+    }
+
     document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #fbbf24;">
         <div class="section-title" style="color: #fbbf24;">Pemeriksaan Kondisi Fisik Berkala</div>
@@ -1402,12 +1296,12 @@ function loadFormOpnamePeralatan() {
           <label>Link Foto Kondisi Alat</label>
           <input id="opnameFoto" type="text" placeholder="Masukkan URL foto saat opname">
         </div>
-        <button class="btn-submit" onclick="submitOpnamePeralatan()">
+        <button class="btn-submit" onclick="submitOpnamePeralatan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0d0800;">
           <i class="fa-solid fa-floppy-disk"></i> Simpan Hasil Opname
         </button>
       </div>
     `;
-  });
+  }).catch(err => handlePeralatanLoadError(err));
 }
 
 function submitOpnamePeralatan() {
@@ -1430,96 +1324,107 @@ function submitOpnamePeralatan() {
   });
 }
 
-// 4. SUB-MENU: PENARIKAN DATA BERKALA & STOK AWAL BULAN
-function loadLaporanPeralatan() {
-  document.getElementById("peralatanSubContent").innerHTML = `
-    <div class="card">
-      <div class="section-title">Tarik Data per Periode</div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-        <div class="filter-input" style="padding:4px 10px;"><input type="date" id="lapMulai"></div>
-        <div class="filter-input" style="padding:4px 10px;"><input type="date" id="lapSelesai"></div>
-      </div>
-      <button class="btn-submit" onclick="prosesTarikLaporan()" style="margin-bottom:20px;">
-        <i class="fa-solid fa-magnifying-glass"></i> Filter Periode
-      </button>
+// 4. SUB-MENU: KELOLA MASTER ITEM PERALATAN
+function loadKelolaPeralatan() {
+  const tabs = ['datang', 'musnah', 'opname', 'laporan'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.classList.remove("active");
+  });
 
-      <div class="section-title">Hasil Penelusuran</div>
-      <div class="history-list" id="opnameResultList">
-        <p style="text-align:center; opacity:0.5; font-size:12px;">Tentukan rentang tanggal untuk memuat data</p>
+  document.getElementById("peralatanSubContent").innerHTML = `
+    <button onclick="renderPeralatanMenu()" style="width: 100%; background: #475569; color: white; padding: 10px; border: none; border-radius: 12px; cursor: pointer; font-size: 13px; margin-bottom: 15px; font-weight: bold;">
+      <i class="fa-solid fa-arrow-left"></i> Kembali ke Form Logistik
+    </button>
+
+    <div class="card" style="border-top: 4px solid #a855f7; margin-bottom: 20px;">
+      <div class="section-title" style="color: #a855f7;"><i class="fa-solid fa-square-plus"></i> Tambah Alat Baru ke Sistem</div>
+      <div class="form-field" style="margin-bottom:12px">
+        <label>Nama Peralatan / Item Baru</label>
+        <input id="newMasterNama" type="text" placeholder="Contoh: Mesin Polisher, Tangga Alumunium">
+      </div>
+      <div class="form-field" style="margin-bottom:20px">
+        <label>Satuan Besaran</label>
+        <select id="newMasterSatuan">
+          <option value="Unit">Unit</option>
+          <option value="Pcs">Pcs</option>
+          <option value="Botol">Botol</option>
+          <option value="Pack">Pack</option>
+        </select>
+      </div>
+      <button class="btn-submit" onclick="submitMasterPeralatanBaru()" style="background: linear-gradient(135deg, #a855f7, #9333ea); color: white;">
+        <i class="fa-solid fa-floppy-disk"></i> Daftarkan Alat Baru
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><i class="fa-solid fa-list"></i> Daftar Master Alat Saat Ini</div>
+      <div id="masterAlatListTable" style="margin-top:10px;">
+        <p style="text-align:center; opacity:0.5; font-size:11px;">Memuat list item...</p>
       </div>
     </div>
   `;
+  renderMasterAlatList();
 }
 
-function prosesTarikLaporan() {
-  let startDate = document.getElementById("lapMulai").value;
-  let endDate = document.getElementById("lapSelesai").value;
-  if (!startDate || !endDate) return showToast("Pilih rentang tanggal lengkap!", "error");
-  
-  document.getElementById("opnameResultList").innerHTML = `<p style='text-align:center;'>Memuat data...</p>`;
-  
-  api({ action: "getOpnameHistory", startDate, endDate }).then(res => {
-    let stokAwal = res.stokAwal || {};
-    let histori = res.histori || [];
-    let htmlResult = "";
-
-    // --- RENDER BLOK BOX STOK AWAL PERIODE ---
-    htmlResult += `
-      <div class="card" style="margin-bottom: 20px; border-left: 4px solid #fbbf24;">
-        <div class="section-title" style="color: #fbbf24; margin-bottom: 10px;">
-          <i class="fa-solid fa-hourglass-start"></i> Stok Awal Periode (Sebelum ${formatTglDisplay(startDate)})
-        </div>
-    `;
-    let infoStokAwalHtml = "";
-    for (let alat in stokAwal) {
-      let badgeColor = stokAwal[alat].kondisi === 'Bagus' ? '#22c55e' : (stokAwal[alat].kondisi === 'Rusak' ? '#ef4444' : '#f59e0b');
-      infoStokAwalHtml += `
-        <div class="dash-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-          <span style="font-size:13px; font-weight:600;">${alat}</span>
-          <span style="font-size:13px;">
-            <small style="opacity:0.5; margin-right:5px;">(${stokAwal[alat].tanggal})</small>
-            <b style="color:${badgeColor}">${stokAwal[alat].kondisi}</b> : <b>${stokAwal[alat].qty} Unit</b>
-          </span>
-        </div>
-      `;
+function renderMasterAlatList() {
+  api({ action: "getPeralatan" }).then(tools => {
+    if (!Array.isArray(tools)) tools = [];
+    if (tools.length === 0) {
+      document.getElementById("masterAlatListTable").innerHTML = `<p style="text-align:center; opacity:0.5; font-size:12px; padding:15px 0;">Belum ada alat terdaftar</p>`;
+      return;
     }
-    htmlResult += infoStokAwalHtml === "" ? `<p style="text-align:center; opacity:0.5; font-size:11px; padding:10px 0;">Tidak ada data opname bulan sebelumnya</p>` : infoStokAwalHtml;
-    htmlResult += `</div>`;
 
-    // --- RENDER LOG HISTORI AKTIVITAS PERIODE ---
-    htmlResult += `<div class="section-title"><i class="fa-solid fa-list-check"></i> Aktivitas Logistik pada Periode Ini</div>`;
-    if (histori.length === 0) {
-      htmlResult += `<p style='text-align:center; opacity:0.5; font-size:12px; margin-top:15px;'>Tidak ada aktivitas logistik di periode ini</p>`;
-    } else {
-      htmlResult += histori.map(row => {
-        let typeLabel = row.jenis_transaksi ? row.jenis_transaksi.toUpperCase() : "OPNAME";
-        let typeClass = row.kondisi === 'Bagus' ? 'type-in' : 'type-out';
-        
-        if (typeLabel === "MUSNAH") { typeClass = "type-out"; typeLabel = "💥 MUSNAH"; }
-        else if (typeLabel === "DATANG") { typeClass = "type-in"; typeLabel = "📥 DATANG"; }
-        else { typeLabel = "📋 OPNAME"; }
-
-        return `
-          <div class="history-card" style="margin-top: 8px;">
-            <div class="type-dot ${typeClass}" style="font-size: 9px; font-weight: 800; white-space: nowrap; min-width: 75px; height: auto; padding: 5px; border-radius: 8px;">
-              ${typeLabel}
-            </div>
-            <div class="hcard-body" style="padding-left: 8px;">
-              <div class="hcard-item">${row.nama_alat}</div>
-              <div class="hcard-meta">
-                <span class="meta-tag"><i class="fa-solid fa-calendar"></i> ${formatTglDisplay(row.tanggal)}</span>
-                <span class="meta-tag">Kondisi: <b>${row.kondisi}</b></span>
-                <span class="meta-tag"><i class="fa-solid fa-user"></i> ${row.user}</span>
-                <span class="meta-tag"><a href="${row.foto_url}" target="_blank" style="color:#fbbf24; text-decoration:underline;"><i class="fa-solid fa-image"></i> Bukti Foto</a></span>
-              </div>
-            </div>
-            <div class="qty-badge" style="color:#fff; font-size:16px;">
-              ${row.jenis_transaksi === 'Musnah' ? '-' : '+'}${row.qty}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-    document.getElementById("opnameResultList").innerHTML = htmlResult;
+    let html = tools.map(t => `
+      <div class="dash-row" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="font-size:11px; opacity:0.4; display:block;">${t[0]}</span>
+          <b style="font-size:13px; color:#fff;">${t[1]}</b> <span style="font-size:11px; opacity:0.6;">(${t[2]})</span>
+        </div>
+        <button onclick="hapusMasterPeralatan('${t[0]}', '${t[1]}')" style="background:#ef4444; border:none; color:white; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">
+          <i class="fa-solid fa-trash"></i> Hapus
+        </button>
+      </div>
+    `).join("");
+    document.getElementById("masterAlatListTable").innerHTML = html;
+  }).catch(err => {
+    document.getElementById("masterAlatListTable").innerHTML = `<p style="text-align:center; color:#ef4444; font-size:12px;">Gagal memuat list master data</p>`;
   });
+}
+
+function submitMasterPeralatanBaru() {
+  let nama = document.getElementById("newMasterNama").value.trim();
+  let satuan = document.getElementById("newMasterSatuan").value;
+  if (!nama) return showToast("Nama peralatan tidak boleh kosong!", "error");
+
+  showLoading(true);
+  api({ action: "addPeralatan", nama: nama, satuan: satuan }).then(res => {
+    showLoading(false);
+    showToast("Item baru berhasil didaftarkan!", "success");
+    document.getElementById("newMasterNama").value = "";
+    renderMasterAlatList();
+  });
+}
+
+function hapusMasterPeralatan(id, nama) {
+  if (!confirm(`Apakah Anda yakin ingin menghapus "${nama}"? Semua form pilihan barang ini nantinya akan hilang.`)) return;
+
+  showLoading(true);
+  api({ action: "deletePeralatan", id: id }).then(res => {
+    showLoading(false);
+    showToast("Item berhasil dihapus dari master", "success");
+    renderMasterAlatList();
+  });
+}
+
+function handlePeralatanLoadError(err) {
+  console.error(err);
+  if (typeof showLoading === "function") showLoading(false);
+  document.getElementById("peralatanSubContent").innerHTML = `
+    <div class="card" style="text-align:center; padding:20px; border-top: 4px solid #ef4444;">
+      <i class="fa-solid fa-wifi" style="font-size:28px; color:#ef4444; margin-bottom:10px;"></i>
+      <b style="display:block; margin-bottom:5px;">Gagal Menghubungkan ke Database</b>
+      <span style="font-size:12px; opacity:0.6;">Pastikan koneksi bagus dan Google Apps Script sudah di-Deploy ulang.</span>
+    </div>
+  `;
 }
