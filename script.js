@@ -1236,18 +1236,29 @@ function switchTabPeralatan(tab) {
   const activeBtn = document.getElementById('btnTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (activeBtn) activeBtn.classList.add("active");
 
-  // PENTING: Tampilkan loading mini saat berpindah tab agar data dropdown selalu fresh dari Google Sheets
+  // Tampilkan loading lokal di dalam box sub-content
   document.getElementById("peralatanSubContent").innerHTML = `
-    <div style="text-align:center; padding: 20px; opacity:0.5;">
-      <i class="fa-solid fa-spinner fa-spin"></i> Memuat Form...
+    <div id="sub-loader" style="text-align:center; padding: 30px; opacity:0.6; font-weight:600;">
+      <i class="fa-solid fa-spinner fa-spin"></i> MEMUAT FORM...
     </div>
   `;
 
-  // Eksekusi fungsi form masing-masing tab
-  if (tab === 'datang') loadFormBarangDatang();
-  else if (tab === 'musnah') loadFormPemusnahan();
-  else if (tab === 'opname') loadFormOpnamePeralatan();
-  else if (tab === 'laporan') loadLaporanPeralatan();
+  // Jalankan fungsi dengan proteksi Try-Catch agar tidak loading abadi
+  try {
+    if (tab === 'datang') loadFormBarangDatang();
+    else if (tab === 'musnah') loadFormPemusnahan();
+    else if (tab === 'opname') loadFormOpnamePeralatan();
+    else if (tab === 'laporan') loadLaporanPeralatan();
+  } catch (error) {
+    console.error("Gagal memuat tab:", error);
+    showLoading(false); // Paksa matikan loading overlay utama jika aktif
+    document.getElementById("peralatanSubContent").innerHTML = `
+      <div class="card" style="text-align:center; color:#ef4444; padding:20px;">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size:30px; margin-bottom:10px;"></i>
+        <p>Gagal memuat formulir. Silakan coba klik ulang tab menu.</p>
+      </div>
+    `;
+  }
 }
 
 // 1. SUB-MENU: FORM BARANG DATANG
