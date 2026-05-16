@@ -1094,18 +1094,21 @@ function logout() {
 }
 
 // ================= CORE MENU MODUL PERALATAN =================
+// ================= INTERFACE MODUL PERALATAN (UPDATED) =================
 function renderPeralatanMenu() {
   const content = document.getElementById("content");
   if (!content) return;
 
   content.innerHTML = `
     <div class="page-wrap">
-      <div class="bin-header">
-        <div class="bin-icon">🛠️</div>
+      <div class="bin-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
           <div class="bin-title">LOGISTIK & STOK PERALATAN</div>
           <div class="bin-subtitle">Penerimaan, Pemusnahan & Opname Berkala</div>
         </div>
+        <button onclick="loadKelolaPeralatan()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fbbf24; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600;">
+          <i class="fa-solid fa-gear"></i> Kelola Alat
+        </button>
       </div>
 
       <div class="toggle-group" style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -1118,9 +1121,111 @@ function renderPeralatanMenu() {
       <div id="peralatanSubContent"></div>
     </div>
   `;
-  switchTabPeralatan('datang'); // Default load tab pertama
+  switchTabPeralatan('datang'); 
 }
 
+// ================= FORM ACTION TAMBAH & KELOLA ITEM BARANG =================
+function loadKelolaPeralatan() {
+  // Matikan highlight tab aktif saat masuk menu kelola
+  const tabs = ['datang', 'musnah', 'opname', 'laporan'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.classList.remove("active");
+  });
+
+  document.getElementById("peralatanSubContent").innerHTML = `
+    <div class="card" style="border-top: 4px solid #a855f7; margin-bottom: 20px;">
+      <div class="section-title" style="color: #a855f7;"><i class="fa-solid fa-square-plus"></i> Tambah Alat Baru ke Sistem</div>
+      
+      <div class="form-field" style="margin-bottom:12px">
+        <label>Nama Peralatan / Item Baru</label>
+        <input id="newMasterNama" type="text" placeholder="Contoh: Mesin Polisher, Tangga Alumunium">
+      </div>
+      
+      <div class="form-field" style="margin-bottom:20px">
+        <label>Satuan Besaran</label>
+        <select id="newMasterSatuan">
+          <option value="Unit">Unit</option>
+          <option value="Pcs">Pcs</option>
+          <option value="Botol">Botol</option>
+          <option value="Pack">Pack</option>
+        </select>
+      </div>
+
+      <button class="btn-submit" onclick="submitMasterPeralatanBaru()" style="background: linear-gradient(135deg, #a855f7, #9333ea); color: white;">
+        <i class="fa-solid fa-floppy-disk"></i> Daftarkan Alat Baru
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><i class="fa-solid fa-list"></i> Daftar Master Alat Saat Ini</div>
+      <div id="masterAlatListTable" style="margin-top:10px;">
+        <p style="text-align:center; opacity:0.5; font-size:11px;">Memuat list item...</p>
+      </div>
+    </div>
+  `;
+
+  renderMasterAlatList();
+}
+
+// Ambil data dan tampilkan list master item dengan tombol hapus
+function renderMasterAlatList() {
+  api({ action: "getPeralatan" }).then(tools => {
+    if(tools.length === 0) {
+      document.getElementById("masterAlatListTable").innerHTML = `<p style="text-align:center; opacity:0.5; font-size:12px; padding:15px 0;">Belum ada alat terdaftar</p>`;
+      return;
+    }
+
+    let html = tools.map(t => `
+      <div class="dash-row" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="font-size:11px; opacity:0.4; display:block;">${t[0]}</span>
+          <b style="font-size:13px; color:#fff;">${t[1]}</b> <span style="font-size:11px; opacity:0.6;">(${t[2]})</span>
+        </div>
+        <button onclick="hapusMasterPeralatan('${t[0]}', '${t[1]}')" style="background:#ef4444; border:none; color:white; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">
+          <i class="fa-solid fa-trash"></i> Hapus
+        </button>
+      </div>
+    `).join("");
+    
+    document.getElementById("masterAlatListTable").innerHTML = html;
+  });
+}
+
+// Kirim action input barang baru ke Google Sheet
+function submitMasterPeralatanBaru() {
+  let nama = document.getElementById("newMasterNama").value.trim();
+  let satuan = document.getElementById("newMasterSatuan").value;
+
+  if(!nama) return showToast("Nama peralatan tidak boleh kosong!", "error");
+
+  showLoading(true);
+  api({
+    action: "addPeralatan",
+    nama: nama,
+    satuan: satuan
+  }).then(res => {
+    showLoading(false);
+    showToast("Item baru berhasil didaftarkan!", "success");
+    document.getElementById("newMasterNama").value = "";
+    renderMasterAlatList(); // Refresh list tabel di bawahnya
+  });
+}
+
+// Kirim action hapus barang ke Google Sheet
+function hapusMasterPeralatan(id, nama) {
+  if(!confirm(`Apakah Anda yakin ingin menghapus "${nama}" dari daftar master? Semua form pilihan barang ini nantinya akan hilang.`)) return;
+
+  showLoading(true);
+  api({
+    action: "deletePeralatan",
+    id: id
+  }).then(res => {
+    showLoading(false);
+    showToast("Item berhasil dihapus dari master", "success");
+    renderMasterAlatList(); // Refresh list tabel kembali
+  });
+}
 function switchTabPeralatan(tab) {
   const tabs = ['datang', 'musnah', 'opname', 'laporan'];
   tabs.forEach(t => {
