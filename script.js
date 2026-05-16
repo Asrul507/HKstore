@@ -1236,6 +1236,14 @@ function switchTabPeralatan(tab) {
   const activeBtn = document.getElementById('btnTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (activeBtn) activeBtn.classList.add("active");
 
+  // PENTING: Tampilkan loading mini saat berpindah tab agar data dropdown selalu fresh dari Google Sheets
+  document.getElementById("peralatanSubContent").innerHTML = `
+    <div style="text-align:center; padding: 20px; opacity:0.5;">
+      <i class="fa-solid fa-spinner fa-spin"></i> Memuat Form...
+    </div>
+  `;
+
+  // Eksekusi fungsi form masing-masing tab
   if (tab === 'datang') loadFormBarangDatang();
   else if (tab === 'musnah') loadFormPemusnahan();
   else if (tab === 'opname') loadFormOpnamePeralatan();
