@@ -1125,6 +1125,25 @@ function renderPeralatanMenu() {
 }
 
 // ================= FORM ACTION TAMBAH & KELOLA ITEM BARANG =================
+function getPeralatanData() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Peralatan");
+  
+  // Jika sheet belum ada, buat otomatis agar tidak error
+  if (!sheet) {
+    sheet = SpreadsheetApp.getActiveSpreadsheet().insertSheet("Peralatan");
+    sheet.appendRow(["id_alat", "nama_alat", "satuan"]);
+  }
+  
+  var lastRow = sheet.getLastRow();
+  // Jika sheet kosong atau hanya ada baris header, langsung kembalikan array kosong []
+  if (lastRow <= 1) {
+    return [];
+  }
+  
+  var data = sheet.getRange(2, 1, lastRow - 1, 3).getValues();
+  return data;
+}
+
 function loadKelolaPeralatan() {
   // Matikan highlight tab aktif saat masuk menu kelola
   const tabs = ['datang', 'musnah', 'opname', 'laporan'];
