@@ -144,6 +144,8 @@ function renderMenu() {
         html += `<a onclick="setActiveNav(2); renderItem(); closeSidebar()"><i class="fa-solid fa-box"></i> Item List</a>`;
         html += `<a onclick="renderHistory(); closeSidebar()"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat</a>`;
         html += `<a onclick="setActiveNav(3); renderUser(); closeSidebar()"><i class="fa-solid fa-user"></i> My Profile</a>`;
+        // Cari baris menu "Riwayat" atau "My Profile", lalu selipkan baris ini di antaranya:
+html += `<a onclick="renderPeralatanMenu(); closeSidebar()"><i class="fa-solid fa-screwdriver-wrench"></i> Stok Peralatan</a>`;
         
         if (user.role === "admin") {
             html += `<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">`;
