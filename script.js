@@ -1093,7 +1093,50 @@ function logout() {
     }
 }
 
-// ================= INTERFACE MODUL PERALATAN =================
+// ================= AMANKAN FUNGSI DASHBOARD TODAY (GANTI YANG LAMA) =================
+function loadDashboardToday() {
+    let bulan = getCurrentMonth();
+    
+    // Validasi awal: Amankan area pembungkus dashboardArea agar tidak memicu crash null
+    let dashArea = document.getElementById("dashboardArea");
+    if (!dashArea) {
+        console.warn("⚠️ Elemen dashboardArea belum siap di layar.");
+        return; // Hentikan eksekusi sementara agar tidak memicu error innerHTML
+    }
+
+    loading("dashboardArea");
+    api({ action: "getDashboard", bulan: bulan }).then(data => {
+        // Validasi kedua: Cek kembali elemen jika user mendadak pindah halaman sebelum API selesai
+        dashArea = document.getElementById("dashboardArea");
+        if (!dashArea) return;
+
+        if (!data || data.length === 0) {
+            dashArea.innerHTML = "<p style='text-align:center; opacity:0.5; font-size:12px; padding:10px;'>Belum ada data bulan ini</p>";
+            return;
+        }
+
+        let html = `<div class="card"><h3>Stock Saat Ini (${bulan})</h3>`;
+        html += data.map(d => `
+          <div class="stock-item">
+            <div>
+              <div class="stock-name">${d.item}</div>
+              <div class="stock-meta">${d.stok < 10 ? '⚠️ Stok menipis' : 'Stok aman'}</div>
+            </div>
+            <div class="stock-count ${d.stok < 0 ? 'minus' : d.stok < 10 ? 'low' : ''}">
+              ${d.stok}
+            </div>
+          </div>
+        `).join("");
+
+        html += `</div>`;
+        dashArea.innerHTML = html; // Aman digunakan karena objek elemen divalidasi nyata
+    }).catch(err => {
+        console.error("Gagal memuat dashboard hari ini:", err);
+    });
+}
+
+
+// ================= INTERFACE MODUL PERALATAN (UTUH & AMAN) =================
 function renderPeralatanMenu() {
   const content = document.getElementById("content");
   if (!content) return;
@@ -1133,7 +1176,10 @@ function switchTabPeralatan(tab) {
   const activeBtn = document.getElementById('btnTab' + tab.charAt(0).toUpperCase() + tab.slice(1));
   if (activeBtn) activeBtn.classList.add("active");
 
-  document.getElementById("peralatanSubContent").innerHTML = `
+  const subContent = document.getElementById("peralatanSubContent");
+  if (!subContent) return;
+
+  subContent.innerHTML = `
     <div id="sub-loader" style="text-align:center; padding: 30px; opacity:0.6; font-weight:600;">
       <i class="fa-solid fa-spinner fa-spin"></i> MEMUAT FORM...
     </div>
@@ -1147,7 +1193,7 @@ function switchTabPeralatan(tab) {
   } catch (error) {
     console.error("Gagal memuat tab:", error);
     if (typeof showLoading === "function") showLoading(false);
-    document.getElementById("peralatanSubContent").innerHTML = `
+    subContent.innerHTML = `
       <div class="card" style="text-align:center; color:#ef4444; padding:20px;">
         <i class="fa-solid fa-triangle-exclamation" style="font-size:30px; margin-bottom:10px;"></i>
         <p>Gagal memuat formulir. Silakan coba klik ulang tab menu.</p>
@@ -1160,13 +1206,15 @@ function switchTabPeralatan(tab) {
 function loadFormBarangDatang() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
     if (tools.length === 0) {
       options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
     }
 
-    document.getElementById("peralatanSubContent").innerHTML = `
+    const subContent = document.getElementById("peralatanSubContent");
+    if (!subContent) return;
+
+    subContent.innerHTML = `
       <div class="card" style="border-top: 4px solid #22c55e;">
         <div class="section-title" style="color: #22c55e;">Penerimaan / Penambahan Alat Baru</div>
         <div class="form-field" style="margin-bottom:12px">
@@ -1212,13 +1260,15 @@ function submitBarangDatang() {
 function loadFormPemusnahan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
     if (tools.length === 0) {
       options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
     }
 
-    document.getElementById("peralatanSubContent").innerHTML = `
+    const subContent = document.getElementById("peralatanSubContent");
+    if (!subContent) return;
+
+    subContent.innerHTML = `
       <div class="card" style="border-top: 4px solid #ef4444;">
         <div class="section-title" style="color: #ef4444;">Pemusnahan Alat (Rusak & Dibuang)</div>
         <div class="form-field" style="margin-bottom:12px">
@@ -1265,13 +1315,15 @@ function submitPemusnahan() {
 function loadFormOpnamePeralatan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
     if (tools.length === 0) {
       options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
     }
 
-    document.getElementById("peralatanSubContent").innerHTML = `
+    const subContent = document.getElementById("peralatanSubContent");
+    if (!subContent) return;
+
+    subContent.innerHTML = `
       <div class="card" style="border-top: 4px solid #fbbf24;">
         <div class="section-title" style="color: #fbbf24;">Pemeriksaan Kondisi Fisik Berkala</div>
         <div class="form-field" style="margin-bottom:12px">
@@ -1332,7 +1384,10 @@ function loadKelolaPeralatan() {
     if (btn) btn.classList.remove("active");
   });
 
-  document.getElementById("peralatanSubContent").innerHTML = `
+  const subContent = document.getElementById("peralatanSubContent");
+  if (!subContent) return;
+
+  subContent.innerHTML = `
     <button onclick="renderPeralatanMenu()" style="width: 100%; background: #475569; color: white; padding: 10px; border: none; border-radius: 12px; cursor: pointer; font-size: 13px; margin-bottom: 15px; font-weight: bold;">
       <i class="fa-solid fa-arrow-left"></i> Kembali ke Form Logistik
     </button>
@@ -1370,8 +1425,11 @@ function loadKelolaPeralatan() {
 function renderMasterAlatList() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
+    const listTable = document.getElementById("masterAlatListTable");
+    if (!listTable) return;
+
     if (tools.length === 0) {
-      document.getElementById("masterAlatListTable").innerHTML = `<p style="text-align:center; opacity:0.5; font-size:12px; padding:15px 0;">Belum ada alat terdaftar</p>`;
+      listTable.innerHTML = `<p style="text-align:center; opacity:0.5; font-size:12px; padding:15px 0;">Belum ada alat terdaftar</p>`;
       return;
     }
 
@@ -1386,9 +1444,10 @@ function renderMasterAlatList() {
         </button>
       </div>
     `).join("");
-    document.getElementById("masterAlatListTable").innerHTML = html;
+    listTable.innerHTML = html;
   }).catch(err => {
-    document.getElementById("masterAlatListTable").innerHTML = `<p style="text-align:center; color:#ef4444; font-size:12px;">Gagal memuat list master data</p>`;
+    const listTable = document.getElementById("masterAlatListTable");
+    if (listTable) listTable.innerHTML = `<p style="text-align:center; color:#ef4444; font-size:12px;">Gagal memuat list master data</p>`;
   });
 }
 
@@ -1420,25 +1479,22 @@ function hapusMasterPeralatan(id, nama) {
 function handlePeralatanLoadError(err) {
   console.error(err);
   if (typeof showLoading === "function") showLoading(false);
-  document.getElementById("peralatanSubContent").innerHTML = `
-    <div class="card" style="text-align:center; padding:20px; border-top: 4px solid #ef4444;">
-      <i class="fa-solid fa-wifi" style="font-size:28px; color:#ef4444; margin-bottom:10px;"></i>
-      <b style="display:block; margin-bottom:5px;">Gagal Menghubungkan ke Database</b>
-      <span style="font-size:12px; opacity:0.6;">Pastikan koneksi bagus dan Google Apps Script sudah di-Deploy ulang.</span>
-    </div>
-  `;
+  const subContent = document.getElementById("peralatanSubContent");
+  if (subContent) {
+    subContent.innerHTML = `
+      <div class="card" style="text-align:center; padding:20px; border-top: 4px solid #ef4444;">
+        <i class="fa-solid fa-wifi" style="font-size:28px; color:#ef4444; margin-bottom:10px;"></i>
+        <b style="display:block; margin-bottom:5px;">Gagal Menghubungkan ke Database</b>
+        <span style="font-size:12px; opacity:0.6;">Pastikan koneksi bagus dan Google Apps Script sudah di-Deploy ulang.</span>
+      </div>
+    `;
+  }
 }
 
-
-// ================= FUNGSI YANG HILANG (TEMPEL DI PALING BAWAH SCRIPT.JS) =================
-
+// 5. SUB-MENU: DETAIL TARIK DATA PERIODE & STOK AWAL BULAN
 function loadLaporanPeralatan() {
-  // Pastikan elemen peralatanSubContent ada sebelum diisi konten
   const subContent = document.getElementById("peralatanSubContent");
-  if (!subContent) {
-    console.error("Elemen peralatanSubContent tidak ditemukan di layar.");
-    return;
-  }
+  if (!subContent) return;
 
   subContent.innerHTML = `
     <div class="card">
