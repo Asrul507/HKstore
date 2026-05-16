@@ -1428,3 +1428,113 @@ function handlePeralatanLoadError(err) {
     </div>
   `;
 }
+
+
+// ================= FUNGSI YANG HILANG (TEMPEL DI PALING BAWAH SCRIPT.JS) =================
+
+function loadLaporanPeralatan() {
+  // Pastikan elemen peralatanSubContent ada sebelum diisi konten
+  const subContent = document.getElementById("peralatanSubContent");
+  if (!subContent) {
+    console.error("Elemen peralatanSubContent tidak ditemukan di layar.");
+    return;
+  }
+
+  subContent.innerHTML = `
+    <div class="card">
+      <div class="section-title">Tarik Data per Periode</div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+        <div class="filter-input" style="padding:4px 10px;">
+          <input type="date" id="lapMulai">
+        </div>
+        <div class="filter-input" style="padding:4px 10px;">
+          <input type="date" id="lapSelesai">
+        </div>
+      </div>
+      <button class="btn-submit" onclick="prosesTarikLaporan()" style="margin-bottom:20px;">
+        <i class="fa-solid fa-magnifying-glass"></i> Filter Periode
+      </button>
+
+      <div class="section-title">Hasil Penelusuran</div>
+      <div class="history-list" id="opnameResultList">
+        <p style="text-align:center; opacity:0.5; font-size:12px;">Tentukan rentang tanggal untuk memuat data</p>
+      </div>
+    </div>
+  `;
+}
+
+function prosesTarikLaporan() {
+  let startDate = document.getElementById("lapMulai").value;
+  let endDate = document.getElementById("lapSelesai").value;
+  if (!startDate || !endDate) return showToast("Pilih rentang tanggal lengkap!", "error");
+  
+  const resultList = document.getElementById("opnameResultList");
+  if (!resultList) return;
+
+  resultList.innerHTML = `<p style='text-align:center;'>Memuat data...</p>`;
+  
+  api({ action: "getOpnameHistory", startDate, endDate }).then(res => {
+    let stokAwal = res.stokAwal || {};
+    let histori = res.histori || [];
+    let htmlResult = "";
+
+    // --- BOX STOK AWAL PERIODE ---
+    htmlResult += `
+      <div class="card" style="margin-bottom: 20px; border-left: 4px solid #fbbf24;">
+        <div class="section-title" style="color: #fbbf24; margin-bottom: 10px;">
+          <i class="fa-solid fa-hourglass-start"></i> Stok Awal Periode (Sebelum ${formatTglDisplay(startDate)})
+        </div>
+    `;
+    let infoStokAwalHtml = "";
+    for (let alat in stokAwal) {
+      let badgeColor = stokAwal[alat].kondisi === 'Bagus' ? '#22c55e' : (stokAwal[alat].kondisi === 'Rusak' ? '#ef4444' : '#f59e0b');
+      infoStokAwalHtml += `
+        <div class="dash-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+          <span style="font-size:13px; font-weight:600;">${alat}</span>
+          <span style="font-size:13px;">
+            <small style="opacity:0.5; margin-right:5px;">(${stokAwal[alat].tanggal})</small>
+            <b style="color:${badgeColor}">${stokAwal[alat].kondisi}</b> : <b>${stokAwal[alat].qty} Unit</b>
+          </span>
+        </div>
+      `;
+    }
+    htmlResult += infoStokAwalHtml === "" ? `<p style="text-align:center; opacity:0.5; font-size:11px; padding:10px 0;">Tidak ada data opname bulan sebelumnya</p>` : infoStokAwalHtml;
+    htmlResult += `</div>`;
+
+    // --- LOG HISTORI AKTIVITAS ---
+    htmlResult += `<div class="section-title"><i class="fa-solid fa-list-check"></i> Aktivitas Logistik pada Periode Ini</div>`;
+    if (histori.length === 0) {
+      htmlResult += `<p style='text-align:center; opacity:0.5; font-size:12px; margin-top:15px;'>Tidak ada aktivitas logistik di periode ini</p>`;
+    } else {
+      htmlResult += histori.map(row => {
+        let typeLabel = row.jenis_transaksi ? row.jenis_transaksi.toUpperCase() : "OPNAME";
+        let typeClass = row.kondisi === 'Bagus' ? 'type-in' : 'type-out';
+        
+        if (typeLabel === "MUSNAH") { typeClass = "type-out"; typeLabel = "💥 MUSNAH"; }
+        else if (typeLabel === "DATANG") { typeClass = "type-in"; typeLabel = "📥 DATANG"; }
+        else { typeLabel = "📋 OPNAME"; }
+
+        return `
+          <div class="history-card" style="margin-top: 8px;">
+            <div class="type-dot ${typeClass}" style="font-size: 9px; font-weight: 800; white-space: nowrap; min-width: 75px; height: auto; padding: 5px; border-radius: 8px;">
+              ${typeLabel}
+            </div>
+            <div class="hcard-body" style="padding-left: 8px;">
+              <div class="hcard-item">${row.nama_alat}</div>
+              <div class="hcard-meta">
+                <span class="meta-tag"><i class="fa-solid fa-calendar"></i> ${formatTglDisplay(row.tanggal)}</span>
+                <span class="meta-tag">Kondisi: <b>${row.kondisi}</b></span>
+                <span class="meta-tag"><i class="fa-solid fa-user"></i> ${row.user}</span>
+                <span class="meta-tag"><a href="${row.foto_url}" target="_blank" style="color:#fbbf24; text-decoration:underline;"><i class="fa-solid fa-image"></i> Bukti Foto</a></span>
+              </div>
+            </div>
+            <div class="qty-badge" style="color:#fff; font-size:16px;">
+              ${row.jenis_transaksi === 'Musnah' ? '-' : '+'}${row.qty}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+    document.getElementById("opnameResultList").innerHTML = htmlResult;
+  });
+}
