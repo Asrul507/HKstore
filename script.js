@@ -1241,16 +1241,20 @@ function handleFotoDatangChange(input) {
 function submitBarangDatang() {
   let nama_alat = document.getElementById("datangNamaAlat").value;
   let qty = document.getElementById("datangQty").value;
-  if (!qty || !globalFotoDatangBase64) return showToast("Harap isi Qty dan ambil foto bukti fisik terlebih dahulu!", "error");
+  
+  // Perbaikan: Sekarang hanya mendeteksi Qty, foto tidak wajib lagi
+  if (!qty) return showToast("Harap isi Jumlah Masuk (Qty) terlebih dahulu!", "error");
 
   showLoading(true);
   api({
     action: "saveOpnamePeralatan", jenis_transaksi: "Datang", area: "Gudang Utama",
-    nama_alat, qty_bagus: qty, qty_rusak: 0, foto_base64: globalFotoDatangBase64, user: user.nama
+    nama_alat, qty_bagus: qty, qty_rusak: 0, 
+    foto_base64: globalFotoDatangBase64, // Tetap dikirim, jika kosong nilainya ""
+    user: user.nama
   }).then(() => {
     showLoading(false);
     showToast("Data penerimaan barang berhasil disimpan!", "success");
-    loadFormBarangDatang(); // Refresh form
+    loadFormBarangDatang(); 
   });
 }
 
@@ -1304,17 +1308,21 @@ function handleFotoMusnahChange(input) {
 function submitPemusnahan() {
   let nama_alat = document.getElementById("musnahNamaAlat").value;
   let qty = document.getElementById("musnahQty").value;
-  if (!qty || !globalFotoMusnahBase64) return showToast("Harap isi Qty dan ambil foto bukti pemusnahan!", "error");
+  
+  // Perbaikan: Foto tidak wajib lagi
+  if (!qty) return showToast("Harap isi Jumlah yang Dimusnahkan (Qty)!", "error");
   if (!confirm("Konfirmasi simpan dokumen pemusnahan fisik? Barang keluar dari gedung secara permanen.")) return;
 
   showLoading(true);
   api({
     action: "savePemusnahanPeralatan",
-    nama_alat, qty_dimusnahkan: qty, foto_base64: globalFotoMusnahBase64, user: user.nama
+    nama_alat, qty_dimusnahkan: qty, 
+    foto_base64: globalFotoMusnahBase64, // Tetap dikirim, jika kosong nilainya ""
+    user: user.nama
   }).then(() => {
     showLoading(false);
     showToast("Dokumen arsip pemusnahan berhasil dicatat!", "success");
-    loadFormPemusnahan(); // Refresh form
+    loadFormPemusnahan();
   });
 }
 function loadFormOpnamePeralatan() {
