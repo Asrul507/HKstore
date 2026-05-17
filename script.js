@@ -1136,7 +1136,7 @@ function loadDashboardToday() {
 }
 
 
-// ================= INTERFACE MODUL PERALATAN (UTUH & AMAN) =================
+// ================= INTERFACE MODUL PERALATAN (UTUH TERPROTEKSI) =================
 function renderPeralatanMenu() {
   const content = document.getElementById("content");
   if (!content) return;
@@ -1146,7 +1146,7 @@ function renderPeralatanMenu() {
       <div class="bin-header" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
           <div class="bin-title">LOGISTIK & STOK PERALATAN</div>
-          <div class="bin-subtitle">Penerimaan, Pemusnahan & Opname Berkala</div>
+          <div class="bin-subtitle">Penerimaan, Pemusnahan & Opname Area</div>
         </div>
         <button onclick="loadKelolaPeralatan()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fbbf24; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600;">
           <i class="fa-solid fa-gear"></i> Kelola Alat
@@ -1156,7 +1156,7 @@ function renderPeralatanMenu() {
       <div class="toggle-group" style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
         <button id="btnTabDatang" class="active" onclick="switchTabPeralatan('datang')">Barang Datang</button>
         <button id="btnTabMusnah" onclick="switchTabPeralatan('musnah')">Pemusnahan</button>
-        <button id="btnTabOpname" onclick="switchTabPeralatan('opname')">Opname Berkala</button>
+        <button id="btnTabOpname" onclick="switchTabPeralatan('opname')">Opname Area</button>
         <button id="btnTabLaporan" onclick="switchTabPeralatan('laporan')">Tarik Laporan</button>
       </div>
 
@@ -1185,36 +1185,19 @@ function switchTabPeralatan(tab) {
     </div>
   `;
 
-  try {
-    if (tab === 'datang') loadFormBarangDatang();
-    else if (tab === 'musnah') loadFormPemusnahan();
-    else if (tab === 'opname') loadFormOpnamePeralatan();
-    else if (tab === 'laporan') loadLaporanPeralatan();
-  } catch (error) {
-    console.error("Gagal memuat tab:", error);
-    if (typeof showLoading === "function") showLoading(false);
-    subContent.innerHTML = `
-      <div class="card" style="text-align:center; color:#ef4444; padding:20px;">
-        <i class="fa-solid fa-triangle-exclamation" style="font-size:30px; margin-bottom:10px;"></i>
-        <p>Gagal memuat formulir. Silakan coba klik ulang tab menu.</p>
-      </div>
-    `;
-  }
+  if (tab === 'datang') loadFormBarangDatang();
+  else if (tab === 'musnah') loadFormPemusnahan();
+  else if (tab === 'opname') loadFormOpnamePeralatan();
+  else if (tab === 'laporan') loadLaporanPeralatan();
 }
 
-// 1. SUB-MENU: FORM BARANG DATANG
 function loadFormBarangDatang() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
-    if (tools.length === 0) {
-      options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
-    }
+    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
 
-    const subContent = document.getElementById("peralatanSubContent");
-    if (!subContent) return;
-
-    subContent.innerHTML = `
+    document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #22c55e;">
         <div class="section-title" style="color: #22c55e;">Penerimaan / Penambahan Alat Baru</div>
         <div class="form-field" style="margin-bottom:12px">
@@ -1245,9 +1228,8 @@ function submitBarangDatang() {
 
   showLoading(true);
   api({
-    action: "saveOpnamePeralatan",
-    jenis_transaksi: "Datang",
-    nama_alat, qty, kondisi: "Bagus", foto_url, user: user.nama
+    action: "saveOpnamePeralatan", jenis_transaksi: "Datang", area: "Gudang Utama",
+    nama_alat, qty_bagus: qty, qty_rusak: 0, foto_url: "", user: user.nama
   }).then(() => {
     showLoading(false);
     showToast("Data penerimaan barang berhasil disimpan!", "success");
@@ -1256,21 +1238,15 @@ function submitBarangDatang() {
   });
 }
 
-// 2. SUB-MENU: FORM PEMUSNAHAN BARANG
 function loadFormPemusnahan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
-    if (tools.length === 0) {
-      options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
-    }
+    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
-    const subContent = document.getElementById("peralatanSubContent");
-    if (!subContent) return;
-
-    subContent.innerHTML = `
+    document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #ef4444;">
-        <div class="section-title" style="color: #ef4444;">Pemusnahan Alat (Rusak & Dibuang)</div>
+        <div class="section-title" style="color: #ef4444;">Pemusnahan Alat (Arsip Dokumen Afkir)</div>
         <div class="form-field" style="margin-bottom:12px">
           <label>Nama Peralatan yang Dimusnahkan</label>
           <select id="musnahNamaAlat">${options}</select>
@@ -1280,11 +1256,11 @@ function loadFormPemusnahan() {
           <input id="musnahQty" type="number" placeholder="0" min="1">
         </div>
         <div class="form-field" style="margin-bottom:20px">
-          <label>Link Foto Dokumentasi Pemusnahan</label>
-          <input id="musnahFoto" type="text" placeholder="Masukkan URL tautan foto bukti pemusnahan">
+          <label>Link Foto Bukti Fisik Pemusnahan Keluar Gedung</label>
+          <input id="musnahFoto" type="text" placeholder="Masukkan URL tautan foto pemusnahan">
         </div>
         <button class="btn-submit" onclick="submitPemusnahan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
-          <i class="fa-solid fa-trash-can"></i> Konfirmasi Pemusnahan
+          <i class="fa-solid fa-trash-can"></i> Simpan Dokumen Pemusnahan
         </button>
       </div>
     `;
@@ -1296,107 +1272,257 @@ function submitPemusnahan() {
   let qty = document.getElementById("musnahQty").value;
   let foto_url = document.getElementById("musnahFoto").value;
   if (!qty || !foto_url) return showToast("Harap isi Qty dan URL Foto pemusnahan!", "error");
-  if (!confirm("Apakah yakin ingin memusnahkan alat ini secara permanen?")) return;
+  if (!confirm("Konfirmasi simpan dokumen pemusnahan fisik? Barang keluar dari gedung secara permanen.")) return;
 
   showLoading(true);
-  api({
-    action: "saveOpnamePeralatan",
-    jenis_transaksi: "Musnah",
-    nama_alat, qty, kondisi: "Rusak", foto_url, user: user.nama
-  }).then(() => {
+  api({ action: "savePemusnahanPeralatan", nama_alat, qty_dimusnahkan: qty, foto_url, user: user.nama }).then(() => {
     showLoading(false);
-    showToast("Data pemusnahan barang berhasil dicatat!", "success");
+    showToast("Dokumen arsip pemusnahan berhasil dicatat!", "success");
     document.getElementById("musnahQty").value = "";
     document.getElementById("musnahFoto").value = "";
   });
 }
 
-// 3. SUB-MENU: FORM STOCK OPNAME BERKALA
 function loadFormOpnamePeralatan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
     let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
-    if (tools.length === 0) {
-      options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
-    }
+    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
-    const subContent = document.getElementById("peralatanSubContent");
-    if (!subContent) return;
-
-    subContent.innerHTML = `
+    document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #fbbf24;">
-        <div class="section-title" style="color: #fbbf24;">Pemeriksaan Kondisi Fisik Berkala</div>
+        <div class="section-title" style="color: #fbbf24;">Pemeriksaan Kondisi Fisik Berdasarkan Area</div>
         <div class="form-field" style="margin-bottom:12px">
-          <label>Nama Peralatan</label>
-          <select id="opnameNamaAlat">${options}</select>
+          <label>Pilih Area Kerja Janitor</label>
+          <select id="opnameArea" onchange="checkAreaAvailability()">
+            <option value="Janitor BM">Janitor BM</option>
+            <option value="Janitor GF">Janitor GF</option>
+            <option value="Janitor UG">Janitor UG</option>
+            <option value="Janitor Lt 2">Janitor Lt 2</option>
+            <option value="Janitor Foodcourt">Janitor Foodcourt</option>
+            <option value="Gudang">Gudang</option>
+            <option value="Office HK">Office HK</option>
+          </select>
         </div>
-        <div class="row-2" style="margin-bottom:12px">
-          <div class="form-field">
-            <label>Jumlah Riil (Qty)</label>
-            <input id="opnameQty" type="number" placeholder="0" min="1">
+
+        <div id="opnameLockNotice" style="display:none; margin-bottom:15px; padding:10px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; font-size:12px; color:#f87171;"></div>
+
+        <div id="opnameFieldsBlock">
+          <div class="form-field" style="margin-bottom:12px">
+            <label>Nama Peralatan</label>
+            <select id="opnameNamaAlat">${options}</select>
           </div>
-          <div class="form-field">
-            <label>Kondisi Alat</label>
-            <select id="opnameKondisi">
-              <option value="Bagus">🟢 Bagus</option>
-              <option value="Rusak">🔴 Rusak</option>
-              <option value="Servis">🟡 Di-Servis</option>
-            </select>
+          <div class="row-2" style="margin-bottom:20px">
+            <div class="form-field">
+              <label>Kondisi Bagus (Qty)</label>
+              <input id="opnameQtyBagus" type="number" placeholder="0" min="0">
+            </div>
+            <div class="form-field">
+              <label>Kondisi Rusak (Qty)</label>
+              <input id="opnameQtyRusak" type="number" placeholder="0" min="0">
+            </div>
           </div>
+          <button id="btnSubmitOpname" class="btn-submit" onclick="submitOpnamePeralatan()" ${tools.length === 0 ? 'disabled' : ''}>
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Hasil Opname Area
+          </button>
         </div>
-        <div class="form-field" style="margin-bottom:20px">
-          <label>Link Foto Kondisi Alat</label>
-          <input id="opnameFoto" type="text" placeholder="Masukkan URL foto saat opname">
-        </div>
-        <button class="btn-submit" onclick="submitOpnamePeralatan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0d0800;">
-          <i class="fa-solid fa-floppy-disk"></i> Simpan Hasil Opname
-        </button>
       </div>
     `;
+    checkAreaAvailability();
   }).catch(err => handlePeralatanLoadError(err));
 }
 
-function submitOpnamePeralatan() {
-  let nama_alat = document.getElementById("opnameNamaAlat").value;
-  let qty = document.getElementById("opnameQty").value;
-  let kondisi = document.getElementById("opnameKondisi").value;
-  let foto_url = document.getElementById("opnameFoto").value;
-  if (!qty || !foto_url) return showToast("Harap isi Qty dan URL Foto opname!", "error");
+function checkAreaAvailability() {
+  let area = document.getElementById("opnameArea").value;
+  let noticeBox = document.getElementById("opnameLockNotice");
+  let btnSubmit = document.getElementById("btnSubmitOpname");
+  let isSupervisor = (user?.jabatan === "Supervisor" || user?.jabatan === "HO");
 
-  showLoading(true);
-  api({
-    action: "saveOpnamePeralatan",
-    jenis_transaksi: "Opname",
-    nama_alat, qty, kondisi, foto_url, user: user.nama
-  }).then(() => {
-    showLoading(false);
-    showToast("Stock opname alat berhasil disimpan!", "success");
-    document.getElementById("opnameQty").value = "";
-    document.getElementById("opnameFoto").value = "";
+  api({ action: "checkAreaOpname", area: area }).then(res => {
+    if (res.status === "blocked") {
+      noticeBox.innerHTML = `⚠️ <b>AREA SUDAH DI-OPNAME!</b><br>Area ini sudah dihitung oleh <b>${res.user}</b> pada tanggal <b>${res.tanggal}</b>.`;
+      noticeBox.style.display = "block";
+      
+      if (!isSupervisor) {
+        btnSubmit.disabled = true;
+        btnSubmit.style.opacity = "0.4";
+        showToast("Area ini sudah dikunci oleh staff lain bulan ini!", "error");
+      } else {
+        noticeBox.innerHTML += `<br><span style="color:#fbbf24;">💡 Mode Supervisor: Anda diizinkan menginput koreksi di area terkunci ini.</span>`;
+        btnSubmit.disabled = false;
+        btnSubmit.style.opacity = "1";
+      }
+    } else {
+      noticeBox.style.display = "none";
+      btnSubmit.disabled = false;
+      btnSubmit.style.opacity = "1";
+    }
   });
 }
 
-// 4. SUB-MENU: KELOLA MASTER ITEM PERALATAN
-function loadKelolaPeralatan() {
-  const tabs = ['datang', 'musnah', 'opname', 'laporan'];
-  tabs.forEach(t => {
-    const btn = document.getElementById('btnTab' + t.charAt(0).toUpperCase() + t.slice(1));
-    if (btn) btn.classList.remove("active");
+function submitOpnamePeralatan() {
+  let area = document.getElementById("opnameArea").value;
+  let nama_alat = document.getElementById("opnameNamaAlat").value;
+  let qty_bagus = document.getElementById("opnameQtyBagus").value || 0;
+  let qty_rusak = document.getElementById("opnameQtyRusak").value || 0;
+
+  if (qty_bagus == 0 && qty_rusak == 0) return showToast("Harap isi Qty Bagus atau Qty Rusak!", "error");
+
+  showLoading(true);
+  api({
+    action: "saveOpnamePeralatan", jenis_transaksi: "Opname",
+    area, nama_alat, qty_bagus, qty_rusak, user: user.nama
+  }).then(() => {
+    showLoading(false);
+    showToast("Data opname area berhasil disimpan!", "success");
+    document.getElementById("opnameQtyBagus").value = "";
+    document.getElementById("opnameQtyRusak").value = "";
+    checkAreaAvailability();
   });
+}
 
-  const subContent = document.getElementById("peralatanSubContent");
-  if (!subContent) return;
+function loadLaporanPeralatan() {
+  document.getElementById("peralatanSubContent").innerHTML = `
+    <div class="card">
+      <div class="section-title">Tarik Rekapan & Tekapan Bulanan</div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+        <div class="filter-input" style="padding:4px 10px;"><input type="date" id="lapMulai"></div>
+        <div class="filter-input" style="padding:4px 10px;"><input type="date" id="lapSelesai"></div>
+      </div>
+      <button class="btn-submit" onclick="prosesTarikLaporan()" style="margin-bottom:20px;">
+        <i class="fa-solid fa-magnifying-glass"></i> Hitung Rekapan Inventory
+      </button>
+      <div id="opnameResultList">
+        <p style="text-align:center; opacity:0.5; font-size:12px;">Tentukan tanggal periode untuk menghitung data audit</p>
+      </div>
+    </div>
+  `;
+}
 
-  subContent.innerHTML = `
+function prosesTarikLaporan() {
+  let startDate = document.getElementById("lapMulai").value;
+  let endDate = document.getElementById("lapSelesai").value;
+  if (!startDate || !endDate) return showToast("Pilih rentang tanggal lengkap!", "error");
+  
+  const resultBox = document.getElementById("opnameResultList");
+  resultBox.innerHTML = `<p style='text-align:center; padding:20px;'>🔄 Sedang menghitung tabel rekapan...</p>`;
+  
+  api({ action: "getPeralatan" }).then(tools => {
+    if (!Array.isArray(tools)) tools = [];
+    
+    api({ action: "getOpnameHistory", startDate, endDate }).then(res => {
+      let openingStok = res.openingStok || {};
+      let addStok = res.addStok || {};
+      let areaBagus = res.areaBagus || {};
+      let areaRusak = res.areaRusak || {};
+      let pemusnahanLog = res.pemusnahanLog || [];
+
+      let htmlResult = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div class="section-title" style="margin:0;"><i class="fa-solid fa-table"></i> REKAPAN INVENTORY REKONSILIASI</div>
+          <button onclick="window.print()" style="background:#2563eb; border:none; color:white; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:600;">
+            <i class="fa-solid fa-print"></i> Cetak / PDF
+          </button>
+        </div>
+        
+        <div style="overflow-x:auto; background:rgba(255,255,255,0.03); border-radius:8px; border:1px solid rgba(255,255,255,0.08); padding:8px; margin-bottom:25px;">
+          <table style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; color:#e2e8f0;">
+            <thead>
+              <tr style="border-bottom:2px solid rgba(255,255,255,0.15); color:#fbbf24;">
+                <th style="padding:6px;">NAMA BARANG</th>
+                <th style="padding:6px; text-align:center;">JENIS</th>
+                <th style="padding:6px; text-align:center;">OPENING</th>
+                <th style="padding:6px; text-align:center;">ADD</th>
+                <th style="padding:6px; text-align:center;">TOT STOCK</th>
+                <th style="padding:6px; text-align:center;">OPN BGS</th>
+                <th style="padding:6px; text-align:center;">OPN RSK</th>
+                <th style="padding:6px; text-align:center;">TOT INV</th>
+                <th style="padding:6px; text-align:center;">SELISIH</th>
+                <th style="padding:6px; text-align:center; color:#67e8f9;">CLOSING</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      tools.forEach(t => {
+        let item = t[1]; 
+        let jenis = t[2] || "Manual"; 
+        let opStok = openingStok[item] || 0;
+        let adStok = addStok[item] || 0;
+        let totStok = opStok + adStok;
+
+        let itemAreasBagus = areaBagus[item] || {};
+        let totOpnBagus = Object.values(itemAreasBagus).reduce((a, b) => a + b, 0);
+
+        let itemAreasRusak = areaRusak[item] || {};
+        let totOpnRusak = Object.values(itemAreasRusak).reduce((a, b) => a + b, 0);
+
+        let totInventory = totOpnBagus + totOpnRusak;
+        let selisih = totInventory - totStok;
+        let closingInv = totInventory - totOpnRusak; 
+
+        let selisihColor = selisih < 0 ? '#ef4444' : (selisih > 0 ? '#22c55e' : '#e2e8f0');
+
+        htmlResult += `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:6px; font-weight:600; color:#fff;">${item}</td>
+            <td style="padding:6px; text-align:center; color:#fbbf24;">${jenis}</td>
+            <td style="padding:6px; text-align:center; opacity:0.6;">${opStok}</td>
+            <td style="padding:6px; text-align:center; color:#22c55e;">+${adStok}</td>
+            <td style="padding:6px; text-align:center; font-weight:600;">${totStok}</td>
+            <td style="padding:6px; text-align:center; color:#38bdf8;">${totOpnBagus}</td>
+            <td style="padding:6px; text-align:center; color:#f87171;">${totOpnRusak}</td>
+            <td style="padding:6px; text-align:center; font-weight:600;">${totInventory}</td>
+            <td style="padding:6px; text-align:center; font-weight:bold; color:${selisihColor}">${selisih >= 0 ? '+' : ''}${selisih}</td>
+            <td style="padding:6px; text-align:center; font-weight:bold; color:#22d3ee; background:rgba(34,211,238,0.05);">${closingInv}</td>
+          </tr>
+        `;
+      });
+
+      htmlResult += `</tbody></table></div>`;
+
+      htmlResult += `<div class="section-title"><i class="fa-solid fa-camera"></i> LAMPIRAN ARSIP BUKTI FOTO PEMUSNAHAN</div>`;
+      if (pemusnahanLog.length === 0) {
+        htmlResult += `<p style="opacity:0.4; font-size:11px; text-align:center; padding:10px;">Tidak ada dokumen pemusnahan fisik pada periode ini</p>`;
+      } else {
+        htmlResult += pemusnahanLog.map(row => `
+          <div class="history-card" style="margin-top:6px; border-left:3px solid #ef4444;">
+            <div class="type-dot type-out" style="font-size:9px;">AFKIR</div>
+            <div class="hcard-body" style="padding-left:8px;">
+              <div class="hcard-item">${row.item}</div>
+              <div class="hcard-meta">
+                <span class="meta-tag"><i class="fa-solid fa-calendar"></i> ${formatTglDisplay(row.tanggal)}</span>
+                <span class="meta-tag"><i class="fa-solid fa-user"></i> ${row.user}</span>
+                <span class="meta-tag"><a href="${row.foto_url}" target="_blank" style="color:#fbbf24; text-decoration:underline;"><i class="fa-solid fa-image"></i> Bukti Foto</a></span>
+              </div>
+            </div>
+            <div class="qty-badge" style="color:#ef4444;">-${row.qty}</div>
+          </div>
+        `).join("");
+      }
+
+      resultBox.innerHTML = htmlResult;
+    });
+  });
+}
+
+function loadKelolaPeralatan() {
+  document.getElementById("peralatanSubContent").innerHTML = `
     <button onclick="renderPeralatanMenu()" style="width: 100%; background: #475569; color: white; padding: 10px; border: none; border-radius: 12px; cursor: pointer; font-size: 13px; margin-bottom: 15px; font-weight: bold;">
       <i class="fa-solid fa-arrow-left"></i> Kembali ke Form Logistik
     </button>
-
     <div class="card" style="border-top: 4px solid #a855f7; margin-bottom: 20px;">
       <div class="section-title" style="color: #a855f7;"><i class="fa-solid fa-square-plus"></i> Tambah Alat Baru ke Sistem</div>
       <div class="form-field" style="margin-bottom:12px">
         <label>Nama Peralatan / Item Baru</label>
         <input id="newMasterNama" type="text" placeholder="Contoh: Mesin Polisher, Tangga Alumunium">
+      </div>
+      <div class="form-field" style="margin-bottom:12px">
+        <label>Jenis Peralatan</label>
+        <select id="newMasterJenis">
+          <option value="Manual">Manual (Alat Tangan)</option>
+          <option value="Mechanical">Mechanical (Mesin/Elektrik)</option>
+        </select>
       </div>
       <div class="form-field" style="margin-bottom:20px">
         <label>Satuan Besaran</label>
@@ -1411,12 +1537,9 @@ function loadKelolaPeralatan() {
         <i class="fa-solid fa-floppy-disk"></i> Daftarkan Alat Baru
       </button>
     </div>
-
     <div class="card">
       <div class="section-title"><i class="fa-solid fa-list"></i> Daftar Master Alat Saat Ini</div>
-      <div id="masterAlatListTable" style="margin-top:10px;">
-        <p style="text-align:center; opacity:0.5; font-size:11px;">Memuat list item...</p>
-      </div>
+      <div id="masterAlatListTable" style="margin-top:10px;"><p style="text-align:center; opacity:0.5; font-size:11px;">Memuat list item...</p></div>
     </div>
   `;
   renderMasterAlatList();
@@ -1427,37 +1550,36 @@ function renderMasterAlatList() {
     if (!Array.isArray(tools)) tools = [];
     const listTable = document.getElementById("masterAlatListTable");
     if (!listTable) return;
-
     if (tools.length === 0) {
       listTable.innerHTML = `<p style="text-align:center; opacity:0.5; font-size:12px; padding:15px 0;">Belum ada alat terdaftar</p>`;
       return;
     }
-
     let html = tools.map(t => `
       <div class="dash-row" style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
         <div>
           <span style="font-size:11px; opacity:0.4; display:block;">${t[0]}</span>
-          <b style="font-size:13px; color:#fff;">${t[1]}</b> <span style="font-size:11px; opacity:0.6;">(${t[2]})</span>
+          <b style="font-size:13px; color:#fff;">${t[1]}</b> 
+          <span style="font-size:11px; color:#fbbf24; margin-left:5px;">[${t[2] || 'Manual'}]</span> 
+          <span style="font-size:11px; opacity:0.6;">(${t[3]})</span>
         </div>
-        <button onclick="hapusMasterPeralatan('${t[0]}', '${t[1]}')" style="background:#ef4444; border:none; color:white; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">
-          <i class="fa-solid fa-trash"></i> Hapus
-        </button>
+        <button onclick="hapusMasterPeralatan('${t[0]}', '${t[1]}')" style="background:#ef4444; border:none; color:white; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;"><i class="fa-solid fa-trash"></i> Hapus</button>
       </div>
     `).join("");
     listTable.innerHTML = html;
-  }).catch(err => {
+  }).catch(() => {
     const listTable = document.getElementById("masterAlatListTable");
-    if (listTable) listTable.innerHTML = `<p style="text-align:center; color:#ef4444; font-size:12px;">Gagal memuat list master data</p>`;
+    if (listTable) listTable.innerHTML = `<p style="text-align:center; color:#ef4444; font-size:12px;">Gagal memuat data master</p>`;
   });
 }
 
 function submitMasterPeralatanBaru() {
   let nama = document.getElementById("newMasterNama").value.trim();
+  let jenis = document.getElementById("newMasterJenis").value;
   let satuan = document.getElementById("newMasterSatuan").value;
   if (!nama) return showToast("Nama peralatan tidak boleh kosong!", "error");
-
+  
   showLoading(true);
-  api({ action: "addPeralatan", nama: nama, satuan: satuan }).then(res => {
+  api({ action: "addPeralatan", nama: nama, jenis: jenis, satuan: satuan }).then(() => {
     showLoading(false);
     showToast("Item baru berhasil didaftarkan!", "success");
     document.getElementById("newMasterNama").value = "";
@@ -1467,9 +1589,8 @@ function submitMasterPeralatanBaru() {
 
 function hapusMasterPeralatan(id, nama) {
   if (!confirm(`Apakah Anda yakin ingin menghapus "${nama}"? Semua form pilihan barang ini nantinya akan hilang.`)) return;
-
   showLoading(true);
-  api({ action: "deletePeralatan", id: id }).then(res => {
+  api({ action: "deletePeralatan", id: id }).then(() => {
     showLoading(false);
     showToast("Item berhasil dihapus dari master", "success");
     renderMasterAlatList();
@@ -1485,112 +1606,8 @@ function handlePeralatanLoadError(err) {
       <div class="card" style="text-align:center; padding:20px; border-top: 4px solid #ef4444;">
         <i class="fa-solid fa-wifi" style="font-size:28px; color:#ef4444; margin-bottom:10px;"></i>
         <b style="display:block; margin-bottom:5px;">Gagal Menghubungkan ke Database</b>
-        <span style="font-size:12px; opacity:0.6;">Pastikan koneksi bagus dan Google Apps Script sudah di-Deploy ulang.</span>
+        <span style="font-size:12px; opacity:0.6;">Pastikan koneksi internet aktif dan Google Apps Script sudah dideploy ulang.</span>
       </div>
     `;
   }
-}
-
-// 5. SUB-MENU: DETAIL TARIK DATA PERIODE & STOK AWAL BULAN
-function loadLaporanPeralatan() {
-  const subContent = document.getElementById("peralatanSubContent");
-  if (!subContent) return;
-
-  subContent.innerHTML = `
-    <div class="card">
-      <div class="section-title">Tarik Data per Periode</div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-        <div class="filter-input" style="padding:4px 10px;">
-          <input type="date" id="lapMulai">
-        </div>
-        <div class="filter-input" style="padding:4px 10px;">
-          <input type="date" id="lapSelesai">
-        </div>
-      </div>
-      <button class="btn-submit" onclick="prosesTarikLaporan()" style="margin-bottom:20px;">
-        <i class="fa-solid fa-magnifying-glass"></i> Filter Periode
-      </button>
-
-      <div class="section-title">Hasil Penelusuran</div>
-      <div class="history-list" id="opnameResultList">
-        <p style="text-align:center; opacity:0.5; font-size:12px;">Tentukan rentang tanggal untuk memuat data</p>
-      </div>
-    </div>
-  `;
-}
-
-function prosesTarikLaporan() {
-  let startDate = document.getElementById("lapMulai").value;
-  let endDate = document.getElementById("lapSelesai").value;
-  if (!startDate || !endDate) return showToast("Pilih rentang tanggal lengkap!", "error");
-  
-  const resultList = document.getElementById("opnameResultList");
-  if (!resultList) return;
-
-  resultList.innerHTML = `<p style='text-align:center;'>Memuat data...</p>`;
-  
-  api({ action: "getOpnameHistory", startDate, endDate }).then(res => {
-    let stokAwal = res.stokAwal || {};
-    let histori = res.histori || [];
-    let htmlResult = "";
-
-    // --- BOX STOK AWAL PERIODE ---
-    htmlResult += `
-      <div class="card" style="margin-bottom: 20px; border-left: 4px solid #fbbf24;">
-        <div class="section-title" style="color: #fbbf24; margin-bottom: 10px;">
-          <i class="fa-solid fa-hourglass-start"></i> Stok Awal Periode (Sebelum ${formatTglDisplay(startDate)})
-        </div>
-    `;
-    let infoStokAwalHtml = "";
-    for (let alat in stokAwal) {
-      let badgeColor = stokAwal[alat].kondisi === 'Bagus' ? '#22c55e' : (stokAwal[alat].kondisi === 'Rusak' ? '#ef4444' : '#f59e0b');
-      infoStokAwalHtml += `
-        <div class="dash-row" style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
-          <span style="font-size:13px; font-weight:600;">${alat}</span>
-          <span style="font-size:13px;">
-            <small style="opacity:0.5; margin-right:5px;">(${stokAwal[alat].tanggal})</small>
-            <b style="color:${badgeColor}">${stokAwal[alat].kondisi}</b> : <b>${stokAwal[alat].qty} Unit</b>
-          </span>
-        </div>
-      `;
-    }
-    htmlResult += infoStokAwalHtml === "" ? `<p style="text-align:center; opacity:0.5; font-size:11px; padding:10px 0;">Tidak ada data opname bulan sebelumnya</p>` : infoStokAwalHtml;
-    htmlResult += `</div>`;
-
-    // --- LOG HISTORI AKTIVITAS ---
-    htmlResult += `<div class="section-title"><i class="fa-solid fa-list-check"></i> Aktivitas Logistik pada Periode Ini</div>`;
-    if (histori.length === 0) {
-      htmlResult += `<p style='text-align:center; opacity:0.5; font-size:12px; margin-top:15px;'>Tidak ada aktivitas logistik di periode ini</p>`;
-    } else {
-      htmlResult += histori.map(row => {
-        let typeLabel = row.jenis_transaksi ? row.jenis_transaksi.toUpperCase() : "OPNAME";
-        let typeClass = row.kondisi === 'Bagus' ? 'type-in' : 'type-out';
-        
-        if (typeLabel === "MUSNAH") { typeClass = "type-out"; typeLabel = "💥 MUSNAH"; }
-        else if (typeLabel === "DATANG") { typeClass = "type-in"; typeLabel = "📥 DATANG"; }
-        else { typeLabel = "📋 OPNAME"; }
-
-        return `
-          <div class="history-card" style="margin-top: 8px;">
-            <div class="type-dot ${typeClass}" style="font-size: 9px; font-weight: 800; white-space: nowrap; min-width: 75px; height: auto; padding: 5px; border-radius: 8px;">
-              ${typeLabel}
-            </div>
-            <div class="hcard-body" style="padding-left: 8px;">
-              <div class="hcard-item">${row.nama_alat}</div>
-              <div class="hcard-meta">
-                <span class="meta-tag"><i class="fa-solid fa-calendar"></i> ${formatTglDisplay(row.tanggal)}</span>
-                <span class="meta-tag">Kondisi: <b>${row.kondisi}</b></span>
-                <span class="meta-tag"><i class="fa-solid fa-user"></i> ${row.user}</span>
-                <span class="meta-tag"><a href="${row.foto_url}" target="_blank" style="color:#fbbf24; text-decoration:underline;"><i class="fa-solid fa-image"></i> Bukti Foto</a></span>
-              </div>
-            </div>
-            <div class="qty-badge" style="color:#fff; font-size:16px;">
-              ${row.jenis_transaksi === 'Musnah' ? '-' : '+'}${row.qty}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-    document.getElementById("opnameResultList").innerHTML = htmlResult;
-  });
 }
