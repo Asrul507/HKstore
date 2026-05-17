@@ -1192,44 +1192,34 @@ function switchTabPeralatan(tab) {
 }
 
 let globalFotoDatangBase64 = ""; // Variable penampung sementara
+let globalFotoMusnahBase64 = ""; // Variable penampung sementara
 
+// VARIABEL GLOBAL UNTUK MENAMPUNG CACHE DATA RIWAYAT SEBELUM DIFILTER
+let cacheRiwayatPeralatan = { datang: [], musnah: [] };
+
+// ================= TAB 1: FORM & RIWAYAT BARANG DATANG LENGKAP =================
 function loadFormBarangDatang() {
-  globalFotoDatangBase64 = ""; // Reset
+  globalFotoDatangBase64 = ""; 
   showLoading(true);
   
-  // Panggil data peralatan sekalian dengan data riwayatnya
   Promise.all([
     api({ action: "getPeralatan" }),
     api({ action: "getRiwayatPeralatan" })
   ]).then(([tools, riwayat]) => {
     showLoading(false);
     if (!Array.isArray(tools)) tools = [];
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
-    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
+    cacheRiwayatPeralatan.datang = riwayat.datang || [];
 
-    // Susun HTML Riwayat Datang
-    let rDatang = riwayat.datang || [];
-    let tabelBody = rDatang.map(r => {
-      let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#22c55e; font-weight:bold;"><i class="fa-solid fa-image"></i> Lihat</a>` : `<span style="opacity:0.4">-</span>`;
-      return `
-        <tr>
-          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px;">${r.tanggal}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; font-weight:bold;">${r.nama}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center; color:#22c55e;">+${r.qty}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px; opacity:0.8;">${r.user}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center;">${linkFoto}</td>
-        </tr>
-      `;
-    }).join("");
-
-    if (rDatang.length === 0) tabelBody = `<tr><td colspan="5" style="text-align:center; padding:15px; opacity:0.5; font-size:12px;">Belum ada riwayat masuk terdeteksi.</td></tr>`;
+    let optionsForm = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
+    let optionsFilterItem = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    if (tools.length === 0) optionsForm = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #22c55e; margin-bottom: 20px;">
         <div class="section-title" style="color: #22c55e;">Penerimaan / Penambahan Alat Baru</div>
         <div class="form-field" style="margin-bottom:12px">
           <label>Nama Peralatan Masuk</label>
-          <select id="datangNamaAlat">${options}</select>
+          <select id="datangNamaAlat">${optionsForm}</select>
         </div>
         <div class="form-field" style="margin-bottom:12px">
           <label>Jumlah Masuk (Qty)</label>
@@ -1248,32 +1238,83 @@ function loadFormBarangDatang() {
         </button>
       </div>
 
-      <div class="card" style="border-top: 4px solid #64748b;">
-        <div class="section-title" style="color: #cbd5e1; font-size:14px;"><i class="fa-solid fa-clock-rotate-left"></i> 10 Riwayat Penerimaan Terakhir</div>
+      <div class="card" style="border-top: 4px solid #64748b; margin-bottom:15px; padding:12px;">
+        <div class="section-title" style="color:#cbd5e1; font-size:13px; margin-bottom:10px;"><i class="fa-solid fa-filter"></i> Filter Riwayat Penerimaan</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+          <div class="filter-input" style="padding:4px 8px;"><input type="month" id="fDatangBulan" onchange="jalankanFilterMultiDatang()"></div>
+          <div class="filter-input" style="padding:4px 8px;">
+            <select id="fDatangJenis" onchange="jalankanFilterMultiDatang()">
+              <option value="ALL">-- Semua Jenis --</option>
+              <option value="Manual">Manual</option>
+              <option value="Mechanical">Mechanical</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-input" style="padding:4px 8px;">
+          <select id="fDatangItem" onchange="jalankanFilterMultiDatang()">
+            <option value="ALL">-- Semua Item Barang --</option>
+            ${optionsFilterItem}
+          </select>
+        </div>
+      </div>
+
+      <div class="card" style="padding:10px;">
         <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse; text-align:left; color:#f8fafc; font-size:13px;">
+          <table style="width:100%; border-collapse:collapse; text-align:left; color:#f8fafc; font-size:12px;">
             <thead>
-              <tr style="background:#1e293b; color:#94a3b8;">
+              <tr style="background:#1e293b; color:#94a3b8; border-bottom:2px solid #334155;">
                 <th style="padding:8px;">Tgl</th>
-                <th style="padding:8px;">Nama Barang</th>
+                <th style="padding:8px;">Nama Barang / Kategori</th>
                 <th style="padding:8px; text-align:center;">Qty</th>
                 <th style="padding:8px;">User</th>
                 <th style="padding:8px; text-align:center;">Foto</th>
               </tr>
             </thead>
-            <tbody>
-              ${tabelBody}
-            </tbody>
+            <tbody id="bodyTabelRiwayatDatang"></tbody>
           </table>
         </div>
       </div>
     `;
+    jalankanFilterMultiDatang(); // Gambar tabel pertama kali
   }).catch(err => { showLoading(false); handlePeralatanLoadError(err); });
 }
 
-// UPDATE UTUH FORM PEMUSNAHAN + TABEL RIWAYAT
+// MESIN FILTER DATA DATANG (CLIENT-SIDE)
+function jalankanFilterMultiDatang() {
+  let fBulan = document.getElementById("fDatangBulan").value; 
+  let fJenis = document.getElementById("fDatangJenis").value;
+  let fItem = document.getElementById("fDatangItem").value;
+  
+  let dataFilter = cacheRiwayatPeralatan.datang.filter(row => {
+    if (fBulan && row.tanggalRaw) {
+      let rBulan = row.tanggalRaw.substring(0, 7); 
+      if (rBulan !== fBulan) return false;
+    }
+    if (fJenis !== "ALL" && row.jenis !== fJenis) return false;
+    if (fItem !== "ALL" && row.nama !== fItem) return false;
+    return true;
+  });
+
+  let htmlBody = dataFilter.map(r => {
+    let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#22c55e; font-weight:bold;"><i class="fa-solid fa-image"></i> Lihat</a>` : `<span style="opacity:0.3">-</span>`;
+    return `
+      <tr style="border-bottom:1px solid #1e293b;">
+        <td style="padding:8px; opacity:0.8;">${r.tanggal}</td>
+        <td style="padding:8px;"><b style="color:#fff;">${r.nama}</b><br><span style="font-size:10px; color:#fbbf24;">[${r.jenis || 'Manual'}]</span></td>
+        <td style="padding:8px; text-align:center; color:#22c55e; font-weight:bold;">+${String(r.qty)}</td>
+        <td style="padding:8px; opacity:0.8;">${r.user}</td>
+        <td style="padding:8px; text-align:center;">${linkFoto}</td>
+      </tr>
+    `;
+  }).join("");
+
+  if (dataFilter.length === 0) htmlBody = `<tr><td colspan="5" style="text-align:center; padding:20px; opacity:0.4;">Tidak ada riwayat transaksi yang cocok dengan filter.</td></tr>`;
+  document.getElementById("bodyTabelRiwayatDatang").innerHTML = htmlBody;
+}
+
+// ================= TAB 2: FORM & RIWAYAT PEMUSNAHAN LENGKAP =================
 function loadFormPemusnahan() {
-  globalFotoMusnahBase64 = ""; // Reset
+  globalFotoMusnahBase64 = ""; 
   showLoading(true);
 
   Promise.all([
@@ -1282,32 +1323,18 @@ function loadFormPemusnahan() {
   ]).then(([tools, riwayat]) => {
     showLoading(false);
     if (!Array.isArray(tools)) tools = [];
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
-    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
+    cacheRiwayatPeralatan.musnah = riwayat.musnah || [];
 
-    // Susun HTML Riwayat Pemusnahan
-    let rMusnah = riwayat.musnah || [];
-    let tabelBody = rMusnah.map(r => {
-      let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#ef4444; font-weight:bold;"><i class="fa-solid fa-image"></i> Lihat</a>` : `<span style="opacity:0.4">-</span>`;
-      return `
-        <tr>
-          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px;">${r.tanggal}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; font-weight:bold;">${r.nama}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center; color:#ef4444;">-${r.qty}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px; opacity:0.8;">${r.user}</td>
-          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center;">${linkFoto}</td>
-        </tr>
-      `;
-    }).join("");
-
-    if (rMusnah.length === 0) tabelBody = `<tr><td colspan="5" style="text-align:center; padding:15px; opacity:0.5; font-size:12px;">Belum ada riwayat pemusnahan terdeteksi.</td></tr>`;
+    let optionsForm = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    let optionsFilterItem = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    if (tools.length === 0) optionsForm = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #ef4444; margin-bottom: 20px;">
         <div class="section-title" style="color: #ef4444;">Pemusnahan Alat (Arsip Dokumen Afkir)</div>
         <div class="form-field" style="margin-bottom:12px">
           <label>Nama Peralatan yang Dimusnahkan</label>
-          <select id="musnahNamaAlat">${options}</select>
+          <select id="musnahNamaAlat">${optionsForm}</select>
         </div>
         <div class="form-field" style="margin-bottom:12px">
           <label>Jumlah Dibuang (Qty)</label>
@@ -1326,36 +1353,79 @@ function loadFormPemusnahan() {
         </button>
       </div>
 
-      <div class="card" style="border-top: 4px solid #64748b;">
-        <div class="section-title" style="color: #cbd5e1; font-size:14px;"><i class="fa-solid fa-clock-rotate-left"></i> 10 Riwayat Pemusnahan Terakhir</div>
+      <div class="card" style="border-top: 4px solid #64748b; margin-bottom:15px; padding:12px;">
+        <div class="section-title" style="color:#cbd5e1; font-size:13px; margin-bottom:10px;"><i class="fa-solid fa-filter"></i> Filter Riwayat Pemusnahan</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+          <div class="filter-input" style="padding:4px 8px;"><input type="month" id="fMusnahBulan" onchange="jalankanFilterMultiMusnah()"></div>
+          <div class="filter-input" style="padding:4px 8px;">
+            <select id="fMusnahJenis" onchange="jalankanFilterMultiMusnah()">
+              <option value="ALL">-- Semua Jenis --</option>
+              <option value="Manual">Manual</option>
+              <option value="Mechanical">Mechanical</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-input" style="padding:4px 8px;">
+          <select id="fMusnahItem" onchange="jalankanFilterMultiMusnah()">
+            <option value="ALL">-- Semua Item Barang --</option>
+            ${optionsFilterItem}
+          </select>
+        </div>
+      </div>
+
+      <div class="card" style="padding:10px;">
         <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse; text-align:left; color:#f8fafc; font-size:13px;">
+          <table style="width:100%; border-collapse:collapse; text-align:left; color:#f8fafc; font-size:12px;">
             <thead>
-              <tr style="background:#1e293b; color:#94a3b8;">
+              <tr style="background:#1e293b; color:#94a3b8; border-bottom:2px solid #334155;">
                 <th style="padding:8px;">Tgl</th>
-                <th style="padding:8px;">Nama Barang</th>
+                <th style="padding:8px;">Nama Barang / Kategori</th>
                 <th style="padding:8px; text-align:center;">Qty</th>
                 <th style="padding:8px;">User</th>
                 <th style="padding:8px; text-align:center;">Foto</th>
               </tr>
             </thead>
-            <tbody>
-              ${tabelBody}
-            </tbody>
+            <tbody id="bodyTabelRiwayatMusnah"></tbody>
           </table>
         </div>
       </div>
     `;
+    jalankanFilterMultiMusnah(); 
   }).catch(err => { showLoading(false); handlePeralatanLoadError(err); });
 }
-TAHAP 3: Simpan dan Deploy Akhir
-Simpan perubahan kode di file kode.gs.
 
-Lakukan Deploy Ulang ke New Version (Terapkan > Kelola Penerapan > Edit > Versi Baru > Deploy).
+// MESIN FILTER DATA PEMUSNAHAN (CLIENT-SIDE)
+function jalankanFilterMultiMusnah() {
+  let fBulan = document.getElementById("fMusnahBulan").value; 
+  let fJenis = document.getElementById("fMusnahJenis").value;
+  let fItem = document.getElementById("fMusnahItem").value;
+  
+  let dataFilter = cacheRiwayatPeralatan.musnah.filter(row => {
+    if (fBulan && row.tanggalRaw) {
+      let rBulan = row.tanggalRaw.substring(0, 7);
+      if (rBulan !== fBulan) return false;
+    }
+    if (fJenis !== "ALL" && row.jenis !== fJenis) return false;
+    if (fItem !== "ALL" && row.nama !== fItem) return false;
+    return true;
+  });
 
-Simpan file script.js kamu yang baru, lalu lakukan Hard Refresh pada browser HP staf.
+  let htmlBody = dataFilter.map(r => {
+    let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#ef4444; font-weight:bold;"><i class="fa-solid fa-image"></i> Lihat</a>` : `<span style="opacity:0.4">-</span>`;
+    return `
+      <tr style="border-bottom:1px solid #1e293b;">
+        <td style="padding:8px; opacity:0.8;">${r.tanggal}</td>
+        <td style="padding:8px;"><b style="color:#fff;">${r.nama}</b><br><span style="font-size:10px; color:#fbbf24;">[${r.jenis || 'Manual'}]</span></td>
+        <td style="padding:8px; text-align:center; color:#ef4444; font-weight:bold;">-${String(r.qty)}</td>
+        <td style="padding:8px; opacity:0.8;">${r.user}</td>
+        <td style="padding:8px; text-align:center;">${linkFoto}</td>
+      </tr>
+    `;
+  }).join("");
 
-Kini, staf lapangan bisa langsung klik simpan walaupun tidak mengambil foto (foto menjadi opsional), dan kerennya lagi, tepat di bawah form input akan langsung tampil tabel 10 transaksi terakhir lengkap dengan nama penginput, jumlah barang, serta tautan link untuk melihat fotonya secara langsung!
+  if (dataFilter.length === 0) htmlBody = `<tr><td colspan="5" style="text-align:center; padding:20px; opacity:0.4;">Tidak ada riwayat transaksi yang cocok dengan filter.</td></tr>`;
+  document.getElementById("bodyTabelRiwayatMusnah").innerHTML = htmlBody;
+}
 
 function handleFotoDatangChange(input) {
   const p = document.getElementById("previewFotoDatang");
@@ -1369,15 +1439,13 @@ function handleFotoDatangChange(input) {
 function submitBarangDatang() {
   let nama_alat = document.getElementById("datangNamaAlat").value;
   let qty = document.getElementById("datangQty").value;
-  
-  // Perbaikan: Sekarang hanya mendeteksi Qty, foto tidak wajib lagi
   if (!qty) return showToast("Harap isi Jumlah Masuk (Qty) terlebih dahulu!", "error");
 
   showLoading(true);
   api({
     action: "saveOpnamePeralatan", jenis_transaksi: "Datang", area: "Gudang Utama",
     nama_alat, qty_bagus: qty, qty_rusak: 0, 
-    foto_base64: globalFotoDatangBase64, // Tetap dikirim, jika kosong nilainya ""
+    foto_base64: globalFotoDatangBase64, 
     user: user.nama
   }).then(() => {
     showLoading(false);
@@ -1385,8 +1453,6 @@ function submitBarangDatang() {
     loadFormBarangDatang(); 
   });
 }
-
-let globalFotoMusnahBase64 = ""; // Variable penampung sementara
 
 function handleFotoMusnahChange(input) {
   const p = document.getElementById("previewFotoMusnah");
@@ -1400,8 +1466,6 @@ function handleFotoMusnahChange(input) {
 function submitPemusnahan() {
   let nama_alat = document.getElementById("musnahNamaAlat").value;
   let qty = document.getElementById("musnahQty").value;
-  
-  // Perbaikan: Foto tidak wajib lagi
   if (!qty) return showToast("Harap isi Jumlah yang Dimusnahkan (Qty)!", "error");
   if (!confirm("Konfirmasi simpan dokumen pemusnahan fisik? Barang keluar dari gedung secara permanen.")) return;
 
@@ -1409,7 +1473,7 @@ function submitPemusnahan() {
   api({
     action: "savePemusnahanPeralatan",
     nama_alat, qty_dimusnahkan: qty, 
-    foto_base64: globalFotoMusnahBase64, // Tetap dikirim, jika kosong nilainya ""
+    foto_base64: globalFotoMusnahBase64, 
     user: user.nama
   }).then(() => {
     showLoading(false);
@@ -1417,11 +1481,10 @@ function submitPemusnahan() {
     loadFormPemusnahan();
   });
 }
+
 function loadFormOpnamePeralatan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    
-    // Perbaikan: t[1] tetap sebagai value yang dikirim ke sheet log agar rumus SUM laporan tidak pecah
     let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
     if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
@@ -1440,9 +1503,7 @@ function loadFormOpnamePeralatan() {
             <option value="Office HK">Office HK</option>
           </select>
         </div>
-
         <div id="opnameLockNotice" style="display:none; margin-bottom:15px; padding:10px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; font-size:12px; color:#f87171;"></div>
-
         <div id="opnameFieldsBlock">
           <div class="form-field" style="margin-bottom:12px">
             <label>Nama Peralatan</label>
@@ -1553,7 +1614,6 @@ function prosesTarikLaporan() {
       let areaRusak = res.areaRusak || {};
       let pemusnahanLog = res.pemusnahanLog || [];
 
-      // TOMBOL SUDAH BERUBAH MENJADI EXPORT EXCEL
       let htmlResult = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div class="section-title" style="margin:0;"><i class="fa-solid fa-table"></i> REKAPAN INVENTORY REKONSILIASI</div>
@@ -1617,9 +1677,8 @@ function prosesTarikLaporan() {
       });
 
       htmlResult += `</tbody></table></div>`;
-
-      // Menampilkan arsip lampiran foto di bawah tabel riil web app
       htmlResult += `<div class="section-title"><i class="fa-solid fa-camera"></i> LAMPIRAN ARSIP BUKTI FOTO PEMUSNAHAN</div>`;
+      
       if (pemusnahanLog.length === 0) {
         htmlResult += `<p style="opacity:0.4; font-size:11px; text-align:center; padding:10px;">Tidak ada dokumen pemusnahan fisik pada periode ini</p>`;
       } else {
@@ -1638,25 +1697,17 @@ function prosesTarikLaporan() {
           </div>
         `).join("");
       }
-
       resultBox.innerHTML = htmlResult;
     });
   });
 }
 
-// FUNGSI INJEKSI BARU: GENERATOR DOWNLOAD SPREADSHEET EXCEL (.XLSX) ASLI
 function downloadExcelPeralatan(tglMulai, tglSelesai) {
   const tabel = document.getElementById("tabelLaporanPeralatan");
   if (!tabel) return showToast("Tabel data tidak ditemukan!", "error");
-
-  // Konversi elemen tabel HTML menjadi objek lembar kerja SheetJS
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.table_to_sheet(tabel);
-
-  // Menyusun nama file otomatis berdasarkan periode tanggal yang dipilih supervisor
   const namaFile = `Laporan_Inventory_LivingPlaza_${tglMulai}_ke_${tglSelesai}.xlsx`;
-
-  // Gabungkan ke dokumen kerja dan picu download otomatis di browser/HP staf
   XLSX.utils.book_append_sheet(wb, ws, "Rekapan Inventory");
   XLSX.writeFile(wb, namaFile);
   showToast("File Excel berhasil diunduh!", "success");
@@ -1768,11 +1819,9 @@ function handlePeralatanLoadError(err) {
   }
 }
 
-// FUNGSI PROSES KOMPRESI GAMBAR KAMERA DI SISI HP (CLIENT-SIDE)
 function prosesKompresiKamera(inputElement, callback) {
   const file = inputElement.files[0];
   if (!file) return callback("");
-
   const reader = new FileReader();
   reader.onload = function (event) {
     const img = new Image();
@@ -1780,11 +1829,8 @@ function prosesKompresiKamera(inputElement, callback) {
       const canvas = document.createElement("canvas");
       let width = img.width;
       let height = img.height;
-
-      // Batasi resolusi maksimal lebar/tinggi ke 800px (Sangat cukup untuk bukti fisik)
       const MAX_WIDTH = 800;
       const MAX_HEIGHT = 800;
-
       if (width > height) {
         if (width > MAX_WIDTH) {
           height *= MAX_WIDTH / width;
@@ -1796,13 +1842,10 @@ function prosesKompresiKamera(inputElement, callback) {
           height = MAX_HEIGHT;
         }
       }
-
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, width, height);
-
-      // Kompres kualitas menjadi 0.7 (70% kualitas JPEG, hemat ruang & hemat kuota)
       const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
       callback(dataUrl);
     };
