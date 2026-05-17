@@ -1194,7 +1194,9 @@ function switchTabPeralatan(tab) {
 function loadFormBarangDatang() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    
+    // Perbaikan: t[1] adalah Nama Alat. Kita kunci value dropdown-nya menggunakan Nama Alat
+    let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
     if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
@@ -1241,7 +1243,9 @@ function submitBarangDatang() {
 function loadFormPemusnahan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    
+    // Perbaikan: Menampilkan Nama Alat t[1] dan Jenis Alat t[2] agar infonya lengkap di dropdown
+    let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
     if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
@@ -1266,7 +1270,6 @@ function loadFormPemusnahan() {
     `;
   }).catch(err => handlePeralatanLoadError(err));
 }
-
 function submitPemusnahan() {
   let nama_alat = document.getElementById("musnahNamaAlat").value;
   let qty = document.getElementById("musnahQty").value;
@@ -1286,7 +1289,9 @@ function submitPemusnahan() {
 function loadFormOpnamePeralatan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    
+    // Perbaikan: t[1] tetap sebagai value yang dikirim ke sheet log agar rumus SUM laporan tidak pecah
+    let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
     if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
