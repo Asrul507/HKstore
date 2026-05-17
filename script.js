@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwp4B4HijsbjyA7p1BrjHDrjypvBcTq5gMN2nUr7h41qyVDI5GAH37SbNeTP1DMPzs/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwSrH2kCYdqsm9UlHse-y4ZOysZk3CqMzREhKfUg7YHywbJIAsOh-A2hk-DWQSozzOz/exec";
 let user = JSON.parse(localStorage.getItem("user")) || null;
 let selectedType = "IN"; 
 
@@ -1195,13 +1195,37 @@ let globalFotoDatangBase64 = ""; // Variable penampung sementara
 
 function loadFormBarangDatang() {
   globalFotoDatangBase64 = ""; // Reset
-  api({ action: "getPeralatan" }).then(tools => {
+  showLoading(true);
+  
+  // Panggil data peralatan sekalian dengan data riwayatnya
+  Promise.all([
+    api({ action: "getPeralatan" }),
+    api({ action: "getRiwayatPeralatan" })
+  ]).then(([tools, riwayat]) => {
+    showLoading(false);
     if (!Array.isArray(tools)) tools = [];
     let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
     if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
+    // Susun HTML Riwayat Datang
+    let rDatang = riwayat.datang || [];
+    let tabelBody = rDatang.map(r => {
+      let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#22c55e; font-weight:bold;"><i class="fa-solid fa-image"></i> Lihat</a>` : `<span style="opacity:0.4">-</span>`;
+      return `
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px;">${r.tanggal}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; font-weight:bold;">${r.nama}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center; color:#22c55e;">+${r.qty}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px; opacity:0.8;">${r.user}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center;">${linkFoto}</td>
+        </tr>
+      `;
+    }).join("");
+
+    if (rDatang.length === 0) tabelBody = `<tr><td colspan="5" style="text-align:center; padding:15px; opacity:0.5; font-size:12px;">Belum ada riwayat masuk terdeteksi.</td></tr>`;
+
     document.getElementById("peralatanSubContent").innerHTML = `
-      <div class="card" style="border-top: 4px solid #22c55e;">
+      <div class="card" style="border-top: 4px solid #22c55e; margin-bottom: 20px;">
         <div class="section-title" style="color: #22c55e;">Penerimaan / Penambahan Alat Baru</div>
         <div class="form-field" style="margin-bottom:12px">
           <label>Nama Peralatan Masuk</label>
@@ -1211,23 +1235,127 @@ function loadFormBarangDatang() {
           <label>Jumlah Masuk (Qty)</label>
           <input id="datangQty" type="number" placeholder="0" min="1">
         </div>
-        
         <div class="form-field" style="margin-bottom:20px">
-          <label>Ambil Foto Bukti Fisik</label>
+          <label>Ambil Foto Bukti Fisik (Opsional)</label>
           <input id="datangFotoKamera" type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFotoDatangChange(this)">
-          <button type="button" onclick="document.getElementById('datangFotoKamera').click()" style="width:100%; padding:12px; background:#475569; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">
+          <button type="button" onclick="document.getElementById('datangFotoKamera').click()" style="width:100%; padding:11px; background:#475569; border:none; color:white; border-radius:8px; cursor:pointer; font-size:13px;">
             <i class="fa-solid fa-camera"></i> Buka Kamera / Pilih Foto
           </button>
-          <div id="previewFotoDatang" style="margin-top:10px; text-align:center; font-size:11px; opacity:0.6;">Belum ada foto diambil</div>
+          <div id="previewFotoDatang" style="margin-top:8px; text-align:center; font-size:11px; opacity:0.6;">Tidak ada foto (opsional)</div>
         </div>
-
         <button class="btn-submit" onclick="submitBarangDatang()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white;">
           <i class="fa-solid fa-circle-plus"></i> Simpan Barang Datang
         </button>
       </div>
+
+      <div class="card" style="border-top: 4px solid #64748b;">
+        <div class="section-title" style="color: #cbd5e1; font-size:14px;"><i class="fa-solid fa-clock-rotate-left"></i> 10 Riwayat Penerimaan Terakhir</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; text-align:left; color:#f8fafc; font-size:13px;">
+            <thead>
+              <tr style="background:#1e293b; color:#94a3b8;">
+                <th style="padding:8px;">Tgl</th>
+                <th style="padding:8px;">Nama Barang</th>
+                <th style="padding:8px; text-align:center;">Qty</th>
+                <th style="padding:8px;">User</th>
+                <th style="padding:8px; text-align:center;">Foto</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tabelBody}
+            </tbody>
+          </table>
+        </div>
+      </div>
     `;
-  }).catch(err => handlePeralatanLoadError(err));
+  }).catch(err => { showLoading(false); handlePeralatanLoadError(err); });
 }
+
+// UPDATE UTUH FORM PEMUSNAHAN + TABEL RIWAYAT
+function loadFormPemusnahan() {
+  globalFotoMusnahBase64 = ""; // Reset
+  showLoading(true);
+
+  Promise.all([
+    api({ action: "getPeralatan" }),
+    api({ action: "getRiwayatPeralatan" })
+  ]).then(([tools, riwayat]) => {
+    showLoading(false);
+    if (!Array.isArray(tools)) tools = [];
+    let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
+    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
+
+    // Susun HTML Riwayat Pemusnahan
+    let rMusnah = riwayat.musnah || [];
+    let tabelBody = rMusnah.map(r => {
+      let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#ef4444; font-weight:bold;"><i class="fa-solid fa-image"></i> Lihat</a>` : `<span style="opacity:0.4">-</span>`;
+      return `
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px;">${r.tanggal}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; font-weight:bold;">${r.nama}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center; color:#ef4444;">-${r.qty}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; font-size:11px; opacity:0.8;">${r.user}</td>
+          <td style="padding:8px; border-bottom:1px solid #334155; text-align:center;">${linkFoto}</td>
+        </tr>
+      `;
+    }).join("");
+
+    if (rMusnah.length === 0) tabelBody = `<tr><td colspan="5" style="text-align:center; padding:15px; opacity:0.5; font-size:12px;">Belum ada riwayat pemusnahan terdeteksi.</td></tr>`;
+
+    document.getElementById("peralatanSubContent").innerHTML = `
+      <div class="card" style="border-top: 4px solid #ef4444; margin-bottom: 20px;">
+        <div class="section-title" style="color: #ef4444;">Pemusnahan Alat (Arsip Dokumen Afkir)</div>
+        <div class="form-field" style="margin-bottom:12px">
+          <label>Nama Peralatan yang Dimusnahkan</label>
+          <select id="musnahNamaAlat">${options}</select>
+        </div>
+        <div class="form-field" style="margin-bottom:12px">
+          <label>Jumlah Dibuang (Qty)</label>
+          <input id="musnahQty" type="number" placeholder="0" min="1">
+        </div>
+        <div class="form-field" style="margin-bottom:20px">
+          <label>Ambil Foto Bukti Pemusnahan (Opsional)</label>
+          <input id="musnahFotoKamera" type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFotoMusnahChange(this)">
+          <button type="button" onclick="document.getElementById('musnahFotoKamera').click()" style="width:100%; padding:11px; background:#475569; border:none; color:white; border-radius:8px; cursor:pointer; font-size:13px;">
+            <i class="fa-solid fa-camera"></i> Buka Kamera / Pilih Foto
+          </button>
+          <div id="previewFotoMusnah" style="margin-top:8px; text-align:center; font-size:11px; opacity:0.6;">Tidak ada foto (opsional)</div>
+        </div>
+        <button class="btn-submit" onclick="submitPemusnahan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+          <i class="fa-solid fa-trash-can"></i> Simpan Dokumen Pemusnahan
+        </button>
+      </div>
+
+      <div class="card" style="border-top: 4px solid #64748b;">
+        <div class="section-title" style="color: #cbd5e1; font-size:14px;"><i class="fa-solid fa-clock-rotate-left"></i> 10 Riwayat Pemusnahan Terakhir</div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; text-align:left; color:#f8fafc; font-size:13px;">
+            <thead>
+              <tr style="background:#1e293b; color:#94a3b8;">
+                <th style="padding:8px;">Tgl</th>
+                <th style="padding:8px;">Nama Barang</th>
+                <th style="padding:8px; text-align:center;">Qty</th>
+                <th style="padding:8px;">User</th>
+                <th style="padding:8px; text-align:center;">Foto</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tabelBody}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }).catch(err => { showLoading(false); handlePeralatanLoadError(err); });
+}
+TAHAP 3: Simpan dan Deploy Akhir
+Simpan perubahan kode di file kode.gs.
+
+Lakukan Deploy Ulang ke New Version (Terapkan > Kelola Penerapan > Edit > Versi Baru > Deploy).
+
+Simpan file script.js kamu yang baru, lalu lakukan Hard Refresh pada browser HP staf.
+
+Kini, staf lapangan bisa langsung klik simpan walaupun tidak mengambil foto (foto menjadi opsional), dan kerennya lagi, tepat di bawah form input akan langsung tampil tabel 10 transaksi terakhir lengkap dengan nama penginput, jumlah barang, serta tautan link untuk melihat fotonya secara langsung!
 
 function handleFotoDatangChange(input) {
   const p = document.getElementById("previewFotoDatang");
@@ -1259,42 +1387,6 @@ function submitBarangDatang() {
 }
 
 let globalFotoMusnahBase64 = ""; // Variable penampung sementara
-
-function loadFormPemusnahan() {
-  globalFotoMusnahBase64 = ""; // Reset
-  api({ action: "getPeralatan" }).then(tools => {
-    if (!Array.isArray(tools)) tools = [];
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
-    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
-
-    document.getElementById("peralatanSubContent").innerHTML = `
-      <div class="card" style="border-top: 4px solid #ef4444;">
-        <div class="section-title" style="color: #ef4444;">Pemusnahan Alat (Arsip Dokumen Afkir)</div>
-        <div class="form-field" style="margin-bottom:12px">
-          <label>Nama Peralatan yang Dimusnahkan</label>
-          <select id="musnahNamaAlat">${options}</select>
-        </div>
-        <div class="form-field" style="margin-bottom:12px">
-          <label>Jumlah Dibuang (Qty)</label>
-          <input id="musnahQty" type="number" placeholder="0" min="1">
-        </div>
-        
-        <div class="form-field" style="margin-bottom:20px">
-          <label>Ambil Foto Bukti Pemusnahan Keluar Gedung</label>
-          <input id="musnahFotoKamera" type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFotoMusnahChange(this)">
-          <button type="button" onclick="document.getElementById('musnahFotoKamera').click()" style="width:100%; padding:12px; background:#475569; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">
-            <i class="fa-solid fa-camera"></i> Buka Kamera / Pilih Foto
-          </button>
-          <div id="previewFotoMusnah" style="margin-top:10px; text-align:center; font-size:11px; opacity:0.6;">Belum ada foto diambil</div>
-        </div>
-
-        <button class="btn-submit" onclick="submitPemusnahan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
-          <i class="fa-solid fa-trash-can"></i> Simpan Dokumen Pemusnahan
-        </button>
-      </div>
-    `;
-  }).catch(err => handlePeralatanLoadError(err));
-}
 
 function handleFotoMusnahChange(input) {
   const p = document.getElementById("previewFotoMusnah");
