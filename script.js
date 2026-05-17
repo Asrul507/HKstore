@@ -1417,28 +1417,29 @@ function prosesTarikLaporan() {
       let areaRusak = res.areaRusak || {};
       let pemusnahanLog = res.pemusnahanLog || [];
 
+      // TOMBOL SUDAH BERUBAH MENJADI EXPORT EXCEL
       let htmlResult = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
           <div class="section-title" style="margin:0;"><i class="fa-solid fa-table"></i> REKAPAN INVENTORY REKONSILIASI</div>
-          <button onclick="window.print()" style="background:#2563eb; border:none; color:white; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:600;">
-            <i class="fa-solid fa-print"></i> Cetak / PDF
+          <button onclick="downloadExcelPeralatan('${startDate}', '${endDate}')" style="background:#107c41; border:none; color:white; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:5px;">
+            <i class="fa-solid fa-file-excel" style="font-size:13px;"></i> Export ke Excel
           </button>
         </div>
         
         <div style="overflow-x:auto; background:rgba(255,255,255,0.03); border-radius:8px; border:1px solid rgba(255,255,255,0.08); padding:8px; margin-bottom:25px;">
-          <table style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; color:#e2e8f0;">
+          <table id="tabelLaporanPeralatan" style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; color:#e2e8f0;">
             <thead>
               <tr style="border-bottom:2px solid rgba(255,255,255,0.15); color:#fbbf24;">
                 <th style="padding:6px;">NAMA BARANG</th>
-                <th style="padding:6px; text-align:center;">JENIS</th>
-                <th style="padding:6px; text-align:center;">OPENING</th>
-                <th style="padding:6px; text-align:center;">ADD</th>
-                <th style="padding:6px; text-align:center;">TOT STOCK</th>
-                <th style="padding:6px; text-align:center;">OPN BGS</th>
-                <th style="padding:6px; text-align:center;">OPN RSK</th>
-                <th style="padding:6px; text-align:center;">TOT INV</th>
+                <th style="padding:6px; text-align:center;">JENIS PERALATAN</th>
+                <th style="padding:6px; text-align:center;">OPENING STOK</th>
+                <th style="padding:6px; text-align:center;">ADD STOCK</th>
+                <th style="padding:6px; text-align:center;">TOTAL STOCK</th>
+                <th style="padding:6px; text-align:center;">OPNAME BAGUS</th>
+                <th style="padding:6px; text-align:center;">OPNAME RUSAK</th>
+                <th style="padding:6px; text-align:center;">TOTAL INVENTORY</th>
                 <th style="padding:6px; text-align:center;">SELISIH</th>
-                <th style="padding:6px; text-align:center; color:#67e8f9;">CLOSING</th>
+                <th style="padding:6px; text-align:center; color:#67e8f9;">CLOSING INVENTORY</th>
               </tr>
             </thead>
             <tbody>
@@ -1481,6 +1482,7 @@ function prosesTarikLaporan() {
 
       htmlResult += `</tbody></table></div>`;
 
+      // Menampilkan arsip lampiran foto di bawah tabel riil web app
       htmlResult += `<div class="section-title"><i class="fa-solid fa-camera"></i> LAMPIRAN ARSIP BUKTI FOTO PEMUSNAHAN</div>`;
       if (pemusnahanLog.length === 0) {
         htmlResult += `<p style="opacity:0.4; font-size:11px; text-align:center; padding:10px;">Tidak ada dokumen pemusnahan fisik pada periode ini</p>`;
@@ -1504,6 +1506,24 @@ function prosesTarikLaporan() {
       resultBox.innerHTML = htmlResult;
     });
   });
+}
+
+// FUNGSI INJEKSI BARU: GENERATOR DOWNLOAD SPREADSHEET EXCEL (.XLSX) ASLI
+function downloadExcelPeralatan(tglMulai, tglSelesai) {
+  const tabel = document.getElementById("tabelLaporanPeralatan");
+  if (!tabel) return showToast("Tabel data tidak ditemukan!", "error");
+
+  // Konversi elemen tabel HTML menjadi objek lembar kerja SheetJS
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.table_to_sheet(tabel);
+
+  // Menyusun nama file otomatis berdasarkan periode tanggal yang dipilih supervisor
+  const namaFile = `Laporan_Inventory_LivingPlaza_${tglMulai}_ke_${tglSelesai}.xlsx`;
+
+  // Gabungkan ke dokumen kerja dan picu download otomatis di browser/HP staf
+  XLSX.utils.book_append_sheet(wb, ws, "Rekapan Inventory");
+  XLSX.writeFile(wb, namaFile);
+  showToast("File Excel berhasil diunduh!", "success");
 }
 
 function loadKelolaPeralatan() {
