@@ -1348,7 +1348,10 @@ function loadFormPemusnahan() {
           </button>
           <div id="previewFotoMusnah" style="margin-top:8px; text-align:center; font-size:11px; opacity:0.6;">Tidak ada foto (opsional)</div>
         </div>
-        <button class="btn-submit" onclick="submitPemusnahan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
+        // GANTI BARIS 1351 DENGAN KODE AMAN INI:
+<button class="btn-submit" onclick="submitPemusnahan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(to bottom right, #ef4444, #dc2626); color: white;">
+  <i class="fa-solid fa-trash-can"></i> Simpan Dokumen Pemusnahan
+</button>
           <i class="fa-solid fa-trash-can"></i> Simpan Dokumen Pemusnahan
         </button>
       </div>
