@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxc9tOa3hrzsqlFan3T3BxD07zqiDFNLviPAb5D8JlelYsyYCw7a4S0HaFbuphrH9D3/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyJfhn7kZqYYOkd7IncEVcpyprfZUyHax5BSIsxC-57AcCGdGcK1fpjIjCQuLrHI9Zu/exec";
 let user = JSON.parse(localStorage.getItem("user")) || null;
 let selectedType = "IN"; 
 
@@ -1191,13 +1191,14 @@ function switchTabPeralatan(tab) {
   else if (tab === 'laporan') loadLaporanPeralatan();
 }
 
+let globalFotoDatangBase64 = ""; // Variable penampung sementara
+
 function loadFormBarangDatang() {
+  globalFotoDatangBase64 = ""; // Reset
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    
-    // Perbaikan: t[1] adalah Nama Alat. Kita kunci value dropdown-nya menggunakan Nama Alat
     let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
-    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar. Kelola Alat dulu!</option>`;
+    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
       <div class="card" style="border-top: 4px solid #22c55e;">
@@ -1210,10 +1211,16 @@ function loadFormBarangDatang() {
           <label>Jumlah Masuk (Qty)</label>
           <input id="datangQty" type="number" placeholder="0" min="1">
         </div>
+        
         <div class="form-field" style="margin-bottom:20px">
-          <label>Link Foto Bukti Fisik Barang Datang</label>
-          <input id="datangFoto" type="text" placeholder="Masukkan URL tautan foto bukti">
+          <label>Ambil Foto Bukti Fisik</label>
+          <input id="datangFotoKamera" type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFotoDatangChange(this)">
+          <button type="button" onclick="document.getElementById('datangFotoKamera').click()" style="width:100%; padding:12px; background:#475569; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">
+            <i class="fa-solid fa-camera"></i> Buka Kamera / Pilih Foto
+          </button>
+          <div id="previewFotoDatang" style="margin-top:10px; text-align:center; font-size:11px; opacity:0.6;">Belum ada foto diambil</div>
         </div>
+
         <button class="btn-submit" onclick="submitBarangDatang()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white;">
           <i class="fa-solid fa-circle-plus"></i> Simpan Barang Datang
         </button>
@@ -1222,30 +1229,38 @@ function loadFormBarangDatang() {
   }).catch(err => handlePeralatanLoadError(err));
 }
 
+function handleFotoDatangChange(input) {
+  const p = document.getElementById("previewFotoDatang");
+  p.innerHTML = "🔄 Sedang mengkompres gambar...";
+  prosesKompresiKamera(input, function(base64) {
+    globalFotoDatangBase64 = base64;
+    p.innerHTML = `🟢 <b>Foto Berhasil Diproses!</b><br><img src="${base64}" style="max-width:120px; border-radius:6px; margin-top:5px; border:2px solid #22c55e;">`;
+  });
+}
+
 function submitBarangDatang() {
   let nama_alat = document.getElementById("datangNamaAlat").value;
   let qty = document.getElementById("datangQty").value;
-  let foto_url = document.getElementById("datangFoto").value;
-  if (!qty || !foto_url) return showToast("Harap isi Qty dan URL Foto barang masuk!", "error");
+  if (!qty || !globalFotoDatangBase64) return showToast("Harap isi Qty dan ambil foto bukti fisik terlebih dahulu!", "error");
 
   showLoading(true);
   api({
     action: "saveOpnamePeralatan", jenis_transaksi: "Datang", area: "Gudang Utama",
-    nama_alat, qty_bagus: qty, qty_rusak: 0, foto_url: "", user: user.nama
+    nama_alat, qty_bagus: qty, qty_rusak: 0, foto_base64: globalFotoDatangBase64, user: user.nama
   }).then(() => {
     showLoading(false);
     showToast("Data penerimaan barang berhasil disimpan!", "success");
-    document.getElementById("datangQty").value = "";
-    document.getElementById("datangFoto").value = "";
+    loadFormBarangDatang(); // Refresh form
   });
 }
 
+let globalFotoMusnahBase64 = ""; // Variable penampung sementara
+
 function loadFormPemusnahan() {
+  globalFotoMusnahBase64 = ""; // Reset
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    
-    // Perbaikan: Menampilkan Nama Alat t[1] dan Jenis Alat t[2] agar infonya lengkap di dropdown
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
+    let options = tools.map(t => `<option value="${t[1]}">${t[1]}</option>`).join("");
     if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
@@ -1259,10 +1274,16 @@ function loadFormPemusnahan() {
           <label>Jumlah Dibuang (Qty)</label>
           <input id="musnahQty" type="number" placeholder="0" min="1">
         </div>
+        
         <div class="form-field" style="margin-bottom:20px">
-          <label>Link Foto Bukti Fisik Pemusnahan Keluar Gedung</label>
-          <input id="musnahFoto" type="text" placeholder="Masukkan URL tautan foto pemusnahan">
+          <label>Ambil Foto Bukti Pemusnahan Keluar Gedung</label>
+          <input id="musnahFotoKamera" type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFotoMusnahChange(this)">
+          <button type="button" onclick="document.getElementById('musnahFotoKamera').click()" style="width:100%; padding:12px; background:#475569; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">
+            <i class="fa-solid fa-camera"></i> Buka Kamera / Pilih Foto
+          </button>
+          <div id="previewFotoMusnah" style="margin-top:10px; text-align:center; font-size:11px; opacity:0.6;">Belum ada foto diambil</div>
         </div>
+
         <button class="btn-submit" onclick="submitPemusnahan()" ${tools.length === 0 ? 'disabled' : ''} style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white;">
           <i class="fa-solid fa-trash-can"></i> Simpan Dokumen Pemusnahan
         </button>
@@ -1270,22 +1291,32 @@ function loadFormPemusnahan() {
     `;
   }).catch(err => handlePeralatanLoadError(err));
 }
-function submitPemusnahan() {
-  let nama_alat = document.getElementById("musnahNamaAlat").value;
-  let qty = document.getElementById("musnahQty").value;
-  let foto_url = document.getElementById("musnahFoto").value;
-  if (!qty || !foto_url) return showToast("Harap isi Qty dan URL Foto pemusnahan!", "error");
-  if (!confirm("Konfirmasi simpan dokumen pemusnahan fisik? Barang keluar dari gedung secara permanen.")) return;
 
-  showLoading(true);
-  api({ action: "savePemusnahanPeralatan", nama_alat, qty_dimusnahkan: qty, foto_url, user: user.nama }).then(() => {
-    showLoading(false);
-    showToast("Dokumen arsip pemusnahan berhasil dicatat!", "success");
-    document.getElementById("musnahQty").value = "";
-    document.getElementById("musnahFoto").value = "";
+function handleFotoMusnahChange(input) {
+  const p = document.getElementById("previewFotoMusnah");
+  p.innerHTML = "🔄 Sedang mengkompres gambar...";
+  prosesKompresiKamera(input, function(base64) {
+    globalFotoMusnahBase64 = base64;
+    p.innerHTML = `🟢 <b>Foto Berhasil Diproses!</b><br><img src="${base64}" style="max-width:120px; border-radius:6px; margin-top:5px; border:2px solid #ef4444;">`;
   });
 }
 
+function submitPemusnahan() {
+  let nama_alat = document.getElementById("musnahNamaAlat").value;
+  let qty = document.getElementById("musnahQty").value;
+  if (!qty || !globalFotoMusnahBase64) return showToast("Harap isi Qty dan ambil foto bukti pemusnahan!", "error");
+  if (!confirm("Konfirmasi simpan dokumen pemusnahan fisik? Barang keluar dari gedung secara permanen.")) return;
+
+  showLoading(true);
+  api({
+    action: "savePemusnahanPeralatan",
+    nama_alat, qty_dimusnahkan: qty, foto_base64: globalFotoMusnahBase64, user: user.nama
+  }).then(() => {
+    showLoading(false);
+    showToast("Dokumen arsip pemusnahan berhasil dicatat!", "success");
+    loadFormPemusnahan(); // Refresh form
+  });
+}
 function loadFormOpnamePeralatan() {
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
@@ -1635,4 +1666,47 @@ function handlePeralatanLoadError(err) {
       </div>
     `;
   }
+}
+
+// FUNGSI PROSES KOMPRESI GAMBAR KAMERA DI SISI HP (CLIENT-SIDE)
+function prosesKompresiKamera(inputElement, callback) {
+  const file = inputElement.files[0];
+  if (!file) return callback("");
+
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const img = new Image();
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+
+      // Batasi resolusi maksimal lebar/tinggi ke 800px (Sangat cukup untuk bukti fisik)
+      const MAX_WIDTH = 800;
+      const MAX_HEIGHT = 800;
+
+      if (width > height) {
+        if (width > MAX_WIDTH) {
+          height *= MAX_WIDTH / width;
+          width = MAX_WIDTH;
+        }
+      } else {
+        if (height > MAX_HEIGHT) {
+          width *= MAX_HEIGHT / height;
+          height = MAX_HEIGHT;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Kompres kualitas menjadi 0.7 (70% kualitas JPEG, hemat ruang & hemat kuota)
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      callback(dataUrl);
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
 }
