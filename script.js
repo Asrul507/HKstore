@@ -1,6 +1,7 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwe4WGIAIHWFvUdhiN4ein5e1t6VBHohoMfJ6lbB-zYLqm4LFsuOK1cN3393cEs3i2v/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwRJzM3cA4JNPTHxTR2-b0onL4KmV_X_0kFOC63fFty6DN3TF407LcIBU7cCoXWidBJ/exec";
 let user = JSON.parse(localStorage.getItem("user")) || null;
 let selectedType = "IN"; 
+let cachePusatLaporan = { bincard: [], datang: [], musnah: [], opname: [] };
 
 // ================= API =================
 function api(data) {
@@ -142,7 +143,7 @@ function renderMenu() {
         html += `<a onclick="renderHome(); closeSidebar()"><i class="fa-solid fa-house"></i> Home</a>`;
         html += `<a onclick="setActiveNav(1); renderDashboard(); closeSidebar()"><i class="fa-solid fa-chart-line"></i> Dashboard</a>`;
         html += `<a onclick="setActiveNav(2); renderItem(); closeSidebar()"><i class="fa-solid fa-box"></i> Item List</a>`;
-        html += `<a onclick="renderHistory(); closeSidebar()"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat</a>`;
+        html += `<a onclick="renderPusatLaporanMenu(); closeSidebar()"><i class="fa-solid fa-folder-open"></i> Pusat Laporan & Riwayat</a>`;
         html += `<a onclick="setActiveNav(3); renderUser(); closeSidebar()"><i class="fa-solid fa-user"></i> My Profile</a>`;
         // Cari baris menu "Riwayat" atau "My Profile", lalu selipkan baris ini di antaranya:
 html += `<a onclick="renderPeralatanMenu(); closeSidebar()"><i class="fa-solid fa-screwdriver-wrench"></i> Stok Peralatan</a>`;
@@ -881,49 +882,306 @@ function loadDashboardToday() {
 // ================= RIWAYAT =================
 let allHistoryData = [];
 
-function renderHistory() {
+// ================= GERBANG UTAMA PUSAT LAPORAN & RIWAYAT (FULL SCREEN) =================
+function renderPusatLaporanMenu() {
   const content = document.getElementById("content");
   if (!content) return;
+  setActiveNav(-1); // Matikan sorotan di bottom nav karena ini menu eksklusif full screen
 
   content.innerHTML = `
-    <div class="page-wrap">
-      <div class="section-title">
-        <i class="fa-solid fa-clock-rotate-left" style="font-size:10px"></i>
-        Riwayat Transaksi
+    <div class="page-wrap" style="max-width: 100% !important; padding: 10px;">
+      <div class="bin-header" style="margin-bottom: 15px;">
+        <div class="bin-title"><i class="fa-solid fa-folder-open"></i> PUSAT LAPORAN & RIWAYAT SYSTEM</div>
+        <div class="bin-subtitle">Living Plaza Balikpapan — Kontrol Data Logistik</div>
       </div>
 
-      <div class="filter-bar">
-        <div class="filter-input">
-          <i class="fa-solid fa-calendar-days"></i>
-          <input type="date" id="filterTgl" onchange="filterHistory()">
-        </div>
-        <button class="btn-reset" onclick="resetHistoryFilter()">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+      <div style="display: flex; gap: 5px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; -webkit-overflow-scrolling: touch;">
+        <button id="tabLpBincard" class="active" onclick="switchSubMenuLaporan('bincard')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat BinCard (IN/OUT)</button>
+        <button id="tabLpDatang" onclick="switchSubMenuLaporan('datang')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat Penambahan</button>
+        <button id="tabLpMusnah" onclick="switchSubMenuLaporan('musnah')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat Pemusnahan</button>
+        <button id="tabLpOpname" onclick="switchSubMenuLaporan('opname')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat Opname Area</button>
+        <button id="tabLpMatriks" onclick="switchSubMenuLaporan('matriks')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fbbf24; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-table"></i> Laporan Inventory</button>
       </div>
 
-      <div class="history-list" id="historyList">
-        <div class="empty-state">
-          <i class="fa-solid fa-spinner fa-spin"></i>
-          <p>Memuat data...</p>
+      <div id="kotakFilterPusatLaporan" class="card" style="padding: 12px; margin-bottom: 12px; background: #1e293b;"></div>
+
+      <div class="card" style="padding: 8px; background: #0f172a; border: 1px solid #1e293b;">
+        <div id="scrollContainerLaporan" style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 250px); position: relative; border-radius: 6px;">
+          <table id="tabelDinamisPusat" style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; color: #e2e8f0;">
+            <thead id="headTabelPusat" style="position: sticky; top: 0; background: #1e293b; z-index: 20; box-shadow: 0 2px 4px rgba(0,0,0,0.4);"></thead>
+            <tbody id="bodyTabelPusat"></tbody>
+          </table>
         </div>
       </div>
     </div>
   `;
+  switchSubMenuLaporan('bincard'); // Nyalakan tab pertama saat menu dibuka
+}
 
-  api({ action: "getHistory" })
-    .then(data => {
-      allHistoryData = Array.isArray(data) ? data : [];
-      renderHistoryList(allHistoryData);
-    })
-    .catch(() => {
-      document.getElementById("historyList").innerHTML = `
-        <div class="empty-state">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <p>Gagal memuat data. Coba lagi.</p>
-        </div>
-      `;
+// ================= SAKLAR ELEKTRONIK PERGANTIAN TAB SUB-MENU =================
+function switchSubMenuLaporan(pilihan) {
+  // 1. Matikan visual active semua tombol tab dlu
+  const tabs = ['bincard', 'datang', 'musnah', 'opname', 'matriks'];
+  tabs.forEach(t => {
+    const btn = document.getElementById('tabLp' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) { btn.style.background = '#1e293b'; btn.style.borderColor = '#334155'; btn.style.color = '#fff'; }
+  });
+
+  // 2. Nyalakan visual active tombol tab yang sedang dipilih
+  const activeBtn = document.getElementById('tabLp' + pilihan.charAt(0).toUpperCase() + pilihan.slice(1));
+  if (activeBtn) {
+    activeBtn.style.background = pilihan === 'matriks' ? 'linear-gradient(135deg, #fbbf24, #d97706)' : 'linear-gradient(135deg, #38bdf8, #2563eb)';
+    activeBtn.style.borderColor = 'transparent';
+    if (pilihan === 'matriks') activeBtn.style.color = '#0f172a';
+  }
+
+  const filterBox = document.getElementById("kotakFilterPusatLaporan");
+  const headTabel = document.getElementById("headTabelPusat");
+  const bodyTabel = document.getElementById("bodyTabelPusat");
+  
+  bodyTabel.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:30px; color:#94a3b8;"><i class="fa-solid fa-circle-notch fa-spin"></i> Sinkronisasi Data Gudang...</td></tr>`;
+
+  // 3. SETTING STRUKTUR HEADER & FILTER UNTUK MASING-MASING TAB
+  if (pilihan === 'bincard') {
+    filterBox.innerHTML = `
+      <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;"><i class="fa-solid fa-calendar-day"></i> Pilih Tanggal Cari Riwayat Bin Card</label>
+      <input type="date" id="fLpBincardTgl" onchange="filterEngineBincard()" style="width:100%; padding:8px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px; font-size:12px;">
+    `;
+    headTabel.innerHTML = `
+      <tr style="color:#38bdf8; border-bottom:2px solid #334155;">
+        <th style="padding:10px;">TANGGAL</th><th style="padding:10px;">WAKTU</th><th style="padding:10px;">ITEM BARANG</th>
+        <th style="padding:10px; text-align:center;">TIPE</th><th style="padding:10px; text-align:center;">QTY</th><th style="padding:10px;">STAFF</th>
+      </tr>
+    `;
+    api({ action: "getHistory" }).then(res => {
+      cachePusatLaporan.bincard = Array.isArray(res) ? res : [];
+      filterEngineBincard();
     });
+
+  } else if (pilihan === 'datang') {
+    filterBox.innerHTML = `
+      <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;"><i class="fa-solid fa-calendar-day"></i> Pilih Tanggal Riwayat Barang Masuk</label>
+      <input type="date" id="fLpDatangTgl" onchange="filterEngineDatang()" style="width:100%; padding:8px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px; font-size:12px;">
+    `;
+    headTabel.innerHTML = `
+      <tr style="color:#22c55e; border-bottom:2px solid #334155;">
+        <th style="padding:10px;">TANGGAL</th><th style="padding:10px;">NAMA PERALATAN</th>
+        <th style="padding:10px; text-align:center;">KATEGORI</th><th style="padding:10px; text-align:center;">QTY</th><th style="padding:10px;">STAFF AUDIT</th>
+      </tr>
+    `;
+    api({ action: "getRiwayatPeralatan" }).then(res => {
+      cachePusatLaporan.datang = res.datang || [];
+      cachePusatLaporan.musnah = res.musnah || []; 
+      filterEngineDatang();
+    });
+
+  } else if (pilihan === 'musnah') {
+    filterBox.innerHTML = `
+      <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;"><i class="fa-solid fa-calendar-day"></i> Pilih Tanggal Berkas Pemusnahan (Afkir)</label>
+      <input type="date" id="fLpMusnahTgl" onchange="filterEngineMusnah()" style="width:100%; padding:8px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px; font-size:12px;">
+    `;
+    headTabel.innerHTML = `
+      <tr style="color:#ef4444; border-bottom:2px solid #334155;">
+        <th style="padding:10px;">TANGGAL</th><th style="padding:10px;">PERALATAN AFKIR</th>
+        <th style="padding:10px; text-align:center;">KATEGORI</th><th style="padding:10px; text-align:center;">QTY</th><th style="padding:10px;">STAFF AUDIT</th>
+      </tr>
+    `;
+    if (cachePusatLaporan.musnah.length > 0) filterEngineMusnah();
+    else {
+      api({ action: "getRiwayatPeralatan" }).then(res => {
+        cachePusatLaporan.musnah = res.musnah || [];
+        filterEngineMusnah();
+      });
+    }
+
+  } else if (pilihan === 'opname') {
+    filterBox.innerHTML = `
+      <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;"><i class="fa-solid fa-calendar-days"></i> Pilih Periode Bulan Pemeriksaan Area</label>
+      <input type="month" id="fLpOpnameBulan" onchange="filterEngineOpname()" style="width:100%; padding:8px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px; font-size:12px;">
+    `;
+    headTabel.innerHTML = `
+      <tr style="color:#fbbf24; border-bottom:2px solid #334155;">
+        <th style="padding:10px;">TANGGAL</th><th style="padding:10px;">AREA KERJA</th><th style="padding:10px;">NAMA PERALATAN</th>
+        <th style="padding:10px; text-align:center;">BAGUS</th><th style="padding:10px; text-align:center;">RUSAK</th><th style="padding:10px;">STAFF AUDIT</th>
+      </tr>
+    `;
+    api({ action: "getRiwayatOpnameMurni" }).then(res => {
+      cachePusatLaporan.opname = Array.isArray(res) ? res : [];
+      document.getElementById("fLpOpnameBulan").value = getCurrentMonth(); // Isi otomatis ke bulan ini
+      filterEngineOpname();
+    });
+
+  } else if (pilihan === 'matriks') {
+    filterBox.innerHTML = `
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; align-items:flex-end;">
+        <div>
+          <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;">Tanggal Mulai</label>
+          <input type="date" id="lapMulai" style="width:100%; padding:6px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px; font-size:11px;">
+        </div>
+        <div>
+          <label style="font-size:11px; color:#94a3b8; display:block; margin-bottom:4px;">Tanggal Selesai</label>
+          <input type="date" id="lapSelesai" style="width:100%; padding:6px; background:#0f172a; border:1px solid #334155; color:#fff; border-radius:6px; font-size:11px;">
+        </div>
+      </div>
+      <button onclick="prosesTarikLaporanPusat()" style="width:100%; margin-top:10px; padding:8px; background:#fbbf24; color:#0f172a; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px;">
+        <i class="fa-solid fa-calculator"></i> Kalkulasi Rekonsiliasi Logistik (Full Screen)
+      </button>
+    `;
+    headTabel.innerHTML = `
+      <tr style="color:#67e8f9; border-bottom:2px solid rgba(255,255,255,0.15);">
+        <th style="padding:10px; min-width:130px; position:sticky; left:0; background:#1e293b; z-index:21;">NAMA BARANG</th><th style="padding:10px; text-align:center;">JENIS</th>
+        <th style="padding:10px; text-align:center;">OPENING</th><th style="padding:10px; text-align:center;">ADD</th>
+        <th style="padding:10px; text-align:center;">TOTAL.STK</th><th style="padding:10px; text-align:center;">OPN.BGS</th>
+        <th style="padding:10px; text-align:center;">OPN.RSK</th><th style="padding:10px; text-align:center;">TOT.INV</th>
+        <th style="padding:10px; text-align:center;">SELISIH</th><th style="padding:10px; text-align:center; color:#22d3ee;">CLOSING</th>
+      </tr>
+    `;
+    bodyTabel.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:30px; opacity:0.5; color:#94a3b8;">Tentukan tanggal rentang audit di atas, lalu klik tombol kalkulasi.</td></tr>`;
+  }
+}
+
+// ================= MESIN PENYARING DATA (CLIENT-SIDE ENGINES) =================
+function filterEngineBincard() {
+  let tglVal = document.getElementById("fLpBincardTgl").value;
+  let filtered = cachePusatLaporan.bincard;
+  if (tglVal) filtered = cachePusatLaporan.bincard.filter(d => getTglKey(d.tanggal) === tglVal);
+
+  let html = filtered.map(r => {
+    let isIn = Number(r.in) > 0;
+    return `
+      <tr style="border-bottom:1px solid #1e293b;">
+        <td style="padding:10px; opacity:0.7;">${formatTglDisplay(r.tanggal)}</td>
+        <td style="padding:10px; opacity:0.7;">${r.waktu || '-'}</td>
+        <td style="padding:10px; font-weight:bold; color:#fff;">${r.item}</td>
+        <td style="padding:10px; text-align:center;"><span style="padding:2px 6px; border-radius:4px; font-size:9px; font-weight:bold; background:${isIn?'rgba(34,197,94,0.15)':'rgba(239,68,68,0.15)'}; color:${isIn?'#22c55e':'#ef4444'};">${isIn?'IN':'OUT'}</span></td>
+        <td style="padding:10px; text-align:center; font-weight:bold; color:${isIn?'#22c55e':'#ef4444'}">${isIn?'+':'-'}${isIn?r.in:r.out}</td>
+        <td style="padding:10px; opacity:0.8;">${r.user}</td>
+      </tr>
+    `;
+  }).join("");
+  if(filtered.length === 0) html = `<tr><td colspan="6" style="text-align:center; padding:20px; opacity:0.4;">Tidak ada log bincard cocok.</td></tr>`;
+  document.getElementById("bodyTabelPusat").innerHTML = html;
+}
+
+function filterEngineDatang() {
+  let tglVal = document.getElementById("fLpDatangTgl").value;
+  let filtered = cachePusatLaporan.datang;
+  if (tglVal) filtered = cachePusatLaporan.datang.filter(d => d.tanggalRaw && d.tanggalRaw.substring(0,10) === tglVal);
+
+  let html = filtered.map(r => {
+    let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#22c55e; font-weight:bold;"><i class="fa-solid fa-image"></i></a>` : `<span style="opacity:0.3">-</span>`;
+    return `
+      <tr style="border-bottom:1px solid #1e293b;">
+        <td style="padding:10px; opacity:0.7;">${r.tanggal}</td>
+        <td style="padding:10px; font-weight:bold; color:#fff;">${r.nama}</td>
+        <td style="padding:10px; text-align:center; color:#fbbf24;">[${r.jenis}]</td>
+        <td style="padding:10px; text-align:center; color:#22c55e; font-weight:bold;">+${String(r.qty)}</td>
+        <td style="padding:10px; opacity:0.8;">${r.user} ${linkFoto}</td>
+      </tr>
+    `;
+  }).join("");
+  if(filtered.length === 0) html = `<tr><td colspan="5" style="text-align:center; padding:20px; opacity:0.4;">Tidak ada riwayat barang masuk cocok.</td></tr>`;
+  document.getElementById("bodyTabelPusat").innerHTML = html;
+}
+
+function filterEngineMusnah() {
+  let tglVal = document.getElementById("fLpMusnahTgl").value;
+  let filtered = cachePusatLaporan.musnah;
+  if (tglVal) filtered = cachePusatLaporan.musnah.filter(d => d.tanggalRaw && d.tanggalRaw.substring(0,10) === tglVal);
+
+  let html = filtered.map(r => {
+    let linkFoto = r.foto !== "-" && r.foto !== "" ? `<a href="${r.foto}" target="_blank" style="color:#ef4444; font-weight:bold;"><i class="fa-solid fa-image"></i></a>` : `<span style="opacity:0.3">-</span>`;
+    return `
+      <tr style="border-bottom:1px solid #1e293b;">
+        <td style="padding:10px; opacity:0.7;">${r.tanggal}</td>
+        <td style="padding:10px; font-weight:bold; color:#fff;">${r.nama}</td>
+        <td style="padding:10px; text-align:center; color:#fbbf24;">[${r.jenis}]</td>
+        <td style="padding:10px; text-align:center; color:#ef4444; font-weight:bold;">-${String(r.qty)}</td>
+        <td style="padding:10px; opacity:0.8;">${r.user} ${linkFoto}</td>
+      </tr>
+    `;
+  }).join("");
+  if(filtered.length === 0) html = `<tr><td colspan="5" style="text-align:center; padding:20px; opacity:0.4;">Tidak ada riwayat pemusnahan cocok.</td></tr>`;
+  document.getElementById("bodyTabelPusat").innerHTML = html;
+}
+
+function filterEngineOpname() {
+  let blnVal = document.getElementById("fLpOpnameBulan").value;
+  let filtered = cachePusatLaporan.opname;
+  if (blnVal) filtered = cachePusatLaporan.opname.filter(d => d.tanggalRaw && d.tanggalRaw.substring(0,7) === blnVal);
+
+  let html = filtered.map(r => `
+    <tr style="border-bottom:1px solid #1e293b;">
+      <td style="padding:10px; opacity:0.7;">${r.tanggal || formatTglDisplay(r.tanggalRaw)}</td>
+      <td style="padding:10px; color:#fbbf24; font-weight:600;">${r.area}</td>
+      <td style="padding:10px; color:#fff;">${r.nama_alat}</td>
+      <td style="padding:10px; text-align:center; color:#38bdf8; font-weight:bold;">${r.qty_bagus}</td>
+      <td style="padding:10px; text-align:center; color:#f87171; font-weight:bold;">${r.qty_rusak}</td>
+      <td style="padding:10px; opacity:0.7;">${r.user}</td>
+    </tr>
+  `).join("");
+  if(filtered.length === 0) html = `<tr><td colspan="6" style="text-align:center; padding:20px; opacity:0.4;">Tidak ada pemeriksaan area untuk bulan ini.</td></tr>`;
+  document.getElementById("bodyTabelPusat").innerHTML = html;
+}
+
+// ================= ENGINE LAPORAN BULANAN (TAB 5 FULL SCREEN) =================
+function prosesTarikLaporanPusat() {
+  let startDate = document.getElementById("lapMulai").value;
+  let endDate = document.getElementById("lapSelesai").value;
+  if (!startDate || !endDate) return showToast("Pilih rentang tanggal lengkap!", "error");
+  
+  const bodyTabel = document.getElementById("bodyTabelPusat");
+  bodyTabel.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:30px;"><i class="fa-solid fa-spinner fa-spin"></i> Merajut rekonsiliasi data audit...</td></tr>`;
+  
+  api({ action: "getPeralatan" }).then(tools => {
+    if (!Array.isArray(tools)) tools = [];
+    
+    api({ action: "getOpnameHistory", startDate, endDate }).then(res => {
+      let openingStok = res.openingStok || {};
+      let addStok = res.addStok || {};
+      let areaBagus = res.areaBagus || {};
+      let areaRusak = res.areaRusak || {};
+
+      let htmlResult = "";
+      tools.forEach(t => {
+        let item = t[1]; 
+        let jenis = t[2] || "Manual"; 
+        let opStok = openingStok[item] || 0;
+        let adStok = addStok[item] || 0;
+        let totStok = opStok + adStok;
+
+        let itemAreasBagus = areaBagus[item] || {};
+        let totOpnBagus = Object.values(itemAreasBagus).reduce((a, b) => a + b, 0);
+
+        let itemAreasRusak = areaRusak[item] || {};
+        let totOpnRusak = Object.values(itemAreasRusak).reduce((a, b) => a + b, 0);
+
+        let totInventory = totOpnBagus + totOpnRusak;
+        let selisih = totInventory - totStok;
+        let closingInv = totInventory - totOpnRusak; 
+
+        let selisihColor = selisih < 0 ? '#ef4444' : (selisih > 0 ? '#22c55e' : '#e2e8f0');
+
+        htmlResult += `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+            <td style="padding:10px; font-weight:600; color:#fff; position:sticky; left:0; background:#0f172a; z-index:5;">${item}</td>
+            <td style="padding:10px; text-align:center; color:#fbbf24;">${jenis}</td>
+            <td style="padding:10px; text-align:center; opacity:0.6;">${opStok}</td>
+            <td style="padding:10px; text-align:center; color:#22c55e;">+${adStok}</td>
+            <td style="padding:10px; text-align:center; font-weight:600;">${totStok}</td>
+            <td style="padding:10px; text-align:center; color:#38bdf8;">${totOpnBagus}</td>
+            <td style="padding:10px; text-align:center; color:#f87171;">${totOpnRusak}</td>
+            <td style="padding:10px; text-align:center; font-weight:600;">${totInventory}</td>
+            <td style="padding:10px; text-align:center; font-weight:bold; color:${selisihColor}">${selisih >= 0 ? '+' : ''}${selisih}</td>
+            <td style="padding:10px; text-align:center; font-weight:bold; color:#22d3ee; background:rgba(34,211,238,0.05);">${closingInv}</td>
+          </tr>
+        `;
+      });
+      if(tools.length === 0) htmlResult = `<tr><td colspan="10" style="text-align:center; padding:20px;">Belum ada master alat terdaftar.</td></tr>`;
+      bodyTabel.innerHTML = htmlResult;
+      showToast("Matriks rekonsiliasi berhasil dimuat!", "success");
+    });
+  });
 }
 
 function formatTglDisplay(tgl) {
