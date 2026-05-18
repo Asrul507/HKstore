@@ -1485,17 +1485,22 @@ function submitPemusnahan() {
   });
 }
 
+// VARIABEL GLOBAL BARU UNTUK MENAMPUNG KERANJANG OPNAME SEMENTARA DI HP
+let keranjangOpnameArea = [];
+
+// 1. REKONSTRUKSI TAMPILAN FORM OPNAME MULTI-ITEM
 function loadFormOpnamePeralatan() {
+  keranjangOpnameArea = []; // Reset keranjang setiap kali form dibuka
+  
   api({ action: "getPeralatan" }).then(tools => {
     if (!Array.isArray(tools)) tools = [];
-    let options = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
-    if (tools.length === 0) options = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
+    let optionsAlat = tools.map(t => `<option value="${t[1]}">${t[1]} [${t[2]}]</option>`).join("");
+    if (tools.length === 0) optionsAlat = `<option value="" disabled selected>Belum ada alat terdaftar!</option>`;
 
     document.getElementById("peralatanSubContent").innerHTML = `
-      <div class="card" style="border-top: 4px solid #fbbf24;">
-        <div class="section-title" style="color: #fbbf24;">Pemeriksaan Kondisi Fisik Berdasarkan Area</div>
-        <div class="form-field" style="margin-bottom:12px">
-          <label>Pilih Area Kerja Janitor</label>
+      <div class="card" style="border-top: 4px solid #fbbf24; margin-bottom: 15px;">
+        <div class="section-title" style="color: #fbbf24;"><i class="fa-solid fa-location-dot"></i> Langkah 1: Pilih Area Kerja Janitor</div>
+        <div class="form-field">
           <select id="opnameArea" onchange="checkAreaAvailability()">
             <option value="Janitor BM">Janitor BM</option>
             <option value="Janitor GF">Janitor GF</option>
@@ -1506,24 +1511,50 @@ function loadFormOpnamePeralatan() {
             <option value="Office HK">Office HK</option>
           </select>
         </div>
-        <div id="opnameLockNotice" style="display:none; margin-bottom:15px; padding:10px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; font-size:12px; color:#f87171;"></div>
-        <div id="opnameFieldsBlock">
+        <div id="opnameLockNotice" style="display:none; margin-top:10px; padding:10px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; border-radius:8px; font-size:12px; color:#f87171;"></div>
+      </div>
+
+      <div id="opnameFieldsBlock">
+        <div class="card" style="border-top: 4px solid #38bdf8; margin-bottom: 15px;">
+          <div class="section-title" style="color: #38bdf8;"><i class="fa-solid fa-rectangle-list"></i> Langkah 2: Masukkan Alat & Qty</div>
           <div class="form-field" style="margin-bottom:12px">
             <label>Nama Peralatan</label>
-            <select id="opnameNamaAlat">${options}</select>
+            <select id="opnameNamaAlat">${optionsAlat}</select>
           </div>
-          <div class="row-2" style="margin-bottom:20px">
+          <div class="row-2" style="margin-bottom:15px">
             <div class="form-field">
-              <label>Kondisi Bagus (Qty)</label>
+              <label>Kondisi Bagus</label>
               <input id="opnameQtyBagus" type="number" placeholder="0" min="0">
             </div>
             <div class="form-field">
-              <label>Kondisi Rusak (Qty)</label>
+              <label>Kondisi Rusak</label>
               <input id="opnameQtyRusak" type="number" placeholder="0" min="0">
             </div>
           </div>
-          <button id="btnSubmitOpname" class="btn-submit" onclick="submitOpnamePeralatan()" ${tools.length === 0 ? 'disabled' : ''}>
-            <i class="fa-solid fa-floppy-disk"></i> Simpan Hasil Opname Area
+          <button type="button" onclick="tambahItemKeKeranjangOpname()" style="width:100%; padding:10px; background:#38bdf8; border:none; color:#0f172a; border-radius:8px; font-weight:bold; cursor:pointer; font-size:12px;">
+            <i class="fa-solid fa-plus"></i> Masukkan ke Daftar Tunggu
+          </button>
+        </div>
+
+        <div class="card" style="border-top: 4px solid #cbd5e1;">
+          <div class="section-title" style="color: #cbd5e1; font-size:13px;"><i class="fa-solid fa-basket-shopping"></i> Daftar Alat yang Siap Disimpan</div>
+          <div style="overflow-x:auto; margin-bottom:15px;">
+            <table style="width:100%; border-collapse:collapse; text-align:left; font-size:12px; color:#e2e8f0;">
+              <thead>
+                <tr style="border-bottom:1px solid #475569; color:#94a3b8;">
+                  <th style="padding:6px;">Nama Item</th>
+                  <th style="padding:6px; text-align:center;">Bagus</th>
+                  <th style="padding:6px; text-align:center;">Rusak</th>
+                  <th style="padding:6px; text-align:center;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="bodyKeranjangOpname">
+                <tr><td colspan="4" style="text-align:center; padding:15px; opacity:0.4;">Belum ada item dimasukkan.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <button id="btnSubmitOpname" class="btn-submit" onclick="submitOpnamePeralatan()" disabled style="background: linear-gradient(135deg, #fbbf24, #d97706); color: #0f172a; font-weight:bold;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Semua Alat (<span id="countKeranjang">0</span>)
           </button>
         </div>
       </div>
@@ -1532,53 +1563,114 @@ function loadFormOpnamePeralatan() {
   }).catch(err => handlePeralatanLoadError(err));
 }
 
+// FUNGSI BARU: MEMASUKKAN DATA LIST KE KERANJANG SEMENTARA SISI HP
+function tambahItemKeKeranjangOpname() {
+  let nama_alat = document.getElementById("opnameNamaAlat").value;
+  let qty_bagus = parseInt(document.getElementById("opnameQtyBagus").value) || 0;
+  let qty_rusak = parseInt(document.getElementById("opnameQtyRusak").value) || 0;
+
+  if (qty_bagus === 0 && qty_rusak === 0) {
+    return showToast("Isi Qty Bagus atau Rusak terlebih dahulu!", "error");
+  }
+
+  // Cek jika item tersebut sudah pernah dimasukkan, kita update Qty-nya biar tidak double row
+  let indeksAda = keranjangOpnameArea.findIndex(item => item.nama_alat === nama_alat);
+  if (indeksAda !== -1) {
+    keranjangOpnameArea[indeksAda].qty_bagus = qty_bagus;
+    keranjangOpnameArea[indeksAda].qty_rusak = qty_rusak;
+  } else {
+    keranjangOpnameArea.push({ nama_alat, qty_bagus, qty_rusak });
+  }
+
+  // Reset field input qty agar staf bisa pilih alat lain
+  document.getElementById("opnameQtyBagus").value = "";
+  document.getElementById("opnameQtyRusak").value = "";
+  
+  renderTabelKeranjangOpname();
+  showToast("Item berhasil ditambahkan ke daftar tunggu", "success");
+}
+
+// FUNGSI BARU: MENGGAMBAR BARIS TABEL DAFTAR TUNGGU
+function renderTabelKeranjangOpname() {
+  const tbody = document.getElementById("bodyKeranjangOpname");
+  const btnSubmit = document.getElementById("btnSubmitOpname");
+  const countBadge = document.getElementById("countKeranjang");
+  
+  if (keranjangOpnameArea.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; opacity:0.4;">Belum ada item dimasukkan.</td></tr>`;
+    btnSubmit.disabled = true;
+    countBadge.textContent = "0";
+    return;
+  }
+
+  let html = keranjangOpnameArea.map((item, idx) => `
+    <tr style="border-bottom:1px solid #1e293b;">
+      <td style="padding:8px; font-weight:600; color:#fff;">${item.nama_alat}</td>
+      <td style="padding:8px; text-align:center; color:#38bdf8; font-weight:bold;">${item.qty_bagus}</td>
+      <td style="padding:8px; text-align:center; color:#f87171; font-weight:bold;">${item.qty_rusak}</td>
+      <td style="padding:8px; text-align:center;">
+        <button onclick="hapusItemDariKeranjangOpname(${idx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:14px;"><i class="fa-solid fa-square-minus"></i></button>
+      </td>
+    </tr>
+  `).join("");
+
+  tbody.innerHTML = html;
+  btnSubmit.disabled = false;
+  countBadge.textContent = keranjangOpnameArea.length;
+}
+
+function hapusItemDariKeranjangOpname(index) {
+  keranjangOpnameArea.splice(index, 1);
+  renderTabelKeranjangOpname();
+}
+
 function checkAreaAvailability() {
   let area = document.getElementById("opnameArea").value;
   let noticeBox = document.getElementById("opnameLockNotice");
-  let btnSubmit = document.getElementById("btnSubmitOpname");
+  let blockFields = document.getElementById("opnameFieldsBlock");
   let isSupervisor = (user?.jabatan === "Supervisor" || user?.jabatan === "HO");
 
   api({ action: "checkAreaOpname", area: area }).then(res => {
     if (res.status === "blocked") {
-      noticeBox.innerHTML = `⚠️ <b>AREA SUDAH DI-OPNAME!</b><br>Area ini sudah dihitung oleh <b>${res.user}</b> pada tanggal <b>${res.tanggal}</b>.`;
+      noticeBox.innerHTML = `⚠️ <b>AREA SUDAH DI-OPNAME!</b><br>Area ini sudah dihitung oleh <b>${res.user}</b>.`;
       noticeBox.style.display = "block";
       
       if (!isSupervisor) {
-        btnSubmit.disabled = true;
-        btnSubmit.style.opacity = "0.4";
-        showToast("Area ini sudah dikunci oleh staff lain bulan ini!", "error");
+        blockFields.style.opacity = "0.3";
+        blockFields.style.pointerEvents = "none"; // Matikan semua interaksi form
+        showToast("Area terkunci! Staf tidak bisa double input bulan ini.", "error");
       } else {
-        noticeBox.innerHTML += `<br><span style="color:#fbbf24;">💡 Mode Supervisor: Anda diizinkan menginput koreksi di area terkunci ini.</span>`;
-        btnSubmit.disabled = false;
-        btnSubmit.style.opacity = "1";
+        noticeBox.innerHTML += `<br><span style="color:#fbbf24;">💡 Mode Supervisor: Akses Terbuka Ekstra Koreksi.</span>`;
+        blockFields.style.opacity = "1";
+        blockFields.style.pointerEvents = "auto";
       }
     } else {
       noticeBox.style.display = "none";
-      btnSubmit.disabled = false;
-      btnSubmit.style.opacity = "1";
+      blockFields.style.opacity = "1";
+      blockFields.style.pointerEvents = "auto";
     }
   });
 }
 
+// 2. MODIFIKASI FUNGSI SUBMIT MENJADI SISTEM MASAL (BULK UPLOAD)
 function submitOpnamePeralatan() {
   let area = document.getElementById("opnameArea").value;
-  let nama_alat = document.getElementById("opnameNamaAlat").value;
-  let qty_bagus = document.getElementById("opnameQtyBagus").value || 0;
-  let qty_rusak = document.getElementById("opnameQtyRusak").value || 0;
-
-  if (qty_bagus == 0 && qty_rusak == 0) return showToast("Harap isi Qty Bagus atau Qty Rusak!", "error");
+  if (keranjangOpnameArea.length === 0) return showToast("Daftar tunggu masih kosong!", "error");
+  if (!confirm(`Kirim sekaligus ${keranjangOpnameArea.length} data opname untuk area ${area}?`)) return;
 
   showLoading(true);
   api({
-    action: "saveOpnamePeralatan", jenis_transaksi: "Opname",
-    area, nama_alat, qty_bagus, qty_rusak, user: user.nama
-  }).then(() => {
+    action: "saveOpnamePeralatan",
+    jenis_transaksi: "Opname",
+    is_bulk: true,
+    area: area,
+    items: keranjangOpnameArea, // Kirim array objek utuh
+    user: user.nama
+  }).then((res) => {
     showLoading(false);
-    showToast("Data opname area berhasil disimpan!", "success");
-    document.getElementById("opnameQtyBagus").value = "";
-    document.getElementById("opnameQtyRusak").value = "";
-    checkAreaAvailability();
-  });
+    showToast(res.message || "Seluruh data area berhasil disimpan!", "success");
+    loadFormOpnamePeralatan(); // Reset form & kosongkan keranjang kembali
+  }).catch(() => showLoading(false));
 }
 
 function loadLaporanPeralatan() {
