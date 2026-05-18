@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwRJzM3cA4JNPTHxTR2-b0onL4KmV_X_0kFOC63fFty6DN3TF407LcIBU7cCoXWidBJ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzJ9RaRYdNzDbfXUpnoWzBEo1_hnlKV1e4XG2aP3JpJz5IBt1comYwtQAR_DXpuvOPB/exec";
 let user = JSON.parse(localStorage.getItem("user")) || null;
 let selectedType = "IN"; 
 let cachePusatLaporan = { bincard: [], datang: [], musnah: [], opname: [] };
