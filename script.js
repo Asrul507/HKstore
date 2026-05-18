@@ -889,6 +889,7 @@ function renderPusatLaporanMenu() {
   if (!content) return;
   setActiveNav(-1); // Matikan sorotan di bottom nav karena ini menu eksklusif full screen
 
+  // Membuka string HTML utama menggunakan satu backtick pembuka di bawah ini
   document.getElementById("content").innerHTML = `
     <div class="page-wrap" style="width: 100%; max-width: 480px; margin: 0 auto; padding: 12px; box-sizing: border-box;">
       <div class="bin-header" style="margin-bottom: 15px;">
@@ -915,8 +916,9 @@ function renderPusatLaporanMenu() {
         </div>
       </div>
     </div>
-  `;
-  switchSubMenuLaporan('bincard'); // Nyalakan tab pertama saat menu dibuka
+  `; // Di sinilah string HTML ditutup secara resmi menggunakan backtick murni
+
+  switchSubMenuLaporan('bincard'); // Jalankan tab default pertama kali dibuka
 }
 
 // ================= SAKLAR ELEKTRONIK PERGANTIAN TAB SUB-MENU =================
