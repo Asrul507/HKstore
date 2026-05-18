@@ -916,7 +916,7 @@ function renderPusatLaporanMenu() {
     </div>
   `;
 
-  switchSubMenuLaporan('bincard'); // Nyalakan tab pertama secara otomatis saat menu dibuka
+  switchSubMenuLaporan('bincard');
 }
 // ================= SAKLAR ELEKTRONIK PERGANTIAN TAB SUB-MENU =================
 function switchSubMenuLaporan(pilihan) {
