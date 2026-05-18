@@ -895,13 +895,35 @@ function renderPusatLaporanMenu() {
         <div class="bin-subtitle">Living Plaza Balikpapan — Kontrol Data Logistik</div>
       </div>
 
-      <div style="display: flex; gap: 5px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; -webkit-overflow-scrolling: touch;">
-        <button id="tabLpBincard" class="active" onclick="switchSubMenuLaporan('bincard')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat BinCard (IN/OUT)</button>
-        <button id="tabLpDatang" onclick="switchSubMenuLaporan('datang')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat Penambahan</button>
-        <button id="tabLpMusnah" onclick="switchSubMenuLaporan('musnah')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat Pemusnahan</button>
-        <button id="tabLpOpname" onclick="switchSubMenuLaporan('opname')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">Riwayat Opname Area</button>
-        <button id="tabLpMatriks" onclick="switchSubMenuLaporan('matriks')" style="flex: 0 0 auto; padding: 8px 12px; background: #1e293b; border: 1px solid #334155; color: #fbbf24; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;"><i class="fa-solid fa-table"></i> Laporan Inventory</button>
+     // GANTI BAGIAN STRUKTUR TOMBOL TAB DI DALAM renderPusatLaporanMenu() MENJADI SEPERTI INI:
+
+document.getElementById("content").innerHTML = `
+  <div class="page-wrap" style="width: 100%; max-width: 480px; margin: 0 auto; padding: 12px; box-sizing: border-box;">
+    <div class="bin-header" style="margin-bottom: 15px;">
+      <div class="bin-title" style="font-size: 16px;"><i class="fa-solid fa-folder-open"></i> PUSAT LAPORAN & RIWAYAT</div>
+      <div class="bin-subtitle" style="font-size: 11px;">Living Plaza Balikpapan — Kontrol Logistik</div>
+    </div>
+
+    <div style="display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+      <button id="tabLpBincard" class="active" onclick="switchSubMenuLaporan('bincard')" style="flex: 0 0 auto; padding: 6px 10px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;">Bin Card</button>
+      <button id="tabLpDatang" onclick="switchSubMenuLaporan('datang')" style="flex: 0 0 auto; padding: 6px 10px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;">Barang Masuk</button>
+      <button id="tabLpMusnah" onclick="switchSubMenuLaporan('musnah')" style="flex: 0 0 auto; padding: 6px 10px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;">Pemusnahan</button>
+      <button id="tabLpOpname" onclick="switchSubMenuLaporan('opname')" style="flex: 0 0 auto; padding: 6px 10px; background: #1e293b; border: 1px solid #334155; color: #fff; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;">Opname Area</button>
+      <button id="tabLpMatriks" onclick="switchSubMenuLaporan('matriks')" style="flex: 0 0 auto; padding: 6px 10px; background: #1e293b; border: 1px solid #334155; color: #fbbf24; border-radius: 6px; font-size: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;"><i class="fa-solid fa-table"></i> Laporan</button>
+    </div>
+
+    <div id="kotakFilterPusatLaporan" class="card" style="padding: 10px; margin-bottom: 12px; background: #1e293b;"></div>
+
+    <div class="card" style="padding: 6px; background: #0f172a; border: 1px solid #1e293b;">
+      <div id="scrollContainerLaporan" style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 260px); position: relative; border-radius: 6px;">
+        <table id="tabelDinamisPusat" style="width: 100%; border-collapse: collapse; font-size: 11px; text-align: left; color: #e2e8f0;">
+          <thead id="headTabelPusat" style="position: sticky; top: 0; background: #1e293b; z-index: 20; box-shadow: 0 2px 4px rgba(0,0,0,0.4);"></thead>
+          <tbody id="bodyTabelPusat"></tbody>
+        </table>
       </div>
+    </div>
+  </div>
+`;
 
       <div id="kotakFilterPusatLaporan" class="card" style="padding: 12px; margin-bottom: 12px; background: #1e293b;"></div>
 
