@@ -1717,22 +1717,33 @@ function prosesTarikLaporan() {
           </button>
         </div>
         
-        <div style="overflow-x:auto; background:rgba(255,255,255,0.03); border-radius:8px; border:1px solid rgba(255,255,255,0.08); padding:8px; margin-bottom:25px;">
-          <table id="tabelLaporanPeralatan" style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; color:#e2e8f0;">
-            <thead>
-              <tr style="border-bottom:2px solid rgba(255,255,255,0.15); color:#fbbf24;">
-                <th style="padding:6px;">NAMA BARANG</th>
-                <th style="padding:6px; text-align:center;">JENIS PERALATAN</th>
-                <th style="padding:6px; text-align:center;">OPENING STOK</th>
-                <th style="padding:6px; text-align:center;">ADD STOCK</th>
-                <th style="padding:6px; text-align:center;">TOTAL STOCK</th>
-                <th style="padding:6px; text-align:center;">OPNAME BAGUS</th>
-                <th style="padding:6px; text-align:center;">OPNAME RUSAK</th>
-                <th style="padding:6px; text-align:center;">TOTAL INVENTORY</th>
-                <th style="padding:6px; text-align:center;">SELISIH</th>
-                <th style="padding:6px; text-align:center; color:#67e8f9;">CLOSING INVENTORY</th>
-              </tr>
-            </thead>
+        // GANTI BAGIAN STRUKTUR PEMBUNGKUS TABEL DI DALAM FUNGSI prosesTarikLaporan() MENJADI INI:
+htmlResult += `
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div class="section-title" style="margin:0;"><i class="fa-solid fa-table"></i> REKAPAN INVENTORY REKONSILIASI</div>
+    <button onclick="downloadExcelPeralatan('${startDate}', '${endDate}')" style="background:#107c41; border:none; color:white; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:600; display:flex; align-items:center; gap:5px;">
+      <i class="fa-solid fa-file-excel" style="font-size:13px;"></i> Export ke Excel
+    </button>
+  </div>
+  
+  <div style="overflow-x:auto; max-height:420px; overflow-y:auto; background:rgba(255,255,255,0.03); border-radius:8px; border:1px solid rgba(255,255,255,0.08); padding:8px; margin-bottom:25px;">
+    <table id="tabelLaporanPeralatan" style="width:100%; border-collapse:collapse; font-size:10px; text-align:left; color:#e2e8f0;">
+      <thead style="position: sticky; top: 0; background: #1e293b; z-index: 10;">
+        <tr style="border-bottom:2px solid rgba(255,255,255,0.15); color:#fbbf24;">
+          <th style="padding:8px;">NAMA BARANG</th>
+          <th style="padding:8px; text-align:center;">JENIS PERALATAN</th>
+          <th style="padding:8px; text-align:center;">OPENING STOK</th>
+          <th style="padding:8px; text-align:center;">ADD STOCK</th>
+          <th style="padding:8px; text-align:center;">TOTAL STOCK</th>
+          <th style="padding:8px; text-align:center;">OPNAME BAGUS</th>
+          <th style="padding:8px; text-align:center;">OPNAME RUSAK</th>
+          <th style="padding:8px; text-align:center;">TOTAL INVENTORY</th>
+          <th style="padding:8px; text-align:center;">SELISIH</th>
+          <th style="padding:8px; text-align:center; color:#67e8f9;">CLOSING INVENTORY</th>
+        </tr>
+      </thead>
+      <tbody>
+`;
             <tbody>
       `;
 
